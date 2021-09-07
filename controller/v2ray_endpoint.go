@@ -12,7 +12,7 @@ import (
 
 func V2rayEndpointList(c *gin.Context) {
 	var v2rayEndpointList []model.V2rayEndpoint
-	if err := dataservice.GetBaseService().FindByCondition(&v2rayEndpointList, "id desc", nil); nil != err {
+	if err := dataservice.GetBaseService().FindByCondition(&v2rayEndpointList, "id desc", "deleted = 0"); nil != err {
 		response.Response(c, code.ServerError, "查询数据失败", nil)
 
 		return
@@ -36,12 +36,7 @@ func V2rayEndpointList(c *gin.Context) {
 			"rate":           endpoint.Rate,
 			"remark":         endpoint.Remark,
 			"host":           endpoint.Host,
-			"port":           endpoint.Port,
-			"user_id":        endpoint.UserId,
-			"alert_id":       endpoint.AlertId,
-			"level":          endpoint.Level,
 			"transport_type": endpoint.TransportType,
-			"web_socket":     ws,
 		})
 	}
 

@@ -1,17 +1,15 @@
 package middleware
 
 import (
-	"encoding/json"
 	"errors"
 	"gitee.com/Luna-CY/v2ray-subscription/code"
-	"gitee.com/Luna-CY/v2ray-subscription/database/model"
-	"gitee.com/Luna-CY/v2ray-subscription/dataservice"
+	"gitee.com/Luna-CY/v2ray-subscription/configurator"
 	"gitee.com/Luna-CY/v2ray-subscription/logger"
 	"gitee.com/Luna-CY/v2ray-subscription/response"
+	"gitee.com/Luna-CY/v2ray-subscription/util"
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
-	"net/http"
+	"strings"
 	"time"
 )
 
@@ -32,39 +30,27 @@ func GetJWT() (*jwt.GinJWTMiddleware, error) {
 		IdentityHandler: func(context *gin.Context) interface{} {
 			cl := jwt.ExtractClaims(context)
 
-			key := new(model.Key)
-			if err := json.Unmarshal([]byte(cl[JwtIdentityKey].(string)), key); nil != err {
-				return nil
-			}
-
-			return key
+			return cl[JwtIdentityKey].(string)
 		},
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
-			d, _ := json.Marshal(data)
-
-			return jwt.MapClaims{JwtIdentityKey: string(d)}
+			return jwt.MapClaims{JwtIdentityKey: data.(string)}
 		},
 		Authenticator: func(context *gin.Context) (interface{}, error) {
-			var authForm AuthForm
+			var body AuthForm
 
-			if err := context.ShouldBind(&authForm); nil != err {
+			if err := context.ShouldBind(&body); nil != err {
 				logger.GetLogger().Errorf("绑定数据失败: %v\n", err)
 
 				return nil, errors.New("无效的数据请求")
 			}
 
-			key := new(model.Key)
-			if err := dataservice.GetBaseService().TakeByCondition(key, nil, "key = ?", authForm.Key); nil != err {
-				if gorm.ErrRecordNotFound == err {
-					return nil, errors.New("无效口令")
-				}
-
-				return nil, errors.New("服务器内部错误，请稍后再试")
+			if util.Md5(configurator.GetMainConfig().Key) != strings.TrimSpace(body.Key) {
+				return nil, errors.New("无效口令")
 			}
 
-			context.Set(JwtIdentityKey, key)
+			context.Set(JwtIdentityKey, "success")
 
-			return key, nil
+			return "success", nil
 		},
 		LoginResponse: func(context *gin.Context, httpCode int, token string, t time.Time) {
 			_, ok := context.Get(JwtIdentityKey)
@@ -93,16 +79,7 @@ func GetJWT() (*jwt.GinJWTMiddleware, error) {
 			response.Success(context, code.OK, nil)
 		},
 		RefreshResponse: func(context *gin.Context, hc int, token string, t time.Time) {
-			if http.StatusOK == hc {
-				response.Success(context, code.OK, &gin.H{
-					"token":   token,
-					"expired": t.Unix(),
-				})
-
-				return
-			}
-
-			response.Response(context, code.ServerError, "服务器内部错误", nil)
+			response.Response(context, code.BadRequest, "不管你是谁，请停止你的行为", nil)
 		},
 	})
 }

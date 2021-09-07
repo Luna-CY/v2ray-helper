@@ -1,12 +1,69 @@
-import { createStore } from 'vuex'
+import {ActionContext, createStore} from 'vuex'
+import {USER_TOKEN_KEY} from "@/constant"
+
+export class StoryStateToken {
+
+  public token = ""
+
+  public expired = 0
+}
+
+export class StoryStateLocal {
+}
+
+class StoryState {
+
+  /**
+   * 登录用户凭据
+   */
+  public token: StoryStateToken = new StoryStateToken()
+
+  /**
+   * 本地临时缓存的数据
+   */
+  public local: StoryStateLocal = new StoryStateLocal()
+}
 
 export default createStore({
-  state: {
+  state: new StoryState(),
+  getters: {
+    token(state: StoryState) {
+      return state.token
+    },
+    local(state: StoryState) {
+      return state.local
+    },
   },
   mutations: {
+    token(state: StoryState, payload: StoryStateToken) {
+      state.token = payload
+
+      sessionStorage.setItem(USER_TOKEN_KEY, JSON.stringify(payload))
+    },
   },
   actions: {
+    logout(context: ActionContext<StoryState, StoryState>) {
+      context.state.token = new StoryStateToken()
+
+      sessionStorage.removeItem(USER_TOKEN_KEY)
+    },
+    load(context: ActionContext<StoryState, StoryState>) {
+      const tokenJsonData = sessionStorage.getItem(USER_TOKEN_KEY)
+      if (null != tokenJsonData) {
+        // @ts-ignore
+        const timestamp = Date.parse(new Date()) / 1000
+        const token = JSON.parse(tokenJsonData) as StoryStateToken;
+        if (token.expired < timestamp) {
+          return false
+        }
+
+        context.state.token = token
+
+        return true
+      }
+
+      return true
+    },
   },
-  modules: {
-  }
+  modules: {}
 })

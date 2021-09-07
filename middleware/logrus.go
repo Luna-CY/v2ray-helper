@@ -34,11 +34,11 @@ func LogRus() gin.HandlerFunc {
 		clientIP := c.ClientIP()
 
 		logger.GetLogger().WithFields(logrus.Fields{
-			"code":   statusCode,
-			"time":   latencyTime,
-			"ip":     clientIP,
-			"method": reqMethod,
-			"path":   reqUri,
+			"code":         statusCode,
+			"process_time": latencyTime.Milliseconds(),
+			"ip":           clientIP,
+			"method":       reqMethod,
+			"path":         reqUri,
 		}).Info()
 	}
 }

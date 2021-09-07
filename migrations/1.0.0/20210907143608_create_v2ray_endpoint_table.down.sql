@@ -1,0 +1,1 @@
+drop table if exists v2ray_endpoint;

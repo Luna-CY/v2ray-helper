@@ -25,7 +25,7 @@ func main() {
 	}
 
 	engine := gin.New()
-	engine.Use(middleware.LogRus())
+	engine.Use(middleware.Cors).Use(middleware.LogRus())
 	engine.LoadHTMLFiles("templates/index.html")
 
 	engine.GET("/", func(context *gin.Context) {

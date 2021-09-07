@@ -31,6 +31,7 @@ func Init() error {
 	}
 
 	mc = &mainConfig{
+		Key:      "-",
 		LogLevel: "error",
 		LogPath:  defaultLogPath,
 	}
