@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"gitee.com/Luna-CY/v2ray-subscription/client"
 	"gitee.com/Luna-CY/v2ray-subscription/code"
 	"gitee.com/Luna-CY/v2ray-subscription/database/model"
 	"gitee.com/Luna-CY/v2ray-subscription/dataservice"
+	"gitee.com/Luna-CY/v2ray-subscription/generator"
 	"gitee.com/Luna-CY/v2ray-subscription/logger"
 	"gitee.com/Luna-CY/v2ray-subscription/response"
 	"github.com/gin-gonic/gin"
@@ -42,7 +42,7 @@ func V2rayEndpointDownload(c *gin.Context) {
 	}
 
 	if 1 == body.Type {
-		content, err := client.GenerateV2rayXContent(endpoint)
+		content, err := generator.GenerateV2rayXContent(endpoint)
 		if nil != err {
 			response.Response(c, code.ServerError, err.Error(), nil)
 
