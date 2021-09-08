@@ -1,13 +1,14 @@
 <template>
   <div class="login-box">
     <div class="login-form">
-      <el-form ref="LoginForm" :model="form" :rules="rules" label-width="0" @submit.prevent="">
+      <el-form ref="LoginForm" :model="form" :rules="rules" label-width="0" onsubmit="return false" v-on:submit="login">
         <el-form-item prop="key">
           <el-input v-model="form.key" placeholder="口令" size="medium" autocomplete="off"
                     prefix-icon="el-icon-key"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button :loading="logging" class="login-button" type="primary" @click="login">验证</el-button>
+          <el-button :loading="logging" class="login-button" type="primary" @click="login">验证
+          </el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -41,14 +42,14 @@ export default defineComponent({
 
       form.validate((valid: boolean) => {
         if (!valid) {
-          return
+          return false
         }
 
-        const loginForm = new LoginForm()
-        loginForm.key = md5(this.form.key)
+        const body = new LoginForm()
+        body.key = md5(this.form.key)
 
         this.logging = true
-        axios.post(API_LOGIN, loginForm).then((response: AxiosResponse<LoginResponse>) => {
+        axios.post(API_LOGIN, body).then((response: AxiosResponse<LoginResponse>) => {
           this.logging = false
 
           if (0 != response.data.code) {
@@ -67,6 +68,8 @@ export default defineComponent({
           window.location.href = redirect ? redirect : '/'
         })
       })
+
+      return false
     }
   },
 })

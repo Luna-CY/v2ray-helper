@@ -25,4 +25,6 @@ export class V2rayEndpointListItem {
   public host = ""
 
   public transport_type = 0
+
+  public show_delete_button = false
 }

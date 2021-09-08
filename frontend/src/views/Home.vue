@@ -2,30 +2,34 @@
   <div class="home el-container">
     <div class="el-main">
       <template v-for="item in data" v-bind:key="item.id">
-        <div class="endpoint-box el-row">
-          <div class="el-col-lg-2 el-col-md-1 el-col-sm-2">{{ getCloud(item.cloud) }}</div>
-          <div class="el-col-lg-2 el-col-md-1 el-col-sm-2">{{ getEndpoint(item.endpoint) }}</div>
+        <div class="endpoint-box el-row" v-on:mouseover="item.show_delete_button = true"
+             v-on:mouseout="item.show_delete_button = false">
+          <div class="el-col-lg-2 el-col-md-2 el-col-sm-2">{{ getCloud(item.cloud) }}</div>
+          <div class="el-col-lg-2 el-col-md-2 el-col-sm-2">{{ getEndpoint(item.endpoint) }}</div>
           <div class="el-col-lg-4 el-col-md-4 el-col-sm-4">{{ item.host }}</div>
           <div class="el-col-lg-2 el-col-md-2 el-col-sm-0">{{ item.rate ? item.rate : '-' }}</div>
-          <div class="el-col-lg-2 el-col-md-2 el-col-sm-0">{{ getMode(item.transport_type) }}</div>
-          <div class="el-col-lg-8 el-col-md-2 el-col-sm-2">{{ item.remark ? item.remark : '-' }}</div>
-          <div class="el-col-lg-4 el-col-md-2 el-col-sm-2">
+          <div class="el-col-lg-2 el-col-md-2 el-col-sm-2">{{ getMode(item.transport_type) }}</div>
+          <div class="el-col-lg-4 el-col-md-4 el-col-sm-0">{{ item.remark ? item.remark : '-' }}</div>
+          <div class="el-col-lg-8 el-col-md-8 el-col-sm-14">
             <el-button type="primary" :loading="downloading" @click="download(item, 1)">V2rayX</el-button>
-            <el-button type="primary" :loading="downloading" class="margin-left" @click="download(item, 2)">V2rayNG
+            <el-button type="primary" :loading="downloading" class="margin-left" @click="download(item, 2)">V2rayN
             </el-button>
-            <el-button type="danger" class="margin-left" @click="removeItem = item; showRemoveModal = true">删除
+            <el-button type="primary" :loading="downloading" class="margin-left" @click="download(item, 3)">V2rayNG
             </el-button>
+            <el-button type="danger" class="delete-button" icon="el-icon-delete" circle
+                       @click="removeItem = item; showRemoveModal = true" v-show="item.show_delete_button"></el-button>
           </div>
         </div>
       </template>
 
       <div class="endpoint-box el-row" v-if="0 === data.length">
-        <div class="el-col-lg-24 el-col-md-24 el-col-sm-24">暂时没有可用的节点列表</div>
+        <div class="el-col-24">暂时没有可用的节点列表</div>
       </div>
 
       <div class="el-row">
-        <div class="el-col-lg-24 el-col-md-24 el-col-sm-24">
+        <div class="el-col-24">
           <el-button type="success" size="medium" @click="showNewModal = true">添加节点</el-button>
+          <el-button type="primary" size="medium" @click="showDownloadModal = true">下载客户端</el-button>
         </div>
       </div>
     </div>
@@ -34,6 +38,10 @@
   <Remove v-model:show="showRemoveModal" v-bind:loading="removing" v-on:confirm="remove"></Remove>
 
   <NewV2rayEndpoint v-model:show="showNewModal" v-on:success="load"></NewV2rayEndpoint>
+
+  <Download v-model:show="showDownloadModal"></Download>
+
+  <QRCode v-model:show="showQRCodeModal" v-bind:content="v2rayNgVMessString"></QRCode>
 </template>
 
 <script lang="ts">
@@ -49,12 +57,14 @@ import {API_V2RAY_ENDPOINT_REMOVE, V2rayEndpointRemoveForm} from "@/api/v2ray_en
 import {BaseResponse} from "@/api/base"
 import Remove from "@/components/Remove.vue"
 import NewV2rayEndpoint from "@/components/NewV2rayEndpoint.vue"
+import Download from "@/components/Download.vue";
+import QRCode from "@/components/QRCode.vue";
 
 const md5 = require('md5')
 
 export default defineComponent({
   name: 'Home',
-  components: {NewV2rayEndpoint, Remove},
+  components: {QRCode, Download, NewV2rayEndpoint, Remove},
   data() {
     return {
       loading: true,
@@ -64,6 +74,9 @@ export default defineComponent({
       removeItem: new V2rayEndpointListItem(),
       removing: false,
       showNewModal: false,
+      showDownloadModal: false,
+      showQRCodeModal: false,
+      v2rayNgVMessString: "",
     }
   },
 
@@ -119,18 +132,28 @@ export default defineComponent({
           return
         }
 
-        console.log(response.data.data.content)
+        if (1 == type) {
+          let element = document.createElement('a')
+          element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(response.data.data.content))
+          element.setAttribute('download', this.getCloud(item.cloud) + "_" + this.getEndpoint(item.endpoint) + "_" + item.host + ".json")
 
-        let element = document.createElement('a')
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(response.data.data.content))
-        element.setAttribute('download', this.getCloud(item.cloud) + "_" + this.getEndpoint(item.endpoint) + "_" + item.host + ".json")
+          element.style.display = 'none'
+          document.body.appendChild(element)
 
-        element.style.display = 'none'
-        document.body.appendChild(element)
+          element.click()
 
-        element.click()
+          document.body.removeChild(element)
 
-        document.body.removeChild(element)
+          this.$message.success("已下载配置文件，请从客户端选择从文件导入")
+        }
+
+        if (2 == type) {
+        }
+
+        if (3 == type) {
+          this.v2rayNgVMessString = response.data.data.content
+          this.showQRCodeModal = true
+        }
       })
     },
     remove(password: string) {
@@ -179,5 +202,11 @@ body {
   background-color: #fff;
   margin: 30px;
   padding: 25px;
+
+  .delete-button {
+    position: absolute;
+    top: -15px;
+    right: -15px;
+  }
 }
 </style>

@@ -1,7 +1,8 @@
 <template>
   <el-dialog width="60%" :model-value="show" @close="close" destroy-on-close>
     <div>
-      <el-form :model="form" label-width="0" ref="RemoveEndpointForm" @submit.prevent="" :rules="rules">
+      <el-form :model="form" label-width="0" ref="RemoveEndpointForm" onsubmit="return false" v-on:submit="confirm"
+               :rules="rules">
         <el-form-item prop="password">
           <el-input v-model="form.password" placeholder="请输入密码" autocomplete="off"></el-input>
         </el-form-item>
@@ -40,6 +41,7 @@ export default defineComponent({
   methods: {
     close() {
       this.$emit('update:show', false)
+      this.form.password = ""
     },
 
     confirm() {
