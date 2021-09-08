@@ -1,5 +1,10 @@
 package model
 
+const (
+	V2rayEndpointTransportTypeTcp = iota + 1
+	V2rayEndpointTransportTypeWebSocket
+)
+
 type V2rayEndpoint struct {
 	Base
 

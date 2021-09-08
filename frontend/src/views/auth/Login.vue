@@ -57,7 +57,7 @@ export default defineComponent({
             return
           }
 
-          const token = new StoryStateToken();
+          const token = new StoryStateToken()
           token.token = response.data.data.token
           token.expired = response.data.data.expired
 

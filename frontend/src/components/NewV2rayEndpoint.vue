@@ -106,6 +106,10 @@ export default defineComponent({
           return
         }
 
+        this.form.port = parseInt(this.form.port.toString())
+        this.form.level = parseInt(this.form.level.toString())
+        this.form.alter_id = parseInt(this.form.alter_id.toString())
+
         this.saving = true
         axios.post(API_V2RAY_ENDPOINT_NEW, this.form).then((response: AxiosResponse<BaseResponse>) => {
           this.saving = false

@@ -33,6 +33,7 @@ type V2rayEndpointNewForm struct {
 func V2rayEndpointNew(c *gin.Context) {
 	var body V2rayEndpointNewForm
 	if err := c.ShouldBind(&body); nil != err {
+		logger.GetLogger().Errorln(err)
 		response.Response(c, code.BadRequest, "错误请求", nil)
 
 		return

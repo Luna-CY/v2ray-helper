@@ -25,12 +25,12 @@ func main() {
 	}
 
 	engine := gin.New()
-	engine.Use(middleware.Cors).Use(middleware.LogRus())
-	engine.LoadHTMLFiles("templates/index.html")
+	engine.Use(middleware.LogRus())
 
-	engine.GET("/", func(context *gin.Context) {
-		context.HTML(200, "index.html", gin.H{})
-	})
+	// 只有非Release模式才允许同源跨域
+	if gin.ReleaseMode != gin.Mode() {
+		engine.Use(middleware.Cors)
+	}
 
 	if err := router.RegisterApiRouter(engine.Group("/api")); nil != err {
 		log.Fatalln(fmt.Sprintf("注册路由失败: %v", err))

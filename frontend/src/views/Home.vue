@@ -48,7 +48,7 @@ import {
 import {API_V2RAY_ENDPOINT_REMOVE, V2rayEndpointRemoveForm} from "@/api/v2ray_endpoint_remove"
 import {BaseResponse} from "@/api/base"
 import Remove from "@/components/Remove.vue"
-import NewV2rayEndpoint from "@/components/NewV2rayEndpoint.vue";
+import NewV2rayEndpoint from "@/components/NewV2rayEndpoint.vue"
 
 const md5 = require('md5')
 
@@ -121,16 +121,16 @@ export default defineComponent({
 
         console.log(response.data.data.content)
 
-        let element = document.createElement('a');
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(response.data.data.content));
-        element.setAttribute('download', "test-v2rayX-config.json");
+        let element = document.createElement('a')
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(response.data.data.content))
+        element.setAttribute('download', this.getCloud(item.cloud) + "_" + this.getEndpoint(item.endpoint) + "_" + item.host + ".json")
 
-        element.style.display = 'none';
-        document.body.appendChild(element);
+        element.style.display = 'none'
+        document.body.appendChild(element)
 
-        element.click();
+        element.click()
 
-        document.body.removeChild(element);
+        document.body.removeChild(element)
       })
     },
     remove(password: string) {

@@ -38,16 +38,16 @@ func GenerateV2rayXContent(endpoint model.V2rayEndpoint) (string, error) {
 	outbound.StreamSettings.Network = "tcp"
 	outbound.StreamSettings.Security = "none"
 
-	outbound.StreamSettings.TcpSettings.Header.Type = "none"
+	outbound.StreamSettings.TcpSettings.Header = map[string]string{"type": "none"}
 
 	outbound.StreamSettings.QuicSettings.Security = "none"
-	outbound.StreamSettings.QuicSettings.Header.Type = "none"
+	outbound.StreamSettings.QuicSettings.Header = map[string]string{"type": "none"}
 
 	outbound.StreamSettings.TlsSettings.AllowInsecure = false
 	outbound.StreamSettings.TlsSettings.AllowInsecureCiphers = false
 	outbound.StreamSettings.TlsSettings.Alpn = []string{"http/1.1"}
 
-	outbound.StreamSettings.KcpSettings.Header.Type = "none"
+	outbound.StreamSettings.KcpSettings.Header = map[string]string{"type": "none"}
 	outbound.StreamSettings.KcpSettings.Mtu = 1350
 	outbound.StreamSettings.KcpSettings.Tti = 20
 	outbound.StreamSettings.KcpSettings.UplinkCapacity = 5
@@ -55,7 +55,9 @@ func GenerateV2rayXContent(endpoint model.V2rayEndpoint) (string, error) {
 	outbound.StreamSettings.KcpSettings.ReadBufferSize = 1
 	outbound.StreamSettings.KcpSettings.DownlinkCapacity = 20
 
-	if 1 == *endpoint.TransportType {
+	outbound.StreamSettings.WebSocket.Headers = make(map[string]string)
+
+	if model.V2rayEndpointTransportTypeWebSocket == *endpoint.TransportType {
 		outbound.StreamSettings.Network = "ws"
 		outbound.StreamSettings.Security = "tls"
 
@@ -95,15 +97,13 @@ type V2rayXOutbound struct {
 		Network   string `json:"network"`
 		Security  string `json:"security"`
 		WebSocket struct {
-			Path    string   `json:"path"`
-			Headers struct{} `json:"headers"`
+			Path    string            `json:"path"`
+			Headers map[string]string `json:"headers"`
 		} `json:"wsSettings"`
 		QuicSettings struct {
-			Key      string `json:"key"`
-			Security string `json:"security"`
-			Header   struct {
-				Type string `json:"type"`
-			} `json:"header"`
+			Key      string            `json:"key"`
+			Security string            `json:"security"`
+			Header   map[string]string `json:"header"`
 		} `json:"quicSettings"`
 		TlsSettings struct {
 			AllowInsecure        bool     `json:"allowInsecure"`
@@ -115,21 +115,17 @@ type V2rayXOutbound struct {
 			Path string `json:"path"`
 		} `json:"httpSettings"`
 		KcpSettings struct {
-			Header struct {
-				Type string `json:"type"`
-			} `json:"header"`
-			Mtu              int  `json:"mtu"`
-			Congestion       bool `json:"congestion"`
-			Tti              int  `json:"tti"`
-			UplinkCapacity   int  `json:"uplinkCapacity"`
-			WriteBufferSize  int  `json:"writeBufferSize"`
-			ReadBufferSize   int  `json:"readBufferSize"`
-			DownlinkCapacity int  `json:"downlinkCapacity"`
+			Header           map[string]string `json:"header"`
+			Mtu              int               `json:"mtu"`
+			Congestion       bool              `json:"congestion"`
+			Tti              int               `json:"tti"`
+			UplinkCapacity   int               `json:"uplinkCapacity"`
+			WriteBufferSize  int               `json:"writeBufferSize"`
+			ReadBufferSize   int               `json:"readBufferSize"`
+			DownlinkCapacity int               `json:"downlinkCapacity"`
 		} `json:"kcpSettings"`
 		TcpSettings struct {
-			Header struct {
-				Type string `json:"type"`
-			} `json:"header"`
+			Header map[string]string `json:"header"`
 		} `json:"tcpSettings"`
 	} `json:"streamSettings"`
 }
@@ -142,7 +138,7 @@ type V2rayXOutboundVNext struct {
 
 type V2rayXOutboundVNextUser struct {
 	Id       string `json:"id"`
-	AlterId  int    `json:"alter_id"`
+	AlterId  int    `json:"alterId"`
 	Security string `json:"security"`
 	Level    int    `json:"level"`
 }
