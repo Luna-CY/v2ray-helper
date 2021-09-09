@@ -1,20 +1,21 @@
 <template>
-  <div class="home el-container">
-    <div class="el-main">
+  <div class="content-center el-container">
+    <div class="el-main el-main-md-and-up hidden-sm-and-down">
       <template v-for="item in data" v-bind:key="item.id">
-        <div class="endpoint-box el-row" v-on:mouseover="item.show_delete_button = true"
+        <div class="endpoint-box el-row margin-bottom-2x" v-on:mouseover="item.show_delete_button = true"
              v-on:mouseout="item.show_delete_button = false">
-          <div class="el-col-lg-2 el-col-md-2 el-col-sm-2">{{ getCloud(item.cloud) }}</div>
-          <div class="el-col-lg-2 el-col-md-2 el-col-sm-2">{{ getEndpoint(item.endpoint) }}</div>
-          <div class="el-col-lg-4 el-col-md-4 el-col-sm-4">{{ item.host }}</div>
-          <div class="el-col-lg-2 el-col-md-2 el-col-sm-0">{{ item.rate ? item.rate : '-' }}</div>
-          <div class="el-col-lg-2 el-col-md-2 el-col-sm-2">{{ getMode(item.transport_type) }}</div>
-          <div class="el-col-lg-4 el-col-md-4 el-col-sm-0">{{ item.remark ? item.remark : '-' }}</div>
-          <div class="el-col-lg-8 el-col-md-8 el-col-sm-14">
-            <el-button type="primary" :loading="downloading" @click="download(item, 1)">V2rayX</el-button>
-            <el-button type="primary" :loading="downloading" class="margin-left" @click="download(item, 2)">V2rayN
+          <div class="el-col-2">{{ getCloud(item.cloud) }}</div>
+          <div class="el-col-2">{{ getEndpoint(item.endpoint) }}</div>
+          <div class="el-col-4">{{ item.host }}</div>
+          <div class="el-col-2">{{ item.rate ? item.rate : '-' }}</div>
+          <div class="el-col-2">{{ getMode(item.transport_type) }}</div>
+          <div class="el-col-xl-8 el-col-lg-6 el-col-md-6">{{ item.remark ? item.remark : '-' }}</div>
+          <div class="el-col-xl-4 el-col-lg-6 el-col-md-6">
+            <el-button type="primary" :loading="v2rayXDownloading" @click="download(item, 1)">V2rayX</el-button>
+            <el-button type="primary" :loading="v2rayNDownloading" class="margin-left" @click="download(item, 2)">V2rayN
             </el-button>
-            <el-button type="primary" :loading="downloading" class="margin-left" @click="download(item, 3)">V2rayNG
+            <el-button type="primary" :loading="v2rayNGDownloading" class="margin-left" @click="download(item, 3)">
+              V2rayNG
             </el-button>
             <el-button type="danger" class="delete-button" icon="el-icon-delete" circle
                        @click="removeItem = item; showRemoveModal = true" v-show="item.show_delete_button"></el-button>
@@ -22,7 +23,43 @@
         </div>
       </template>
 
-      <div class="endpoint-box el-row" v-if="0 === data.length">
+      <div class="endpoint-box el-row margin-bottom-2x" v-if="0 === data.length">
+        <div class="el-col-24">暂时没有可用的节点列表</div>
+      </div>
+
+      <div class="el-row">
+        <div class="el-col-24">
+          <el-button type="success" size="medium" @click="showNewModal = true">添加节点</el-button>
+          <el-button type="primary" size="medium" @click="showDownloadModal = true">下载客户端</el-button>
+        </div>
+      </div>
+    </div>
+
+    <div class="el-main el-main-sm-and-down hidden-md-and-up">
+      <template v-for="item in data" v-bind:key="item.id">
+        <div class="endpoint-box el-row margin-bottom" v-show="!item.show_generate_menu">
+          <div class="el-col-12">{{ item.host }}</div>
+          <div class="el-col-9">{{ getMode(item.transport_type) }}</div>
+          <div class="el-col-3">
+            <el-button type="primary" icon="el-icon-menu" circle @click="item.show_generate_menu = true"></el-button>
+          </div>
+        </div>
+        <div class="endpoint-box el-row margin-bottom" v-show="item.show_generate_menu">
+          <div class="el-col-21">
+            <el-button type="primary" :loading="v2rayXDownloading" @click="download(item, 1)">V2rayX</el-button>
+            <el-button type="primary" :loading="v2rayNDownloading" class="margin-left" @click="download(item, 2)">V2rayN
+            </el-button>
+            <el-button type="primary" :loading="v2rayNGDownloading" class="margin-left" @click="download(item, 3)">
+              V2rayNG
+            </el-button>
+          </div>
+          <div class="el-col-3">
+            <el-button type="primary" icon="el-icon-menu" circle @click="item.show_generate_menu = false"></el-button>
+          </div>
+        </div>
+      </template>
+
+      <div class="endpoint-box el-row margin-bottom" v-if="0 === data.length">
         <div class="el-col-24">暂时没有可用的节点列表</div>
       </div>
 
@@ -57,8 +94,8 @@ import {API_V2RAY_ENDPOINT_REMOVE, V2rayEndpointRemoveForm} from "@/api/v2ray_en
 import {BaseResponse} from "@/api/base"
 import Remove from "@/components/Remove.vue"
 import NewV2rayEndpoint from "@/components/NewV2rayEndpoint.vue"
-import Download from "@/components/Download.vue";
-import QRCode from "@/components/QRCode.vue";
+import Download from "@/components/Download.vue"
+import QRCode from "@/components/QRCode.vue"
 
 const md5 = require('md5')
 
@@ -70,6 +107,9 @@ export default defineComponent({
       loading: true,
       data: new Array<V2rayEndpointListItem>(),
       downloading: false,
+      v2rayXDownloading: false,
+      v2rayNDownloading: false,
+      v2rayNGDownloading: false,
       showRemoveModal: false,
       removeItem: new V2rayEndpointListItem(),
       removing: false,
@@ -117,14 +157,34 @@ export default defineComponent({
       return map[transportType]
     },
     download(item: V2rayEndpointListItem, type: number) {
-      this.downloading = true
+      switch (type) {
+        case 1:
+          this.v2rayXDownloading = true
+          break
+        case 2:
+          this.v2rayNDownloading = true
+          break
+        case 3:
+          this.v2rayNGDownloading = true
+          break
+      }
 
       let form = new V2rayEndpointDownloadForm()
       form.id = item.id
       form.type = type
 
       axios.post(API_V2RAY_ENDPOINT_DOWNLOAD, form).then((response: AxiosResponse<V2rayEndpointDownloadResponse>) => {
-        this.downloading = false
+        switch (type) {
+          case 1:
+            this.v2rayXDownloading = false
+            break
+          case 2:
+            this.v2rayNDownloading = false
+            break
+          case 3:
+            this.v2rayNGDownloading = false
+            break
+        }
 
         if (0 != response.data.code) {
           this.$message.error(response.data.message)
@@ -192,21 +252,27 @@ body {
   align-items: center;
 }
 
-.home {
-  width: 80%;
-  margin: auto;
-  text-align: center;
+.el-main.el-main-md-and-up {
+  --el-main-padding: 30px;
+
+  .endpoint-box {
+    background-color: #fff;
+    padding: 25px;
+
+    .delete-button {
+      position: absolute;
+      top: -15px;
+      right: -15px;
+    }
+  }
 }
 
-.endpoint-box {
-  background-color: #fff;
-  margin: 30px;
-  padding: 25px;
+.el-main.el-main-sm-and-down {
+  --el-main-padding: 15px;
 
-  .delete-button {
-    position: absolute;
-    top: -15px;
-    right: -15px;
+  .endpoint-box {
+    background-color: #fff;
+    padding: 15px;
   }
 }
 </style>

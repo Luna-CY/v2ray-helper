@@ -27,4 +27,6 @@ export class V2rayEndpointListItem {
   public transport_type = 0
 
   public show_delete_button = false
+
+  public show_generate_menu = false
 }

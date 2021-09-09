@@ -4,11 +4,11 @@
       <el-form ref="LoginForm" :model="form" :rules="rules" label-width="0" onsubmit="return false" v-on:submit="login">
         <el-form-item prop="key">
           <el-input v-model="form.key" placeholder="口令" size="medium" autocomplete="off"
-                    prefix-icon="el-icon-key"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button :loading="logging" class="login-button" type="primary" @click="login">验证
-          </el-button>
+                    prefix-icon="el-icon-key">
+            <template #append>
+              <el-button :loading="logging" type="primary" @click="login" icon="el-icon-check"></el-button>
+            </template>
+          </el-input>
         </el-form-item>
       </el-form>
     </div>
@@ -91,16 +91,11 @@ body {
 
   .login-form {
     min-width: 20%;
-    max-width: 30%;
 
     .login-form-title {
       font-size: 2em;
       margin-bottom: 45px;
       text-align: center;
-    }
-
-    .login-button {
-      width: 100%;
     }
 
     .el-form-item {

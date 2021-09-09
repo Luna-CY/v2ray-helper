@@ -1,9 +1,16 @@
 <template>
   <el-dialog width="60%" :model-value="show" @close="close" destroy-on-close>
-    <div class="qr-code-box">
+    <div class="content-center hidden-sm-and-down">
       <div class="content-center">扫描二维码或复制下方字符串到剪贴板并通过剪贴板导入</div>
       <div class="qr-code margin-top">
         <qrcode-vue :value="content" :size="350" level="H"/>
+      </div>
+      <div class="margin-top">{{ content }}</div>
+    </div>
+    <div class="content-center hidden-md-and-up">
+      <div class="content-center">扫描二维码或复制下方字符串到剪贴板并通过剪贴板导入</div>
+      <div class="qr-code margin-top">
+        <qrcode-vue :value="content" :size="180" level="H"/>
       </div>
       <div class="margin-top">{{ content }}</div>
     </div>
@@ -35,7 +42,5 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-.qr-code {
-  text-align: center;
-}
+
 </style>

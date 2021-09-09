@@ -9,6 +9,7 @@ import ElementPlus, {ElMessage} from 'element-plus'
 
 import 'reset-css'
 import 'element-plus/dist/index.css'
+import 'element-theme-chalk/lib/display.css'
 import '@/assets/scss/global.scss'
 
 declare global {
