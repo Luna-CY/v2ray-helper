@@ -13,13 +13,35 @@ import (
 	"path"
 )
 
-func main() {
-	var version string
+type CommandArg struct {
+	Up   bool
+	Down bool
 
-	flag.StringVar(&version, "version", "", "迁移的版本号")
+	Version string
+}
+
+func main() {
+	ca := CommandArg{}
+
+	flag.BoolVar(&ca.Up, "up", false, "应用迁移")
+	flag.BoolVar(&ca.Down, "down", false, "撤销迁移")
+
+	flag.StringVar(&ca.Version, "version", "", "迁移的版本号")
 	flag.Parse()
 
-	if "" == version {
+	if !ca.Up && !ca.Down {
+		fmt.Println("-up与-down至少指定一个动作")
+
+		return
+	}
+
+	if ca.Up && ca.Down {
+		fmt.Println("不能同时指定-up与-down参数")
+
+		return
+	}
+
+	if "" == ca.Version {
 		return
 	}
 
@@ -27,7 +49,7 @@ func main() {
 		log.Fatalln(fmt.Sprintf("初始化配置器失败: %v", err))
 	}
 
-	if _, err := os.Stat(path.Join("migrations", version)); nil != err {
+	if _, err := os.Stat(path.Join("migrations", ca.Version)); nil != err {
 		fmt.Printf("无法获取该版本迁移数据: %v\n", err)
 
 		return
@@ -49,7 +71,7 @@ func main() {
 	}
 	defer driver.Close()
 
-	m, err := migrate.NewWithDatabaseInstance(fmt.Sprintf("file://./migrations/%v", version), "sqlite3", driver)
+	m, err := migrate.NewWithDatabaseInstance(fmt.Sprintf("file://./migrations/%v", ca.Version), "sqlite3", driver)
 	if nil != err {
 		fmt.Printf("创建Migrate失败: %v\n", err)
 
@@ -57,11 +79,21 @@ func main() {
 	}
 	defer m.Close()
 
-	if err := m.Up(); nil != err {
-		if migrate.ErrNoChange != err {
-			fmt.Printf("执行数据库迁移失败: %v\n", err)
+	if ca.Up {
+		if err := m.Up(); nil != err {
+			if migrate.ErrNoChange != err {
+				fmt.Printf("执行数据库迁移失败: %v\n", err)
 
-			return
+				return
+			}
+		}
+	} else {
+		if err := m.Down(); nil != err {
+			if migrate.ErrNoChange != err {
+				fmt.Printf("执行数据库迁移失败: %v\n", err)
+
+				return
+			}
 		}
 	}
 }

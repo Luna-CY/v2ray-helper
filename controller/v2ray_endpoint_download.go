@@ -41,39 +41,12 @@ func V2rayEndpointDownload(c *gin.Context) {
 		return
 	}
 
-	if generator.V2rayX == body.Type {
-		content, err := generator.GenerateV2rayXContent(endpoint)
-		if nil != err {
-			response.Response(c, code.ServerError, err.Error(), nil)
-
-			return
-		}
-
-		response.Success(c, code.OK, &gin.H{"content": content})
+	content, err := generator.GenerateVMessShareLink(endpoint)
+	if nil != err {
+		response.Response(c, code.ServerError, err.Error(), nil)
 
 		return
 	}
 
-	if generator.V2rayN == body.Type {
-		response.Response(c, code.BadRequest, "暂未实现该客户端的配置生成", nil)
-
-		return
-	}
-
-	if generator.V2rayNG == body.Type {
-		content, err := generator.GenerateV2rayNGContent(endpoint)
-		if nil != err {
-			response.Response(c, code.ServerError, err.Error(), nil)
-
-			return
-		}
-
-		response.Success(c, code.OK, &gin.H{"content": content})
-
-		return
-	}
-
-	response.Response(c, code.BadRequest, "不管你是谁，请停止你的行为", nil)
-
-	return
+	response.Success(c, code.OK, &gin.H{"content": content})
 }

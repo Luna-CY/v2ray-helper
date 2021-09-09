@@ -9,14 +9,9 @@
           <div class="el-col-4">{{ item.host }}</div>
           <div class="el-col-2">{{ item.rate ? item.rate : '-' }}</div>
           <div class="el-col-2">{{ getMode(item.transport_type) }}</div>
-          <div class="el-col-xl-8 el-col-lg-6 el-col-md-6">{{ item.remark ? item.remark : '-' }}</div>
-          <div class="el-col-xl-4 el-col-lg-6 el-col-md-6">
-            <el-button type="primary" :loading="v2rayXDownloading" @click="download(item, 1)">V2rayX</el-button>
-            <el-button type="primary" :loading="v2rayNDownloading" class="margin-left" @click="download(item, 2)">V2rayN
-            </el-button>
-            <el-button type="primary" :loading="v2rayNGDownloading" class="margin-left" @click="download(item, 3)">
-              V2rayNG
-            </el-button>
+          <div class="el-col-xl-11 el-col-lg-10 el-col-md-10">{{ item.remark ? item.remark : '-' }}</div>
+          <div class="el-col-xl-1 el-col-lg-2 el-col-md-2">
+            <el-button type="primary" :loading="item.downloading" @click="download(item)">生成配置</el-button>
             <el-button type="danger" class="delete-button" icon="el-icon-delete" circle
                        @click="removeItem = item; showRemoveModal = true" v-show="item.show_delete_button"></el-button>
           </div>
@@ -46,12 +41,8 @@
         </div>
         <div class="endpoint-box el-row margin-bottom" v-show="item.show_generate_menu">
           <div class="el-col-21">
-            <el-button type="primary" :loading="v2rayXDownloading" @click="download(item, 1)">V2rayX</el-button>
-            <el-button type="primary" :loading="v2rayNDownloading" class="margin-left" @click="download(item, 2)">V2rayN
-            </el-button>
-            <el-button type="primary" :loading="v2rayNGDownloading" class="margin-left" @click="download(item, 3)">
-              V2rayNG
-            </el-button>
+            <el-button type="primary" :loading="item.downloading" @click="download(item)">生成配置</el-button>
+            <el-button type="danger" @click="removeItem = item; showRemoveModal = true">删除</el-button>
           </div>
           <div class="el-col-3">
             <el-button type="primary" icon="el-icon-menu" circle @click="item.show_generate_menu = false"></el-button>
@@ -106,10 +97,6 @@ export default defineComponent({
     return {
       loading: true,
       data: new Array<V2rayEndpointListItem>(),
-      downloading: false,
-      v2rayXDownloading: false,
-      v2rayNDownloading: false,
-      v2rayNGDownloading: false,
       showRemoveModal: false,
       removeItem: new V2rayEndpointListItem(),
       removing: false,
@@ -152,39 +139,18 @@ export default defineComponent({
       return map[endpoint]
     },
     getMode(transportType: number) {
-      let map = {1: "TCP", 2: "WebSocket"} as any
+      let map = {1: "TCP", 2: "WebSocket", 3: "KCP", 4: "HTTP2"} as any
 
       return map[transportType]
     },
-    download(item: V2rayEndpointListItem, type: number) {
-      switch (type) {
-        case 1:
-          this.v2rayXDownloading = true
-          break
-        case 2:
-          this.v2rayNDownloading = true
-          break
-        case 3:
-          this.v2rayNGDownloading = true
-          break
-      }
+    download(item: V2rayEndpointListItem) {
+      item.downloading = true
 
       let form = new V2rayEndpointDownloadForm()
       form.id = item.id
-      form.type = type
 
       axios.post(API_V2RAY_ENDPOINT_DOWNLOAD, form).then((response: AxiosResponse<V2rayEndpointDownloadResponse>) => {
-        switch (type) {
-          case 1:
-            this.v2rayXDownloading = false
-            break
-          case 2:
-            this.v2rayNDownloading = false
-            break
-          case 3:
-            this.v2rayNGDownloading = false
-            break
-        }
+        item.downloading = false
 
         if (0 != response.data.code) {
           this.$message.error(response.data.message)
@@ -192,28 +158,8 @@ export default defineComponent({
           return
         }
 
-        if (1 == type) {
-          let element = document.createElement('a')
-          element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(response.data.data.content))
-          element.setAttribute('download', this.getCloud(item.cloud) + "_" + this.getEndpoint(item.endpoint) + "_" + item.host + ".json")
-
-          element.style.display = 'none'
-          document.body.appendChild(element)
-
-          element.click()
-
-          document.body.removeChild(element)
-
-          this.$message.success("已下载配置文件，请从客户端选择从文件导入")
-        }
-
-        if (2 == type) {
-        }
-
-        if (3 == type) {
-          this.v2rayNgVMessString = response.data.data.content
-          this.showQRCodeModal = true
-        }
+        this.v2rayNgVMessString = response.data.data.content
+        this.showQRCodeModal = true
       })
     },
     remove(password: string) {

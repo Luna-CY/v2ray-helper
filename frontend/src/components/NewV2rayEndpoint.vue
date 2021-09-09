@@ -1,7 +1,7 @@
 <template>
   <el-dialog width="60%" :model-value="show" @close="close" :close-on-click-modal="false"
              :close-on-press-escape="false" destroy-on-close>
-    <el-form :model="form" label-width="160px" ref="NewV2rayEndpointForm" :rules="rules">
+    <el-form :model="form" label-width="120px" ref="NewV2rayEndpointForm" :rules="rules">
       <el-form-item label="服务商" prop="cloud">
         <el-select v-model="form.cloud">
           <el-option :value="0" label="请选择服务商"></el-option>
@@ -36,17 +36,44 @@
       <el-form-item label="AlterId" prop="alter_id">
         <el-input v-model="form.alter_id" placeholder="e.g.: 64"></el-input>
       </el-form-item>
-      <el-form-item label="Level" prop="level">
-        <el-input v-model="form.level" placeholder="e.g.: 0"></el-input>
+      <el-form-item label="SNI">
+        <el-input v-model="form.sni" placeholder=""></el-input>
+      </el-form-item>
+      <el-form-item label="使用TLS">
+        <el-switch v-model="form.use_tls"></el-switch>
       </el-form-item>
       <el-form-item label="传输方式" prop="transport_type">
         <el-select v-model="form.transport_type">
           <el-option :value="1" label="TCP"></el-option>
           <el-option :value="2" label="WebSocket"></el-option>
+          <el-option :value="3" label="KCP"></el-option>
+          <el-option :value="4" label="HTTP2"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="WebSocket: 路径" prop="path" v-if="2 === parseInt(form.transport_type.toString())">
-        <el-input v-model="form.web_socket.path" placeholder="URI路径，可以为空"></el-input>
+      <el-form-item label="伪装类型" v-if="1 === parseInt(form.transport_type.toString())">
+        <el-select v-model="form.tcp.type">
+          <el-option value="none" label="none"></el-option>
+          <el-option value="http" label="http"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="伪装类型" v-if="3 === parseInt(form.transport_type.toString())">
+        <el-select v-model="form.kcp.type">
+          <el-option value="none" label="none"></el-option>
+          <el-option value="srtp" label="srtp"></el-option>
+          <el-option value="utp" label="utp"></el-option>
+          <el-option value="wechat-video" label="wechat-video"></el-option>
+          <el-option value="dtls" label="dtls"></el-option>
+          <el-option value="wireguard" label="wireguard"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="路径" v-if="2 === parseInt(form.transport_type.toString())">
+        <el-input v-model="form.web_socket.path" placeholder="URI路径"></el-input>
+      </el-form-item>
+      <el-form-item label="域名" v-if="4 === parseInt(form.transport_type.toString())">
+        <el-input v-model="form.http2.host" placeholder="HTTP2的域名，多个使用英文,分隔"></el-input>
+      </el-form-item>
+      <el-form-item label="路径" v-if="4 === parseInt(form.transport_type.toString())">
+        <el-input v-model="form.http2.path" placeholder="URI路径"></el-input>
       </el-form-item>
       <el-form-item label-width="0" class="content-center">
         <el-button type="danger" @click="close">取消</el-button>
@@ -107,7 +134,6 @@ export default defineComponent({
         }
 
         this.form.port = parseInt(this.form.port.toString())
-        this.form.level = parseInt(this.form.level.toString())
         this.form.alter_id = parseInt(this.form.alter_id.toString())
 
         this.saving = true
