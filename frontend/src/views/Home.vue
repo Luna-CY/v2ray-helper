@@ -9,8 +9,8 @@
           <div class="el-col-4">{{ item.host }}</div>
           <div class="el-col-2">{{ item.rate ? item.rate : '-' }}</div>
           <div class="el-col-2">{{ getMode(item.transport_type) }}</div>
-          <div class="el-col-xl-11 el-col-lg-10 el-col-md-10">{{ item.remark ? item.remark : '-' }}</div>
-          <div class="el-col-xl-1 el-col-lg-2 el-col-md-2">
+          <div class="el-col-xl-10 el-col-lg-10 el-col-md-10">{{ item.remark ? item.remark : '-' }}</div>
+          <div class="el-col-xl-2 el-col-lg-2 el-col-md-2">
             <el-button type="primary" :loading="item.downloading" @click="download(item)">生成配置</el-button>
             <el-button type="danger" class="delete-button" icon="el-icon-delete" circle
                        @click="removeItem = item; showRemoveModal = true" v-show="item.show_delete_button"></el-button>

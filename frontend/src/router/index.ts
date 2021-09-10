@@ -14,6 +14,30 @@ const routes: Array<RouteRecordRaw> = [
     }
   },
   {
+    path: '/helper/v2ray-x',
+    name: 'HelperV2rayX',
+    component: () => import('@/views/help/V2rayX.vue'),
+    meta: {
+      title: "V2rayX配置帮助"
+    }
+  },
+  {
+    path: '/helper/v2ray-n',
+    name: 'HelperV2rayN',
+    component: () => import('@/views/help/V2rayN.vue'),
+    meta: {
+      title: "V2rayN配置帮助"
+    }
+  },
+  {
+    path: '/helper/v2ray-ng',
+    name: 'HelperV2rayNG',
+    component: () => import('@/views/help/V2rayNG.vue'),
+    meta: {
+      title: "V2rayNG配置帮助"
+    }
+  },
+  {
     path: '/auth/login',
     name: 'Login',
     component: () => import('@/views/auth/Login.vue'),
