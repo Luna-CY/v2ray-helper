@@ -14,6 +14,12 @@ V2ray节点管理面板，可以对v2ray的服务器节点进行管理
 
 在服务器创建`/data/v2ray-subscription`目录
 
+### 迁移数据库
+
+启动新服务器或更新之后需要执行migrate
+
+`cd /path/to/your app lication root && ./v2ray-subscription-migrate -up -version x.x.x`
+
 ### 使用说明
 
 `target.gz`文件目录说明
