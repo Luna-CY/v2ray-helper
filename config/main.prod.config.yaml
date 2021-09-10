@@ -1,3 +1,4 @@
 key: '-'
+remove-key: '-'
 log-level: error
 log-path: /var/log/v2ray-subscription.log

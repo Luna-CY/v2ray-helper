@@ -25,3 +25,83 @@ V2ray节点管理面板
 
 服务器本地化配置支持在`config`目录下创建`db.local.config.yaml`与`main.local.config.yaml`配置文件，配置项与`db.prod.config.yaml`
 、`main.prod.config.yaml`文件相同，同名配置可进行覆盖
+
+## 附录
+
+### Nginx配置示例
+
+```
+server {
+  listen 80;
+  listen [::]:80;
+  server_name your.host;
+
+  return 301 https://your.host$request_uri;
+}
+
+server {
+  listen 443 ssl;
+  listen [::]:443 ssl;
+  server_name your.host;
+
+  ssl_certificate /path/to/tls.pem;
+  ssl_certificate_key /path/to/tls.key;
+
+  ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+
+  ssl_ciphers  HIGH:!aNULL:!MD5;
+  ssl_prefer_server_ciphers  on;
+
+  location /api {
+    proxy_redirect off;
+    proxy_pass http://127.0.0.1:8800;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $http_host;
+
+    # Show realip in v2ray access.log
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  }
+
+  location / {
+    root /path/to/your application root/web;
+    try_files $uri $uri/ /index.html;
+  }
+}
+```
+
+### Systemd配置示例
+
+```
+[Unit]
+Description=V2ray Subscription
+After=network.target
+Wants=network.target
+
+[Service]
+WorkingDirectory=/path/to/your application root
+Environment=GIN_MODE=release
+ExecStart=/path/to/your application root/v2ray-subscription-server
+Restart=on-abnormal
+RestartSec=5s
+KillMode=mixed
+
+StandardOutput=null
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### 服务器发布脚本示例
+
+```
+#!/usr/bin/env bash
+
+tar zxf /path/to/target.tgz -C /path/to/your application root
+chown www-data:www-data -R /path/to/your application root
+
+systemctl restart v2ray-subscription
+```

@@ -2,6 +2,7 @@ package controller
 
 import (
 	"gitee.com/Luna-CY/v2ray-subscription/code"
+	"gitee.com/Luna-CY/v2ray-subscription/configurator"
 	"gitee.com/Luna-CY/v2ray-subscription/database/model"
 	"gitee.com/Luna-CY/v2ray-subscription/dataservice"
 	"gitee.com/Luna-CY/v2ray-subscription/logger"
@@ -10,7 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"strings"
-	"time"
 )
 
 type V2rayEndpointRemoveBody struct {
@@ -34,7 +34,7 @@ func V2rayEndpointRemove(c *gin.Context) {
 		return
 	}
 
-	if util.Md5(time.Now().Format("200601021504")) != body.Password {
+	if util.Md5(configurator.GetMainConfig().RemoveKey) != body.Password {
 		response.Response(c, code.BadRequest, "密码错误", nil)
 
 		return

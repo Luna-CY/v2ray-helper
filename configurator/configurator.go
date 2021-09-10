@@ -31,9 +31,10 @@ func Init() error {
 	}
 
 	mc = &mainConfig{
-		Key:      "-",
-		LogLevel: "error",
-		LogPath:  defaultLogPath,
+		Key:       "-",
+		RemoveKey: "-",
+		LogLevel:  "error",
+		LogPath:   defaultLogPath,
 	}
 
 	dc = &dbConfig{

@@ -8,9 +8,10 @@ import (
 const defaultLogPath = "/var/log/v2ray-subscription.log"
 
 type mainConfig struct {
-	Key      string `yaml:"key"`
-	LogLevel string `yaml:"log-level"`
-	LogPath  string `yaml:"log-path"`
+	Key       string `yaml:"key"`
+	RemoveKey string `yaml:"remove-key"`
+	LogLevel  string `yaml:"log-level"`
+	LogPath   string `yaml:"log-path"`
 }
 
 func (m *mainConfig) GetLogPath() string {
