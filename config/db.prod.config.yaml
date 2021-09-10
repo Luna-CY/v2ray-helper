@@ -1,0 +1,2 @@
+database: /data/v2ray-subscription/main.db
+max-pool-num: 10

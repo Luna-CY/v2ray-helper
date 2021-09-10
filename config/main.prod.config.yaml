@@ -1,1 +1,3 @@
-key: 我家小霸王的生日
+key: '-'
+log-level: error
+log-path: /var/log/v2ray-subscription.log
