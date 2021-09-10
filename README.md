@@ -1,17 +1,16 @@
 # v2ray-endpoint
 
-#### 介绍
+## 介绍
 
 V2ray节点管理面板
 
-
-#### 安装教程
+### 安装教程
 
 克隆项目到本地，执行./pack.sh进行打包，将打包后的`target.gz`上传到服务器
 
 在服务器创建`/data/v2ray-subscription`目录
 
-#### 使用说明
+### 使用说明
 
 `target.gz`文件目录说明
 
@@ -24,4 +23,5 @@ V2ray节点管理面板
 -- /web                            Web服务的根目录，内含index.html以及所有的静态资源文件
 ```
 
-服务器本地化配置支持在`config`目录下创建`db.local.config.yaml`与`main.local.config.yaml`配置文件，配置项与`db.prod.config.yaml`、`main.prod.config.yaml`文件相同，同名配置可进行覆盖
+服务器本地化配置支持在`config`目录下创建`db.local.config.yaml`与`main.local.config.yaml`配置文件，配置项与`db.prod.config.yaml`
+、`main.prod.config.yaml`文件相同，同名配置可进行覆盖
