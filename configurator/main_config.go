@@ -8,6 +8,7 @@ import (
 const defaultLogPath = "/var/log/v2ray-subscription.log"
 
 type mainConfig struct {
+	Listen    int    `yaml:"listen"`
 	Key       string `yaml:"key"`
 	RemoveKey string `yaml:"remove-key"`
 	LogLevel  string `yaml:"log-level"`

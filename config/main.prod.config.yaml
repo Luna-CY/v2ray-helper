@@ -1,3 +1,4 @@
+listen: 8800
 key: '-'
 remove-key: '-'
 log-level: error

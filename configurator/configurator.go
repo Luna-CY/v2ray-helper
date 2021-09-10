@@ -31,6 +31,7 @@ func Init() error {
 	}
 
 	mc = &mainConfig{
+		Listen:    8800,
 		Key:       "-",
 		RemoveKey: "-",
 		LogLevel:  "error",

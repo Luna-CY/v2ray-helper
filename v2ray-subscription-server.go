@@ -36,7 +36,7 @@ func main() {
 		log.Fatalln(fmt.Sprintf("注册路由失败: %v", err))
 	}
 
-	if err := engine.Run("127.0.0.1:8800"); nil != err {
+	if err := engine.Run(fmt.Sprintf("127.0.0.1:%v", configurator.GetMainConfig().Listen)); nil != err {
 		log.Fatalf("启动服务器失败: %v\n", err)
 	}
 }
