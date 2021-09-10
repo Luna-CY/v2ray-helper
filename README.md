@@ -8,6 +8,10 @@ V2ray节点管理面板，可以对v2ray的服务器节点进行管理
 
 该工具能够生成通用的vmess协议连接，可以在客户端中直接导入
 
+### 示例站点
+
+[http://vs.example.luna.xin](http://vs.example.luna.xin)，测试站点的key为默认的中短横线"-"，测试站点的数据定期删除
+
 ### 安装教程
 
 克隆项目到本地，执行./pack.sh进行打包，将打包后的`target.gz`上传到服务器
