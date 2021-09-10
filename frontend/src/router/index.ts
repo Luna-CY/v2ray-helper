@@ -10,7 +10,7 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Home',
     component: Home,
     meta: {
-      title: "节点列表"
+      title: "配置列表"
     }
   },
   {

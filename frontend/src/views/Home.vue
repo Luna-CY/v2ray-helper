@@ -19,13 +19,14 @@
       </template>
 
       <div class="endpoint-box el-row margin-bottom-2x" v-if="0 === data.length">
-        <div class="el-col-24">暂时没有可用的节点列表</div>
+        <div class="el-col-24">暂时没有可用的配置列表</div>
       </div>
 
       <div class="el-row">
         <div class="el-col-24">
-          <el-button type="success" size="medium" @click="showNewModal = true">添加节点</el-button>
+          <el-button type="success" size="medium" @click="showNewModal = true">添加配置</el-button>
           <el-button type="primary" size="medium" @click="showDownloadModal = true">下载客户端</el-button>
+          <el-button type="primary" size="medium" @click="showDevelopV2rayModal = true">一键部署服务器</el-button>
         </div>
       </div>
     </div>
@@ -51,12 +52,12 @@
       </template>
 
       <div class="endpoint-box el-row margin-bottom" v-if="0 === data.length">
-        <div class="el-col-24">暂时没有可用的节点列表</div>
+        <div class="el-col-24">暂时没有可用的配置</div>
       </div>
 
       <div class="el-row">
         <div class="el-col-24">
-          <el-button type="success" size="medium" @click="showNewModal = true">添加节点</el-button>
+          <el-button type="success" size="medium" @click="showNewModal = true">添加配置</el-button>
           <el-button type="primary" size="medium" @click="showDownloadModal = true">下载客户端</el-button>
         </div>
       </div>
@@ -70,6 +71,8 @@
   <Download v-model:show="showDownloadModal"></Download>
 
   <QRCode v-model:show="showQRCodeModal" v-bind:content="v2rayNgVMessString"></QRCode>
+
+  <DeployV2rayServer v-model:show="showDevelopV2rayModal" v-on:success="load"></DeployV2rayServer>
 </template>
 
 <script lang="ts">
@@ -87,12 +90,13 @@ import Remove from "@/components/Remove.vue"
 import NewV2rayEndpoint from "@/components/NewV2rayEndpoint.vue"
 import Download from "@/components/Download.vue"
 import QRCode from "@/components/QRCode.vue"
+import DeployV2rayServer from "@/components/DeployV2rayServer.vue"
 
 const md5 = require('md5')
 
 export default defineComponent({
   name: 'Home',
-  components: {QRCode, Download, NewV2rayEndpoint, Remove},
+  components: {DeployV2rayServer, QRCode, Download, NewV2rayEndpoint, Remove},
   data() {
     return {
       loading: true,
@@ -103,6 +107,7 @@ export default defineComponent({
       showNewModal: false,
       showDownloadModal: false,
       showQRCodeModal: false,
+      showDevelopV2rayModal: false,
       v2rayNgVMessString: "",
     }
   },
