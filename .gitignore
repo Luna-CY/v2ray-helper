@@ -1,5 +1,5 @@
 .idea/
 
-v2ray-subscription-server
-v2ray-subscription-migrate
+/bin/v2ray-helper
+/bin/db-migrate
 target.tgz

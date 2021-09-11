@@ -1,8 +1,8 @@
 package router
 
 import (
-	"gitee.com/Luna-CY/v2ray-subscription/controller"
-	"gitee.com/Luna-CY/v2ray-subscription/middleware"
+	"github.com/Luna-CY/v2ray-helper/controller"
+	"github.com/Luna-CY/v2ray-helper/middleware"
 	"github.com/gin-gonic/gin"
 )
 

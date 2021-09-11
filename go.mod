@@ -1,4 +1,4 @@
-module gitee.com/Luna-CY/v2ray-subscription
+module github.com/Luna-CY/v2ray-helper
 
 go 1.17
 

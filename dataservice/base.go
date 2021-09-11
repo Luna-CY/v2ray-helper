@@ -2,7 +2,7 @@ package dataservice
 
 import (
 	"errors"
-	"gitee.com/Luna-CY/v2ray-subscription/database"
+	"github.com/Luna-CY/v2ray-helper/database"
 	"gorm.io/gorm"
 )
 

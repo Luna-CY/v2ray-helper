@@ -2,7 +2,7 @@ package logger
 
 import (
 	"fmt"
-	"gitee.com/Luna-CY/v2ray-subscription/configurator"
+	"github.com/Luna-CY/v2ray-helper/configurator"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"io"

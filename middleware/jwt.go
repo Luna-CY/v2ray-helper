@@ -2,11 +2,11 @@ package middleware
 
 import (
 	"errors"
-	"gitee.com/Luna-CY/v2ray-subscription/code"
-	"gitee.com/Luna-CY/v2ray-subscription/configurator"
-	"gitee.com/Luna-CY/v2ray-subscription/logger"
-	"gitee.com/Luna-CY/v2ray-subscription/response"
-	"gitee.com/Luna-CY/v2ray-subscription/util"
+	"github.com/Luna-CY/v2ray-helper/code"
+	"github.com/Luna-CY/v2ray-helper/configurator"
+	"github.com/Luna-CY/v2ray-helper/logger"
+	"github.com/Luna-CY/v2ray-helper/response"
+	"github.com/Luna-CY/v2ray-helper/util"
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"strings"

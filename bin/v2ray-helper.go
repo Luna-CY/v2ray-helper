@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"gitee.com/Luna-CY/v2ray-subscription/configurator"
-	"gitee.com/Luna-CY/v2ray-subscription/database"
-	"gitee.com/Luna-CY/v2ray-subscription/logger"
-	"gitee.com/Luna-CY/v2ray-subscription/middleware"
-	"gitee.com/Luna-CY/v2ray-subscription/router"
+	"github.com/Luna-CY/v2ray-helper/configurator"
+	"github.com/Luna-CY/v2ray-helper/database"
+	"github.com/Luna-CY/v2ray-helper/logger"
+	"github.com/Luna-CY/v2ray-helper/middleware"
+	"github.com/Luna-CY/v2ray-helper/router"
 	"github.com/gin-gonic/gin"
 	"log"
 )
