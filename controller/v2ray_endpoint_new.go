@@ -2,12 +2,12 @@ package controller
 
 import (
 	"encoding/json"
-	"github.com/Luna-CY/v2ray-helper/code"
-	"github.com/Luna-CY/v2ray-helper/database/model"
+	"github.com/Luna-CY/v2ray-helper/common/database/model"
+	"github.com/Luna-CY/v2ray-helper/common/http/code"
+	"github.com/Luna-CY/v2ray-helper/common/http/response"
+	"github.com/Luna-CY/v2ray-helper/common/logger"
+	"github.com/Luna-CY/v2ray-helper/common/util"
 	"github.com/Luna-CY/v2ray-helper/dataservice"
-	"github.com/Luna-CY/v2ray-helper/logger"
-	"github.com/Luna-CY/v2ray-helper/response"
-	"github.com/Luna-CY/v2ray-helper/util"
 	"github.com/gin-gonic/gin"
 	"strings"
 	"time"

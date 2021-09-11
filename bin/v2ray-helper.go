@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/Luna-CY/v2ray-helper/configurator"
-	"github.com/Luna-CY/v2ray-helper/database"
-	"github.com/Luna-CY/v2ray-helper/logger"
+	"github.com/Luna-CY/v2ray-helper/common/configurator"
+	"github.com/Luna-CY/v2ray-helper/common/database"
+	"github.com/Luna-CY/v2ray-helper/common/logger"
 	"github.com/Luna-CY/v2ray-helper/middleware"
 	"github.com/Luna-CY/v2ray-helper/router"
 	"github.com/gin-gonic/gin"

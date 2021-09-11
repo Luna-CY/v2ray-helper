@@ -14,6 +14,8 @@ export class V2rayServerDeployForm {
 
     public server_password = ""
 
+    public install_type = 1 // 1默认安装；2强制安装；3升级安装；4重新配置
+
     // V2ray部署配置
 
     public config_type = 1 // 1预设配置(WebSocket/HTTP)；2预设配置(WebSocket/HTTPS)；3自定义配置
@@ -43,7 +45,7 @@ export class V2rayServerDeployForm {
 
             public version = "1.1"
 
-            public status = "200"
+            public status = 200
 
             public reason = "OK"
 
@@ -64,15 +66,15 @@ export class V2rayServerDeployForm {
 
         public tti = 50
 
-        public uplinkCapacity = 5
+        public uplink_capacity = 5
 
-        public downlinkCapacity = 20
+        public downlink_capacity = 20
 
         public congestion = false
 
-        public readBufferSize = 2
+        public read_buffer_size = 2
 
-        public writeBufferSize = 2
+        public write_buffer_size = 2
 
         public type = "none"
     }

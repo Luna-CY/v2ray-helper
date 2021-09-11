@@ -1,13 +1,13 @@
 package controller
 
 import (
-	"github.com/Luna-CY/v2ray-helper/code"
-	"github.com/Luna-CY/v2ray-helper/configurator"
-	"github.com/Luna-CY/v2ray-helper/database/model"
+	"github.com/Luna-CY/v2ray-helper/common/configurator"
+	"github.com/Luna-CY/v2ray-helper/common/database/model"
+	"github.com/Luna-CY/v2ray-helper/common/http/code"
+	"github.com/Luna-CY/v2ray-helper/common/http/response"
+	"github.com/Luna-CY/v2ray-helper/common/logger"
+	util2 "github.com/Luna-CY/v2ray-helper/common/util"
 	"github.com/Luna-CY/v2ray-helper/dataservice"
-	"github.com/Luna-CY/v2ray-helper/logger"
-	"github.com/Luna-CY/v2ray-helper/response"
-	"github.com/Luna-CY/v2ray-helper/util"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"strings"
@@ -34,7 +34,7 @@ func V2rayEndpointRemove(c *gin.Context) {
 		return
 	}
 
-	if util.Md5(configurator.GetMainConfig().RemoveKey) != body.Password {
+	if util2.Md5(configurator.GetMainConfig().RemoveKey) != body.Password {
 		response.Response(c, code.BadRequest, "密码错误", nil)
 
 		return
@@ -51,7 +51,7 @@ func V2rayEndpointRemove(c *gin.Context) {
 		return
 	}
 
-	endpoint.Deleted = util.NewTruePtr()
+	endpoint.Deleted = util2.NewTruePtr()
 
 	if err := dataservice.GetBaseService().UpdateById(body.Id, &endpoint); nil != err {
 		response.Response(c, code.ServerError, "删除失败，稍后重试一下吧，或联系管理员", nil)

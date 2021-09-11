@@ -3,7 +3,7 @@ package database
 import (
 	"errors"
 	"fmt"
-	"github.com/Luna-CY/v2ray-helper/configurator"
+	"github.com/Luna-CY/v2ray-helper/common/configurator"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"

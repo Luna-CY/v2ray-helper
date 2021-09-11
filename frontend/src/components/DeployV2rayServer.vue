@@ -8,7 +8,15 @@
           <el-radio :label="2" disabled>远程服务器(暂未支持)</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-divider>V2ray配置选择</el-divider>
+      <el-form-item label="安装方式">
+        <el-radio-group v-model="form.install_type">
+          <el-radio :label="1">默认安装</el-radio>
+          <el-radio :label="2">强制安装</el-radio>
+          <el-radio :label="3">升级安装</el-radio>
+          <el-radio :label="4">重新配置</el-radio>
+        </el-radio-group>
+      </el-form-item>
+      <el-divider content-position="left">V2ray配置选择</el-divider>
       <el-form-item label="选择配置">
         <el-radio-group v-model="form.config_type">
           <el-radio :label="1">预设配置(WebSocket/HTTPS)</el-radio>
@@ -43,7 +51,7 @@
         <el-button type="primary" @click="addClient">添加新用户</el-button>
       </el-form-item>
       <template v-if="1 === parseInt(form.transport_type.toString())">
-        <el-divider>TCP传输配置</el-divider>
+        <el-divider content-position="left">TCP传输配置</el-divider>
         <el-form-item label="伪装类型">
           <el-select v-model="form.tcp.type">
             <el-option value="none" label="NONE"></el-option>
@@ -109,7 +117,7 @@
         </template>
       </template>
       <template v-if="2 === parseInt(form.transport_type.toString())">
-        <el-divider>WebSocket传输配置</el-divider>
+        <el-divider content-position="left">WebSocket传输配置</el-divider>
         <el-form-item label="路径">
           <el-input v-model="form.web_socket.path" placeholder="URI路径"></el-input>
         </el-form-item>
@@ -128,7 +136,7 @@
         </el-form-item>
       </template>
       <template v-if="3 === parseInt(form.transport_type.toString())">
-        <el-divider>KCP传输配置</el-divider>
+        <el-divider content-position="left">KCP传输配置</el-divider>
         <div class="inline-form-item-2">
           <el-form-item label="伪装类型" class="form-item">
             <el-select v-model="form.kcp.type" class="w-100">
@@ -156,32 +164,32 @@
         </div>
         <div class="inline-form-item-2">
           <el-form-item label="上行带宽" class="form-item">
-            <el-input v-model="form.kcp.uplinkCapacity" type="number" min="0" placeholder="上行带宽大小，默认为5，单位MB/s">
+            <el-input v-model="form.kcp.uplink_capacity" type="number" min="0" placeholder="上行带宽大小，默认为5，单位MB/s">
               <template #append>MB/S</template>
             </el-input>
           </el-form-item>
           <el-form-item label="读取缓冲区大小" class="form-item">
-            <el-input v-model="form.kcp.readBufferSize" type="number" min="1" placeholder="读取缓冲区大小，默认为2，单位MB">
+            <el-input v-model="form.kcp.read_buffer_size" type="number" min="1" placeholder="读取缓冲区大小，默认为2，单位MB">
               <template #append>MB</template>
             </el-input>
           </el-form-item>
         </div>
         <div class="inline-form-item-2">
           <el-form-item label="下行带宽" class="form-item">
-            <el-input v-model="form.kcp.downlinkCapacity" type="number" min="0"
+            <el-input v-model="form.kcp.downlink_capacity" type="number" min="0"
                       placeholder="下行带宽大小，默认为20，单位MB/s">
               <template #append>MB/S</template>
             </el-input>
           </el-form-item>
           <el-form-item label="写入缓冲区大小" class="form-item">
-            <el-input v-model="form.kcp.writeBufferSize" type="number" min="1" placeholder="写入缓冲区大小，默认为2，单位MB">
+            <el-input v-model="form.kcp.write_buffer_size" type="number" min="1" placeholder="写入缓冲区大小，默认为2，单位MB">
               <template #append>MB</template>
             </el-input>
           </el-form-item>
         </div>
       </template>
       <template v-if="4 === parseInt(form.transport_type.toString())">
-        <el-divider>HTTP2传输配置</el-divider>
+        <el-divider content-position="left">HTTP2传输配置</el-divider>
         <el-form-item label="域名">
           <el-input v-model="form.http2.host" placeholder="HTTP2的域名，多个使用英文,分隔"></el-input>
         </el-form-item>
@@ -189,7 +197,7 @@
           <el-input v-model="form.http2.path" placeholder="URI路径"></el-input>
         </el-form-item>
       </template>
-      <el-divider>其他配置</el-divider>
+      <el-divider content-position="left">其他配置</el-divider>
       <el-form-item label="使用HTTPS">
         <el-switch v-model="form.use_tls"></el-switch>
       </el-form-item>
@@ -206,7 +214,10 @@
 
 <script lang="ts">
 import {defineComponent} from "vue"
-import {Client, Header, V2rayServerDeployForm} from "@/api/v2ray_server_develop"
+import {API_V2RAY_SERVER_DEPLOY, Client, Header, V2rayServerDeployForm} from "@/api/v2ray_server_develop"
+import axios, {AxiosResponse} from "axios";
+import {API_V2RAY_ENDPOINT_NEW} from "@/api/v2ray_endpoint_new";
+import {BaseResponse} from "@/api/base";
 
 export default defineComponent({
   name: "DeployV2rayServer",
@@ -255,9 +266,9 @@ export default defineComponent({
       saving: false,
       form: new V2rayServerDeployForm(),
       rules: {
-        host: [{required: true, message: '必须填写主机地址', trigger: 'blur'}],
-        port: [{required: true, message: '必须填写端口号', trigger: 'blur'}],
-        user_id: [{required: true, message: '必须填写用户ID', trigger: 'blur'}],
+        // host: [{required: true, message: '必须填写主机地址', trigger: 'blur'}],
+        // port: [{required: true, message: '必须填写端口号', trigger: 'blur'}],
+        // user_id: [{required: true, message: '必须填写用户ID', trigger: 'blur'}],
       },
       headers: [],
     }
@@ -277,6 +288,27 @@ export default defineComponent({
     },
 
     save() {
+      let form = this.$refs.V2rayServerDeploy as any
+
+      form.validate((isValid: boolean) => {
+        if (!isValid) {
+          return
+        }
+
+        this.form.v2ray_port = parseInt(this.form.v2ray_port.toString())
+
+        this.saving = true
+        axios.post(API_V2RAY_SERVER_DEPLOY, this.form).then((response: AxiosResponse<BaseResponse>) => {
+          this.saving = false
+          if (0 != response.data.code) {
+            this.$message.error(response.data.message)
+
+            return
+          }
+
+          this.success()
+        })
+      })
     },
 
     addWebSocketHeader() {

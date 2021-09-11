@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/Luna-CY/v2ray-helper/database/model"
+	"github.com/Luna-CY/v2ray-helper/common/database/model"
 	"strconv"
 )
 

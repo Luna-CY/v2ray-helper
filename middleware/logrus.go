@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"github.com/Luna-CY/v2ray-helper/logger"
+	"github.com/Luna-CY/v2ray-helper/common/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"time"
