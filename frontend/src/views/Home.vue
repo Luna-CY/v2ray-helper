@@ -25,8 +25,8 @@
       <div class="el-row">
         <div class="el-col-24">
           <el-button type="success" size="medium" @click="showNewModal = true">添加配置</el-button>
+          <el-button type="primary" size="medium" @click="showDevelopV2rayModal = true">部署服务器</el-button>
           <el-button type="primary" size="medium" @click="showDownloadModal = true">下载客户端</el-button>
-          <el-button type="primary" size="medium" @click="showDevelopV2rayModal = true">一键部署服务器</el-button>
         </div>
       </div>
     </div>

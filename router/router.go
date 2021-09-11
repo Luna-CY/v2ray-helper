@@ -21,5 +21,7 @@ func RegisterApiRouter(engine *gin.RouterGroup) error {
 	engine.POST("/v2ray-endpoint/remove", controller.V2rayEndpointRemove)
 	engine.POST("/v2ray-endpoint/download", controller.V2rayEndpointDownload)
 
+	engine.POST("/v2ray-server-deploy", controller.V2rayServerDeploy)
+
 	return nil
 }

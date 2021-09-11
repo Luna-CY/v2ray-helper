@@ -2,53 +2,105 @@ export const API_V2RAY_SERVER_DEPLOY = "/api/v2ray-server-deploy"
 
 export class V2rayServerDeployForm {
 
-  // 服务器信息
+    // 服务器信息
 
-  public server_is_local = false
+    public server_type = 1 // 1本地服务器；2远程服务器
 
-  public server_ip = ""
+    public server_ip = ""
 
-  public server_port = 22
+    public server_port = 22
 
-  public server_user = ""
+    public server_user = ""
 
-  public server_password = ""
+    public server_password = ""
 
-  // V2ray部署配置
+    // V2ray部署配置
 
-  public alter_id = 64
+    public config_type = 1 // 1预设配置(WebSocket/HTTP)；2预设配置(WebSocket/HTTPS)；3自定义配置
 
-  public v2ray_port = 3000
+    public clients = new Array<Client>()
 
-  public transport_type = 1
+    public v2ray_port = 3000
 
-  public tcp = new class {
+    public transport_type = 1
 
-    public type = "none"
-  }
+    public tcp = new class {
 
-  public web_socket = new class {
+        public type = "none"
 
-    public path = ""
-  }
+        public request = new class {
 
-  public kcp = new class {
+            public version = "1.1"
 
-    public type = "none"
-  }
+            public method = "GET"
 
-  public http2 = new class {
+            public path = ""
 
-    public host = ""
+            public headers = new Array<Header>()
+        }
 
-    public path = ""
-  }
+        public response = new class {
 
-  // 其他配置
+            public version = "1.1"
 
-  public use_tls = false
+            public status = "200"
 
-  public tls_host = ""
+            public reason = "OK"
 
-  public use_nginx_proxy = false
+            public headers = new Array<Header>()
+        }
+    }
+
+    public web_socket = new class {
+
+        public path = ""
+
+        public headers = new Array<Header>()
+    }
+
+    public kcp = new class {
+
+        public mtu = 1350
+
+        public tti = 50
+
+        public uplinkCapacity = 5
+
+        public downlinkCapacity = 20
+
+        public congestion = false
+
+        public readBufferSize = 2
+
+        public writeBufferSize = 2
+
+        public type = "none"
+    }
+
+    public http2 = new class {
+
+        public host = ""
+
+        public path = ""
+    }
+
+    // 其他配置
+
+    public use_tls = false
+
+    public tls_host = ""
+}
+
+export class Client {
+
+    public user_id = ""
+
+    public alter_id = 4
+}
+
+export class Header {
+
+    public key = ""
+
+    public value = ""
 }

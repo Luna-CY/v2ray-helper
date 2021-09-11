@@ -27,7 +27,7 @@ func Init() error {
 			return errors.New(fmt.Sprintf("无法获取当前目录: %v", err))
 		}
 
-		rootPath = pwd
+		rootPath = path.Dir(pwd)
 	}
 
 	mc = &mainConfig{
