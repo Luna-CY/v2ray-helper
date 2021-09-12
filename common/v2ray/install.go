@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"runtime"
 	"strings"
 )
 
@@ -18,7 +19,7 @@ const datPath = "/usr/local/share/v2ray"
 
 // Install 安装指定版本
 func Install(version string) error {
-	downloadUrl, err := GetDownloadUrl(version)
+	downloadUrl, err := GetDownloadUrl(runtime.GOOS, runtime.GOARCH, version)
 	if nil != err {
 		return err
 	}

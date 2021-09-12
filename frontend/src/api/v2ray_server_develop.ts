@@ -14,7 +14,7 @@ export class V2rayServerDeployForm {
 
     public server_password = ""
 
-    public install_type = 1 // 1默认安装；2强制安装；3升级安装；4重新配置
+    public install_type = 1 // 1默认安装；2强制安装；3升级安装；4重新配置；5删除V2ray
 
     // V2ray部署配置
 
@@ -91,6 +91,8 @@ export class V2rayServerDeployForm {
     public use_tls = false
 
     public tls_host = ""
+
+    public cert_type = 1 // 证书类型：1申请新证书；2上传证书
 }
 
 export class Client {

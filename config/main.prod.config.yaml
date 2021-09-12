@@ -1,4 +1,4 @@
-listen: 8800
+listen: 0.0.0.0:8888
 key: '-'
 remove-key: '-'
 log-level: error

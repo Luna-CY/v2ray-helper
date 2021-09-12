@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"runtime"
 	"strings"
 )
 
@@ -35,72 +34,72 @@ func GetLastReleaseVersion() (string, error) {
 }
 
 // GetDownloadUrl 获取版本的下载链接
-func GetDownloadUrl(version string) (string, error) {
-	if "freebsd" == runtime.GOOS {
-		if "386" == runtime.GOARCH {
-			return fmt.Sprintf(downloadUrlTemplate, version, runtime.GOOS, "32"), nil
+func GetDownloadUrl(goos, goArch, version string) (string, error) {
+	if "freebsd" == goos {
+		if "386" == goArch {
+			return fmt.Sprintf(downloadUrlTemplate, version, goos, "32"), nil
 		}
 
-		if "amd64" == runtime.GOARCH {
-			return fmt.Sprintf(downloadUrlTemplate, version, runtime.GOOS, "64"), nil
+		if "amd64" == goArch {
+			return fmt.Sprintf(downloadUrlTemplate, version, goos, "64"), nil
 		}
 
-		return "", errors.New(fmt.Sprintf("未受支持的系统: %v %v", runtime.GOOS, runtime.GOARCH))
+		return "", errors.New(fmt.Sprintf("未受支持的系统: %v %v", goos, goArch))
 	}
 
-	if "linux" == runtime.GOOS {
-		if "386" == runtime.GOARCH {
-			return fmt.Sprintf(downloadUrlTemplate, version, runtime.GOOS, "32"), nil
+	if "linux" == goos {
+		if "386" == goArch {
+			return fmt.Sprintf(downloadUrlTemplate, version, goos, "32"), nil
 		}
 
-		if "amd64" == runtime.GOARCH {
-			return fmt.Sprintf(downloadUrlTemplate, version, runtime.GOOS, "64"), nil
+		if "amd64" == goArch {
+			return fmt.Sprintf(downloadUrlTemplate, version, goos, "64"), nil
 		}
 
-		if "arm32" == runtime.GOARCH {
-			return fmt.Sprintf(downloadUrlTemplate, version, runtime.GOOS, "arm32-v8a"), nil
+		if "arm32" == goArch {
+			return fmt.Sprintf(downloadUrlTemplate, version, goos, "arm32-v8a"), nil
 		}
 
-		if "arm64" == runtime.GOARCH {
-			return fmt.Sprintf(downloadUrlTemplate, version, runtime.GOOS, "arm64-v8a"), nil
+		if "arm64" == goArch {
+			return fmt.Sprintf(downloadUrlTemplate, version, goos, "arm64-v8a"), nil
 		}
 
-		return "", errors.New(fmt.Sprintf("未受支持的系统: %v %v", runtime.GOOS, runtime.GOARCH))
+		return "", errors.New(fmt.Sprintf("未受支持的系统: %v %v", goos, goArch))
 	}
 
-	if "windows" == runtime.GOOS {
-		if "386" == runtime.GOARCH {
-			return fmt.Sprintf(downloadUrlTemplate, version, runtime.GOOS, "32"), nil
+	if "windows" == goos {
+		if "386" == goArch {
+			return fmt.Sprintf(downloadUrlTemplate, version, goos, "32"), nil
 		}
 
-		if "amd64" == runtime.GOARCH {
-			return fmt.Sprintf(downloadUrlTemplate, version, runtime.GOOS, "64"), nil
+		if "amd64" == goArch {
+			return fmt.Sprintf(downloadUrlTemplate, version, goos, "64"), nil
 		}
 
-		if "arm32" == runtime.GOARCH {
-			return fmt.Sprintf(downloadUrlTemplate, version, runtime.GOOS, "arm32-v7a"), nil
+		if "arm32" == goArch {
+			return fmt.Sprintf(downloadUrlTemplate, version, goos, "arm32-v7a"), nil
 		}
 
-		if "arm64" == runtime.GOARCH {
-			return fmt.Sprintf(downloadUrlTemplate, version, runtime.GOOS, "arm64-v8a"), nil
+		if "arm64" == goArch {
+			return fmt.Sprintf(downloadUrlTemplate, version, goos, "arm64-v8a"), nil
 		}
 
-		return "", errors.New(fmt.Sprintf("未受支持的系统: %v %v", runtime.GOOS, runtime.GOARCH))
+		return "", errors.New(fmt.Sprintf("未受支持的系统: %v %v", goos, goArch))
 	}
 
-	if "darwin" == runtime.GOOS {
-		if "amd64" == runtime.GOARCH {
+	if "darwin" == goos {
+		if "amd64" == goArch {
 			return fmt.Sprintf(downloadUrlTemplate, version, "macos", "64"), nil
 		}
 
-		if "arm64" == runtime.GOARCH {
+		if "arm64" == goArch {
 			return fmt.Sprintf(downloadUrlTemplate, version, "macos", "arm64-v8a"), nil
 		}
 
-		return "", errors.New(fmt.Sprintf("未受支持的系统: %v %v", runtime.GOOS, runtime.GOARCH))
+		return "", errors.New(fmt.Sprintf("未受支持的系统: %v %v", goos, goArch))
 	}
 
-	return "", errors.New(fmt.Sprintf("未受支持的系统: %v %v", runtime.GOOS, runtime.GOARCH))
+	return "", errors.New(fmt.Sprintf("未受支持的系统: %v %v", goos, goArch))
 }
 
 type lastReleaseVersionStruct struct {

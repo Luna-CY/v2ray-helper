@@ -37,13 +37,13 @@ func V2rayServerDeploy(c *gin.Context) {
 		return
 	}
 
-	if !v2ray.CheckSystem() {
+	if !v2ray.CheckSystem(runtime.GOOS, runtime.GOARCH) {
 		response.Response(c, code.BadRequest, fmt.Sprintf("未受支持的系统: %v %v", runtime.GOOS, runtime.GOARCH), nil)
 
 		return
 	}
 
-	exists, err := v2ray.CheckExists()
+	exists, err := v2ray.CheckExists(v2ray.CmdPath)
 	if nil != err {
 		logger.GetLogger().Errorln(err)
 
@@ -72,7 +72,7 @@ func V2rayServerDeploy(c *gin.Context) {
 		}
 	}
 
-	if err := v2ray.SetConfig(&body.V2rayConfig); nil != err {
+	if err := v2ray.SetConfig(v2ray.ConfigPath, &body.V2rayConfig); nil != err {
 		if err := v2ray.InstallLastRelease(); nil != err {
 			logger.GetLogger().Errorln(err)
 
@@ -90,16 +90,44 @@ func v2rayServerDeployBodyFilter(body V2rayServerDeployForm) V2rayServerDeployFo
 	body.V2rayConfig.Tcp.Type = strings.TrimSpace(body.V2rayConfig.Tcp.Type)
 	body.V2rayConfig.Tcp.Request.Version = strings.TrimSpace(body.V2rayConfig.Tcp.Request.Version)
 	body.V2rayConfig.Tcp.Request.Method = strings.TrimSpace(body.V2rayConfig.Tcp.Request.Method)
+
 	body.V2rayConfig.Tcp.Request.Path = strings.TrimSpace(body.V2rayConfig.Tcp.Request.Path)
+	if "" == body.V2rayConfig.Tcp.Request.Path {
+		body.V2rayConfig.Tcp.Request.Path = "/"
+	}
+
+	for i, h := range body.V2rayConfig.Tcp.Request.Headers {
+		h.Key = strings.TrimSpace(h.Key)
+		h.Value = strings.TrimSpace(h.Value)
+
+		body.V2rayConfig.Tcp.Request.Headers[i] = h
+	}
+
 	body.V2rayConfig.Tcp.Response.Version = strings.TrimSpace(body.V2rayConfig.Tcp.Response.Version)
 	body.V2rayConfig.Tcp.Response.Reason = strings.TrimSpace(body.V2rayConfig.Tcp.Response.Reason)
 
+	for i, h := range body.V2rayConfig.Tcp.Response.Headers {
+		h.Key = strings.TrimSpace(h.Key)
+		h.Value = strings.TrimSpace(h.Value)
+
+		body.V2rayConfig.Tcp.Response.Headers[i] = h
+	}
+
 	body.V2rayConfig.WebSocket.Path = strings.TrimSpace(body.V2rayConfig.WebSocket.Path)
+	for i, h := range body.V2rayConfig.WebSocket.Headers {
+		h.Key = strings.TrimSpace(h.Key)
+		h.Value = strings.TrimSpace(h.Value)
+
+		body.V2rayConfig.WebSocket.Headers[i] = h
+	}
 
 	body.V2rayConfig.Kcp.Type = strings.TrimSpace(body.V2rayConfig.Kcp.Type)
 
 	body.V2rayConfig.Http2.Host = strings.TrimSpace(body.V2rayConfig.Http2.Host)
 	body.V2rayConfig.Http2.Path = strings.TrimSpace(body.V2rayConfig.Http2.Path)
+	if "" == body.V2rayConfig.Http2.Path {
+		body.V2rayConfig.Http2.Path = "/"
+	}
 
 	body.TlsHost = strings.TrimSpace(body.TlsHost)
 

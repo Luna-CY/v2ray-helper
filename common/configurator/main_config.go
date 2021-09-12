@@ -8,11 +8,20 @@ import (
 const defaultLogPath = "/var/log/v2ray-subscription.log"
 
 type mainConfig struct {
-	Listen    int    `yaml:"listen"`
-	Key       string `yaml:"key"`
-	RemoveKey string `yaml:"remove-key"`
-	LogLevel  string `yaml:"log-level"`
-	LogPath   string `yaml:"log-path"`
+	Listen             string `yaml:"listen"`
+	DisableV2rayDeploy bool   `yaml:"disable-v2ray-deploy"`
+	Key                string `yaml:"key"`
+	RemoveKey          string `yaml:"remove-key"`
+	LogLevel           string `yaml:"log-level"`
+	LogPath            string `yaml:"log-path"`
+}
+
+func (m *mainConfig) GetListen() string {
+	if !strings.Contains(m.Listen, ":") {
+		return "0.0.0.0:8888"
+	}
+
+	return strings.TrimSpace(m.Listen)
 }
 
 func (m *mainConfig) GetLogPath() string {

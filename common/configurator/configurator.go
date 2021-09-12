@@ -31,11 +31,12 @@ func Init() error {
 	}
 
 	mc = &mainConfig{
-		Listen:    8800,
-		Key:       "-",
-		RemoveKey: "-",
-		LogLevel:  "error",
-		LogPath:   defaultLogPath,
+		Listen:             "0.0.0.0:8888",
+		DisableV2rayDeploy: false,
+		Key:                "-",
+		RemoveKey:          "-",
+		LogLevel:           "error",
+		LogPath:            defaultLogPath,
 	}
 
 	dc = &dbConfig{
