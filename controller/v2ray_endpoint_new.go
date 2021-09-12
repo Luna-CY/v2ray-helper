@@ -14,10 +14,7 @@ import (
 )
 
 type V2rayEndpointNewForm struct {
-	Cloud    int    `json:"cloud"`
-	Endpoint int    `json:"endpoint"`
-	Rate     string `json:"rate"`
-	Remark   string `json:"remark"`
+	Remark string `json:"remark"`
 
 	Host    string `json:"host"`
 	Port    int    `json:"port"`
@@ -51,7 +48,6 @@ func V2rayEndpointNew(c *gin.Context) {
 		return
 	}
 
-	body.Rate = strings.TrimSpace(body.Rate)
 	body.Remark = strings.TrimSpace(body.Remark)
 	body.Host = strings.TrimSpace(body.Host)
 	body.UserId = strings.TrimSpace(body.UserId)
@@ -62,7 +58,7 @@ func V2rayEndpointNew(c *gin.Context) {
 	body.Http2.Host = strings.TrimSpace(body.Http2.Host)
 	body.Http2.Path = strings.TrimSpace(body.Http2.Path)
 
-	if 0 == body.Cloud || 0 == body.Endpoint || "" == body.Host || 0 == body.Port || "" == body.UserId || 0 == body.TransportType {
+	if "" == body.Host || 0 == body.Port || "" == body.UserId || 0 == body.TransportType {
 		response.Response(c, code.BadRequest, "无效请求", nil)
 
 		return
@@ -115,9 +111,6 @@ func V2rayEndpointNew(c *gin.Context) {
 	http2String := string(http2)
 
 	endpoint := model.V2rayEndpoint{
-		Cloud:         &body.Cloud,
-		Endpoint:      &body.Endpoint,
-		Rate:          &body.Rate,
 		Remark:        &body.Remark,
 		Host:          &body.Host,
 		Port:          &body.Port,

@@ -22,27 +22,23 @@ func CheckSystem(goos, goArch string) bool {
 		return true
 	}
 
-	if "windows" == goos && ("386" == goArch || "amd64" == goArch || "arm" == goArch || "arm64" == goArch) {
-		return true
-	}
-
 	return false
 }
 
 // CheckExists 检查系统内是否已存在V2ray
-func CheckExists(v2rayPath string) (bool, error) {
+func CheckExists(v2rayPath string) error {
 	stat, err := os.Stat(v2rayPath)
 	if nil != err {
 		if os.IsNotExist(err) {
-			return false, nil
+			return nil
 		}
 
-		return false, errors.New(fmt.Sprintf("无法获取文件信息: %v", err))
+		return errors.New(fmt.Sprintf("无法获取文件信息: %v", err))
 	}
 
 	if stat.IsDir() {
-		return false, nil
+		return nil
 	}
 
-	return true, nil
+	return os.ErrExist
 }

@@ -4,12 +4,12 @@
       <template v-for="item in data" v-bind:key="item.id">
         <div class="endpoint-box el-row margin-bottom-2x" v-on:mouseover="item.show_delete_button = true"
              v-on:mouseout="item.show_delete_button = false">
-          <div class="el-col-2">{{ getCloud(item.cloud) }}</div>
-          <div class="el-col-2">{{ getEndpoint(item.endpoint) }}</div>
           <div class="el-col-4">{{ item.host }}</div>
-          <div class="el-col-2">{{ item.rate ? item.rate : '-' }}</div>
+          <div class="el-col-2">{{ item.port }}</div>
+          <div class="el-col-4">{{ item.user_id }}</div>
+          <div class="el-col-2">{{ item.alter_id }}</div>
           <div class="el-col-2">{{ getMode(item.transport_type) }}</div>
-          <div class="el-col-xl-10 el-col-lg-10 el-col-md-10">{{ item.remark ? item.remark : '-' }}</div>
+          <div class="el-col-xl-6 el-col-lg-6 el-col-md-6">{{ item.remark ? item.remark : '-' }}</div>
           <div class="el-col-xl-2 el-col-lg-2 el-col-md-2">
             <el-button type="primary" :loading="item.downloading" @click="download(item)">生成配置</el-button>
             <el-button type="danger" class="delete-button" icon="el-icon-delete" circle
@@ -131,17 +131,6 @@ export default defineComponent({
 
         this.data = response.data.data.data
       })
-    },
-    getCloud(cloud: number) {
-      let map = {1: "Vultr", 2: "阿里云", 3: "腾讯云", 4: "华为云"} as any
-
-      return map[cloud]
-    },
-
-    getEndpoint(endpoint: number) {
-      let map = {1: "日本", 2: "香港"} as any
-
-      return map[endpoint]
     },
     getMode(transportType: number) {
       let map = {1: "TCP", 2: "WebSocket", 3: "KCP", 4: "HTTP2"} as any

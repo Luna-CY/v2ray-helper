@@ -67,26 +67,6 @@ func GetDownloadUrl(goos, goArch, version string) (string, error) {
 		return "", errors.New(fmt.Sprintf("未受支持的系统: %v %v", goos, goArch))
 	}
 
-	if "windows" == goos {
-		if "386" == goArch {
-			return fmt.Sprintf(downloadUrlTemplate, version, goos, "32"), nil
-		}
-
-		if "amd64" == goArch {
-			return fmt.Sprintf(downloadUrlTemplate, version, goos, "64"), nil
-		}
-
-		if "arm32" == goArch {
-			return fmt.Sprintf(downloadUrlTemplate, version, goos, "arm32-v7a"), nil
-		}
-
-		if "arm64" == goArch {
-			return fmt.Sprintf(downloadUrlTemplate, version, goos, "arm64-v8a"), nil
-		}
-
-		return "", errors.New(fmt.Sprintf("未受支持的系统: %v %v", goos, goArch))
-	}
-
 	if "darwin" == goos {
 		if "amd64" == goArch {
 			return fmt.Sprintf(downloadUrlTemplate, version, "macos", "64"), nil

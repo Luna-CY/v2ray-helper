@@ -34,30 +34,21 @@ type Config struct {
 	Tcp struct {
 		Type    string `json:"type"`
 		Request struct {
-			Version string `json:"version"`
-			Method  string `json:"method"`
-			Path    string `json:"path"`
-			Headers []struct {
-				Key   string `json:"key"`
-				Value string `json:"value"`
-			} `json:"headers"`
+			Version string         `json:"version"`
+			Method  string         `json:"method"`
+			Path    string         `json:"path"`
+			Headers []ConfigHeader `json:"headers"`
 		} `json:"request"`
 		Response struct {
-			Version string `json:"version"`
-			Status  string `json:"status"`
-			Reason  string `json:"reason"`
-			Headers []struct {
-				Key   string `json:"key"`
-				Value string `json:"value"`
-			} `json:"headers"`
+			Version string         `json:"version"`
+			Status  string         `json:"status"`
+			Reason  string         `json:"reason"`
+			Headers []ConfigHeader `json:"headers"`
 		} `json:"response"`
 	} `json:"tcp"`
 	WebSocket struct {
-		Path    string `json:"path"`
-		Headers []struct {
-			Key   string `json:"key"`
-			Value string `json:"value"`
-		} `json:"headers"`
+		Path    string         `json:"path"`
+		Headers []ConfigHeader `json:"headers"`
 	} `json:"web_socket"`
 	Kcp struct {
 		Type             string `json:"type"`
@@ -78,6 +69,11 @@ type Config struct {
 type ConfigClient struct {
 	UserId  string `json:"user_id"`
 	AlterId int    `json:"alter_id"`
+}
+
+type ConfigHeader struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
 }
 
 // vConfig V2ray配置结构
@@ -127,10 +123,10 @@ type vConfigInboundTlsCertificate struct {
 
 type vConfigInboundStreamTcp struct {
 	Header struct {
-		Type string `json:"type"`
+		Type     string                           `json:"type"`
+		Request  *vConfigInboundStreamTcpRequest  `json:"request,omitempty"`
+		Response *vConfigInboundStreamTcpResponse `json:"response,omitempty"`
 	} `json:"header"`
-	Request  *vConfigInboundStreamTcpRequest  `json:"request,omitempty"`
-	Response *vConfigInboundStreamTcpResponse `json:"response,omitempty"`
 }
 
 type vConfigInboundStreamTcpRequest struct {
@@ -149,7 +145,7 @@ type vConfigInboundStreamTcpResponse struct {
 
 type vConfigInboundStreamWebSocket struct {
 	Path    string            `json:"path"`
-	Headers map[string]string `json:"headers,omitempty"`
+	Headers map[string]string `json:"headers"`
 }
 
 type vConfigInboundStreamKcp struct {
@@ -211,27 +207,27 @@ func SetConfig(configPath string, config *Config) error {
 		inbound.StreamSettings.TcpSettings = &vConfigInboundStreamTcp{}
 		inbound.StreamSettings.TcpSettings.Header.Type = config.Tcp.Type
 		if TcpTypeHttp == config.Tcp.Type {
-			inbound.StreamSettings.TcpSettings.Request = &vConfigInboundStreamTcpRequest{}
-			inbound.StreamSettings.TcpSettings.Request.Version = config.Tcp.Request.Version
-			inbound.StreamSettings.TcpSettings.Request.Method = config.Tcp.Request.Method
-			inbound.StreamSettings.TcpSettings.Request.Path = strings.Split(config.Tcp.Request.Path, ",")
+			inbound.StreamSettings.TcpSettings.Header.Request = &vConfigInboundStreamTcpRequest{}
+			inbound.StreamSettings.TcpSettings.Header.Request.Version = config.Tcp.Request.Version
+			inbound.StreamSettings.TcpSettings.Header.Request.Method = config.Tcp.Request.Method
+			inbound.StreamSettings.TcpSettings.Header.Request.Path = strings.Split(config.Tcp.Request.Path, ",")
 
 			if 0 < len(config.Tcp.Request.Headers) {
-				inbound.StreamSettings.TcpSettings.Request.Headers = make(map[string][]string)
+				inbound.StreamSettings.TcpSettings.Header.Request.Headers = make(map[string][]string)
 				for _, header := range config.Tcp.Request.Headers {
-					inbound.StreamSettings.TcpSettings.Request.Headers[header.Key] = strings.Split(header.Value, ";;;")
+					inbound.StreamSettings.TcpSettings.Header.Request.Headers[header.Key] = strings.Split(header.Value, ";;;")
 				}
 			}
 
-			inbound.StreamSettings.TcpSettings.Response = &vConfigInboundStreamTcpResponse{}
-			inbound.StreamSettings.TcpSettings.Response.Version = config.Tcp.Response.Version
-			inbound.StreamSettings.TcpSettings.Response.Status = config.Tcp.Response.Status
-			inbound.StreamSettings.TcpSettings.Response.Reason = config.Tcp.Response.Reason
+			inbound.StreamSettings.TcpSettings.Header.Response = &vConfigInboundStreamTcpResponse{}
+			inbound.StreamSettings.TcpSettings.Header.Response.Version = config.Tcp.Response.Version
+			inbound.StreamSettings.TcpSettings.Header.Response.Status = config.Tcp.Response.Status
+			inbound.StreamSettings.TcpSettings.Header.Response.Reason = config.Tcp.Response.Reason
 
 			if 0 < len(config.Tcp.Response.Headers) {
-				inbound.StreamSettings.TcpSettings.Response.Headers = make(map[string][]string)
+				inbound.StreamSettings.TcpSettings.Header.Response.Headers = make(map[string][]string)
 				for _, header := range config.Tcp.Response.Headers {
-					inbound.StreamSettings.TcpSettings.Response.Headers[header.Key] = strings.Split(header.Value, ";;;")
+					inbound.StreamSettings.TcpSettings.Header.Response.Headers[header.Key] = strings.Split(header.Value, ";;;")
 				}
 			}
 		}
@@ -239,8 +235,8 @@ func SetConfig(configPath string, config *Config) error {
 		inbound.StreamSettings.Network = "ws"
 		inbound.StreamSettings.WsSettings = &vConfigInboundStreamWebSocket{}
 		inbound.StreamSettings.WsSettings.Path = config.WebSocket.Path
+		inbound.StreamSettings.WsSettings.Headers = make(map[string]string)
 		if 0 < len(config.WebSocket.Headers) {
-			inbound.StreamSettings.WsSettings.Headers = make(map[string]string)
 			for _, header := range config.WebSocket.Headers {
 				inbound.StreamSettings.WsSettings.Headers[header.Key] = header.Value
 			}

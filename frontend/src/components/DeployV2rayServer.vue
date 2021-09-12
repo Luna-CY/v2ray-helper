@@ -11,13 +11,12 @@
       <el-form-item label="安装方式">
         <el-radio-group v-model="form.install_type">
           <el-radio :label="1">默认安装</el-radio>
-          <el-radio :label="2">强制安装</el-radio>
-          <el-radio :label="3">升级安装</el-radio>
-          <el-radio :label="4">重新配置</el-radio>
-          <el-radio :label="5">删除V2ray</el-radio>
+          <el-radio :label="2">重新安装</el-radio>
+          <el-radio :label="3">仅升级V2ray</el-radio>
+          <el-radio :label="4">仅配置V2ray</el-radio>
         </el-radio-group>
       </el-form-item>
-      <template v-if="5 !== parseInt(form.install_type.toString())">
+      <template v-if="3 !== parseInt(form.install_type.toString()) && 5 !== parseInt(form.install_type.toString())">
         <el-divider content-position="left">V2ray配置选择</el-divider>
         <el-form-item label="选择配置">
           <el-radio-group v-model="form.config_type">
@@ -50,7 +49,7 @@
           </div>
         </template>
         <el-form-item label-width="0" class="content-center">
-          <el-button type="primary" @click="addClient">添加新用户</el-button>
+          <el-button type="primary" @click="addClient">添加一个用户</el-button>
         </el-form-item>
         <template v-if="1 === parseInt(form.transport_type.toString())">
           <el-divider content-position="left">TCP传输配置</el-divider>
@@ -199,19 +198,30 @@
             <el-input v-model="form.http2.path" placeholder="URI路径"></el-input>
           </el-form-item>
         </template>
-        <el-divider content-position="left">其他配置</el-divider>
-        <el-form-item label="使用HTTPS">
-          <el-switch v-model="form.use_tls"></el-switch>
-        </el-form-item>
-        <el-form-item label="HTTPS域名" prop="tls_host" v-if="form.use_tls">
-          <el-input v-model="form.tls_host" placeholder="HTTPS域名，该域名必须已被解析到目标服务器的IP地址"></el-input>
-        </el-form-item>
-        <el-form-item label="HTTPS证书">
-          <el-radio-group v-model="form.cert_type">
-            <el-radio :label="1">申请新证书</el-radio>
-            <el-radio :label="2" disabled>上传证书(暂未支持)</el-radio>
-          </el-radio-group>
-        </el-form-item>
+        <template v-if="4 !== parseInt(form.install_type.toString())">
+          <el-divider content-position="left">HTTPS配置
+            <el-tooltip content="HTTPS证书通过Caddy自动申请及续期" placement="right"><i class="el-icon-info"></i></el-tooltip>
+          </el-divider>
+          <el-form-item label="使用HTTPS">
+            <el-switch v-model="form.use_tls"></el-switch>
+          </el-form-item>
+          <el-form-item label="HTTPS域名" prop="tls_host" v-if="form.use_tls">
+            <el-input v-model="form.tls_host" placeholder="HTTPS域名，该域名必须已被解析到目标服务器的IP地址"></el-input>
+          </el-form-item>
+          <el-form-item label="HTTPS证书" v-if="form.use_tls">
+            <el-radio-group v-model="form.cert_type">
+              <el-radio :label="1">申请新证书</el-radio>
+              <el-radio :label="2" disabled>上传证书(暂未支持)</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <!--          <el-divider content-position="left">Cloudreve配置-->
+          <!--            <el-tooltip content="Cloudreve是一个轻量级私有云网盘服务，同时布置可增强伪装效果" placement="right"><i class="el-icon-info"></i>-->
+          <!--            </el-tooltip>-->
+          <!--          </el-divider>-->
+          <!--          <el-form-item label="配置Cloudreve" prop="use_cloudreve">-->
+          <!--            <el-switch v-model="form.use_cloudreve"></el-switch>-->
+          <!--          </el-form-item>-->
+        </template>
       </template>
       <el-form-item label-width="0" class="content-center">
         <el-button type="danger" @click="close">取消</el-button>
@@ -241,8 +251,9 @@ export default defineComponent({
     show: function () {
       this.form.v2ray_port = 3000
       this.form.transport_type = 2
-      this.form.web_socket.path = "/example-path"
+      this.form.web_socket.path = "/v2ray-ws-path"
       this.form.use_tls = true
+      this.form.use_cloudreve = false
 
       this.form.clients = new Array<Client>()
       this.addClient()
@@ -252,20 +263,23 @@ export default defineComponent({
       if (1 == this.form.config_type) {
         this.form.v2ray_port = 3000
         this.form.transport_type = 2
-        this.form.web_socket.path = "/example-path"
+        this.form.web_socket.path = "/v2ray-ws-path"
         this.form.use_tls = true
+        this.form.use_cloudreve = false
       }
 
       if (2 == this.form.config_type) {
         this.form.v2ray_port = 3000
         this.form.transport_type = 3
         this.form.use_tls = true
+        this.form.use_cloudreve = false
       }
 
       if (3 == this.form.config_type) {
         this.form.v2ray_port = 3000
         this.form.transport_type = 1
         this.form.use_tls = false
+        this.form.use_cloudreve = false
       }
     }
   },
@@ -276,8 +290,7 @@ export default defineComponent({
       form: new V2rayServerDeployForm(),
       rules: {
         tls_host: [{validator: this.validateTlsHost, trigger: 'blur'}],
-        // port: [{required: true, message: '必须填写端口号', trigger: 'blur'}],
-        // user_id: [{required: true, message: '必须填写用户ID', trigger: 'blur'}],
+        use_cloudreve: [{validator: this.validateUseCloudreve, trigger: 'blur'}],
       },
       headers: [],
     }
@@ -339,6 +352,16 @@ export default defineComponent({
     validateTlsHost(a: any, b: any, c: any) {
       if (this.form.use_tls && "" == this.form.tls_host.trim()) {
         c(new Error("开启HTTPS时必须填写HTTPS域名"))
+
+        return
+      }
+
+      c()
+    },
+
+    validateUseCloudreve(a: any, b: any, c: any) {
+      if (this.form.use_cloudreve && (1 == this.form.transport_type || 3 == this.form.transport_type)) {
+        c(new Error("配置Cloudreve时V2ray不支持使用TCP与KCP，请使用WebSocket或HTTP2"))
 
         return
       }

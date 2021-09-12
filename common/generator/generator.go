@@ -7,9 +7,11 @@ import (
 	"fmt"
 	"github.com/Luna-CY/v2ray-helper/common/database/model"
 	"strconv"
+	"strings"
 )
 
 // GenerateVMessShareLink 生成通用分享连接
+// TODO 各个传输类型应该定义结构来解析
 func GenerateVMessShareLink(endpoint model.V2rayEndpoint) (string, error) {
 	vMess := VMessShareLinkProtocol{}
 	vMess.V = "2"
@@ -35,11 +37,17 @@ func GenerateVMessShareLink(endpoint model.V2rayEndpoint) (string, error) {
 			return "", errors.New("配置错误，稍后重试一下吧，或者联系管理员")
 		}
 
-		if _, ok := tcp["type"]; !ok {
+		if _, ok := tcp["header"]; !ok {
 			return "", errors.New("配置错误，稍后重试一下吧，或者联系管理员")
 		}
 
-		vMess.Type = tcp["type"].(string)
+		if _, ok := tcp["header"].(map[string]string)["type"]; !ok {
+			return "", errors.New("配置错误，稍后重试一下吧，或者联系管理员")
+		}
+
+		header := tcp["header"].(map[string]string)
+
+		vMess.Type = header["type"]
 	}
 
 	if model.V2rayEndpointTransportTypeWebSocket == *endpoint.TransportType {
@@ -66,11 +74,17 @@ func GenerateVMessShareLink(endpoint model.V2rayEndpoint) (string, error) {
 			return "", errors.New("配置错误，稍后重试一下吧，或者联系管理员")
 		}
 
-		if _, ok := kcp["type"]; !ok {
+		if _, ok := kcp["header"]; !ok {
 			return "", errors.New("配置错误，稍后重试一下吧，或者联系管理员")
 		}
 
-		vMess.Type = kcp["type"].(string)
+		if _, ok := kcp["header"].(map[string]string)["type"]; !ok {
+			return "", errors.New("配置错误，稍后重试一下吧，或者联系管理员")
+		}
+
+		header := kcp["header"].(map[string]string)
+
+		vMess.Type = header["type"]
 	}
 
 	if model.V2rayEndpointTransportTypeHttp2 == *endpoint.TransportType {
@@ -90,7 +104,7 @@ func GenerateVMessShareLink(endpoint model.V2rayEndpoint) (string, error) {
 			return "", errors.New("配置错误，稍后重试一下吧，或者联系管理员")
 		}
 
-		vMess.Host = http2["host"].(string)
+		vMess.Host = strings.Join(http2["host"].([]string), ",")
 		vMess.Path = http2["path"].(string)
 	}
 

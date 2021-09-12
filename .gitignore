@@ -1,5 +1,4 @@
 .idea/
 
-/bin/v2ray-helper
-/bin/db-migrate
-target.tgz
+v2ray-helper
+*.tgz

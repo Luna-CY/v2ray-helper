@@ -20,8 +20,6 @@ export class V2rayEndpointNewForm {
 
     public use_tls = false
 
-    public sni = ""
-
     public transport_type = 1
 
     public tcp = new class {

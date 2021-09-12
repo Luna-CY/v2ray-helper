@@ -14,15 +14,15 @@ export class V2rayEndpointListItem {
 
     public id = 0
 
-    public cloud = 0
-
-    public endpoint = 0
-
-    public rate = ""
-
     public remark = ""
 
     public host = ""
+
+    public port = 80
+
+    public user_id = ""
+
+    public alter_id = 4
 
     public transport_type = 0
 

@@ -9,19 +9,28 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"path"
+	"path/filepath"
 	"runtime"
 	"strings"
 )
 
-const installDir = "/usr/local/bin"
-const datPath = "/usr/local/share/v2ray"
+const InstallTo = "/usr/local/bin"
+const SharePath = "/usr/local/share"
+const SystemdPath = "/etc"
 
 // Install 安装指定版本
-func Install(version string) error {
-	downloadUrl, err := GetDownloadUrl(runtime.GOOS, runtime.GOARCH, version)
+func Install(goos, goArch, version, installTo, sharePath, systemdPath string) error {
+	downloadUrl, err := GetDownloadUrl(goos, goArch, version)
 	if nil != err {
 		return err
+	}
+
+	if err := os.MkdirAll(installTo, 0755); nil != err {
+		return errors.New(fmt.Sprintf("安装V2ray失败: %v", err))
+	}
+
+	if err := os.MkdirAll(filepath.Join(sharePath, "v2ray"), 0755); nil != err {
+		return errors.New(fmt.Sprintf("安装V2ray失败: %v", err))
 	}
 
 	res, err := http.Get(downloadUrl)
@@ -40,10 +49,6 @@ func Install(version string) error {
 		return errors.New(fmt.Sprintf("安装V2ray失败: %v", err))
 	}
 
-	if err := os.MkdirAll(path.Join(datPath, "v2ray"), 0755); nil != err {
-		return errors.New(fmt.Sprintf("安装V2ray失败: %v", err))
-	}
-
 	for _, f := range zr.File {
 		if f.FileInfo().IsDir() {
 			continue
@@ -57,17 +62,22 @@ func Install(version string) error {
 		var tf *os.File
 
 		if "v2ray" == f.Name || "v2ctl" == f.Name {
-			tf, err = os.OpenFile(path.Join(installDir, f.Name), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0755)
+			tf, err = os.OpenFile(filepath.Join(installTo, f.Name), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0755)
 			if nil != err {
 				return errors.New(fmt.Sprintf("安装V2ray失败: %v", err))
 			}
 		} else if "geoip.dat" == f.Name || "geosite.dat" == f.Name {
-			tf, err = os.OpenFile(path.Join(datPath, "v2ray", f.Name), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+			tf, err = os.OpenFile(filepath.Join(sharePath, "v2ray", f.Name), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 			if nil != err {
 				return errors.New(fmt.Sprintf("安装V2ray失败: %v", err))
 			}
 		} else if strings.HasPrefix(f.Name, "systemd/system") {
-			tf, err = os.OpenFile(path.Join("/etc", f.Name), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+			dstPath := filepath.Join(systemdPath, f.Name)
+			if err := os.MkdirAll(filepath.Dir(dstPath), 0755); nil != err {
+				return errors.New(fmt.Sprintf("安装V2ray失败: %v", err))
+			}
+
+			tf, err = os.OpenFile(dstPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 			if nil != err {
 				return errors.New(fmt.Sprintf("安装V2ray失败: %v", err))
 			}
@@ -93,5 +103,5 @@ func InstallLastRelease() error {
 		return err
 	}
 
-	return Install(version)
+	return Install(runtime.GOOS, runtime.GOARCH, version, InstallTo, SharePath, SystemdPath)
 }

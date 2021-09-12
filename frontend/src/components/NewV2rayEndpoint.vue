@@ -2,25 +2,6 @@
   <el-dialog width="60%" :model-value="show" @close="close" :close-on-click-modal="false"
              :close-on-press-escape="false" destroy-on-close>
     <el-form :model="form" label-width="120px" ref="NewV2rayEndpointForm" :rules="rules">
-      <el-form-item label="服务商" prop="cloud">
-        <el-select v-model="form.cloud">
-          <el-option :value="0" label="请选择服务商"></el-option>
-          <el-option :value="1" label="Vultr"></el-option>
-          <el-option :value="2" label="阿里云"></el-option>
-          <el-option :value="3" label="腾讯云"></el-option>
-          <el-option :value="4" label="华为云"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="节点位置" prop="endpoint">
-        <el-select v-model="form.endpoint">
-          <el-option :value="0" label="请选择节点位置"></el-option>
-          <el-option :value="1" label="日本"></el-option>
-          <el-option :value="2" label="香港"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="带宽上限">
-        <el-input v-model="form.rate" placeholder="e.g.: 100M"></el-input>
-      </el-form-item>
       <el-form-item label="备注信息">
         <el-input v-model="form.remark" placeholder="备注信息"></el-input>
       </el-form-item>
@@ -35,9 +16,6 @@
       </el-form-item>
       <el-form-item label="AlterId" prop="alter_id">
         <el-input v-model="form.alter_id" placeholder="e.g.: 64"></el-input>
-      </el-form-item>
-      <el-form-item label="SNI">
-        <el-input v-model="form.sni" placeholder=""></el-input>
       </el-form-item>
       <el-form-item label="使用TLS">
         <el-switch v-model="form.use_tls"></el-switch>
@@ -103,8 +81,6 @@ export default defineComponent({
       saving: false,
       form: new V2rayEndpointNewForm(),
       rules: {
-        cloud: [{required: true, message: '必须选择服务提供商', trigger: 'blur'}],
-        endpoint: [{required: true, message: '必须选择节点所在位置', trigger: 'blur'}],
         host: [{required: true, message: '必须填写主机地址', trigger: 'blur'}],
         port: [{required: true, message: '必须填写端口号', trigger: 'blur'}],
         user_id: [{required: true, message: '必须填写用户ID', trigger: 'blur'}],

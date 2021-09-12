@@ -1,24 +1,31 @@
 package logger
 
 import (
+	"errors"
 	"fmt"
 	"github.com/Luna-CY/v2ray-helper/common/configurator"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"io"
 	"os"
+	"path/filepath"
 )
 
 var logger *logrus.Logger
 
-func Init() error {
+func Init(rootPath string) error {
 	var dest io.Writer
 
 	if gin.ReleaseMode == gin.Mode() {
+		logPath := filepath.Join(rootPath, "logs", "main.log")
+		if err := os.MkdirAll(filepath.Dir(logPath), 0755); nil != err {
+			return errors.New(fmt.Sprintf("初始化日志组件失败: %v", err))
+		}
+
 		//写入文件
-		file, err := os.OpenFile(configurator.GetMainConfig().GetLogPath(), os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+		file, err := os.OpenFile(logPath, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
 		if err != nil {
-			fmt.Println("err", err)
+			return errors.New(fmt.Sprintf("初始化日志组件失败: %v", err))
 		}
 
 		dest = file
@@ -43,9 +50,7 @@ func Init() error {
 
 func GetLogger() *logrus.Logger {
 	if nil == logger {
-		if err := Init(); nil != err {
-			panic("初始化日志失败")
-		}
+		panic("初始化日志失败")
 	}
 
 	return logger

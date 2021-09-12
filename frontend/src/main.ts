@@ -1,6 +1,5 @@
 import {createApp} from 'vue'
 import App from './App.vue'
-import './registerServiceWorker'
 import router from './router'
 import store from './store'
 import axios, {AxiosResponse} from "axios"
@@ -51,7 +50,7 @@ axios.interceptors.request.use(function (request) {
   }
 
   if ('development' == process.env.NODE_ENV) {
-    request.url = `http://127.0.0.1:8800${request.url}`
+    request.url = `http://127.0.0.1:8888${request.url}`
   }
 
   return request

@@ -31,11 +31,11 @@ func V2rayEndpointList(c *gin.Context) {
 
 		result = append(result, gin.H{
 			"id":             endpoint.Id,
-			"cloud":          endpoint.Cloud,
-			"endpoint":       endpoint.Endpoint,
-			"rate":           endpoint.Rate,
 			"remark":         endpoint.Remark,
 			"host":           endpoint.Host,
+			"port":           endpoint.Port,
+			"user_id":        endpoint.UserId,
+			"alter_id":       endpoint.AlterId,
 			"transport_type": endpoint.TransportType,
 		})
 	}

@@ -7,13 +7,18 @@ import (
 
 const defaultLogPath = "/var/log/v2ray-subscription.log"
 
+const DefaultMainConfigContent = `listen: 0.0.0.0:8888
+key: '-'
+remove-key: '-'
+disable-v2ray-deploy: true
+log-level: error`
+
 type mainConfig struct {
 	Listen             string `yaml:"listen"`
 	DisableV2rayDeploy bool   `yaml:"disable-v2ray-deploy"`
 	Key                string `yaml:"key"`
 	RemoveKey          string `yaml:"remove-key"`
 	LogLevel           string `yaml:"log-level"`
-	LogPath            string `yaml:"log-path"`
 }
 
 func (m *mainConfig) GetListen() string {
@@ -22,16 +27,6 @@ func (m *mainConfig) GetListen() string {
 	}
 
 	return strings.TrimSpace(m.Listen)
-}
-
-func (m *mainConfig) GetLogPath() string {
-	m.LogPath = strings.TrimSpace(m.LogPath)
-
-	if "" == m.LogPath {
-		return defaultLogPath
-	}
-
-	return m.LogPath
 }
 
 func (m *mainConfig) GetLogLevel() logrus.Level {

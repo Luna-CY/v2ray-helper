@@ -1,5 +1,6 @@
 listen: 0.0.0.0:8888
 key: '-'
 remove-key: '-'
+disable-v2ray-deploy: true
 log-level: error
 log-path: /var/log/v2ray-subscription.log
