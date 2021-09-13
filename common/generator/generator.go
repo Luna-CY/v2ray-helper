@@ -7,105 +7,72 @@ import (
 	"fmt"
 	"github.com/Luna-CY/v2ray-helper/common/database/model"
 	"strconv"
-	"strings"
 )
 
 // GenerateVMessShareLink 生成通用分享连接
-// TODO 各个传输类型应该定义结构来解析
-func GenerateVMessShareLink(endpoint model.V2rayEndpoint) (string, error) {
+func GenerateVMessShareLink(config model.V2rayEndpoint) (string, error) {
 	vMess := VMessShareLinkProtocol{}
 	vMess.V = "2"
 	vMess.Scy = "auto"
-	vMess.Sni = *endpoint.Sni
+	vMess.Sni = *config.Sni
 
-	vMess.Add = *endpoint.Host
-	vMess.Port = strconv.Itoa(*endpoint.Port)
-	vMess.Id = *endpoint.UserId
-	vMess.Aid = strconv.Itoa(*endpoint.AlterId)
-	vMess.Ps = fmt.Sprintf("%v:%v", *endpoint.Host, *endpoint.Port)
+	vMess.Add = *config.Host
+	vMess.Port = strconv.Itoa(*config.Port)
+	vMess.Id = *config.UserId
+	vMess.Aid = strconv.Itoa(*config.AlterId)
+	vMess.Ps = fmt.Sprintf("%v:%v", *config.Host, *config.Port)
 
 	vMess.Tls = ""
-	if 1 == *endpoint.UseTls {
+	if 1 == *config.UseTls {
 		vMess.Tls = "tls"
+		vMess.Host = *config.Host
 	}
 
-	if model.V2rayEndpointTransportTypeTcp == *endpoint.TransportType {
+	if model.V2rayEndpointTransportTypeTcp == *config.TransportType {
 		vMess.Net = "tcp"
 
-		var tcp map[string]interface{}
-		if err := json.Unmarshal([]byte(*endpoint.Tcp), &tcp); nil != err {
+		var tcp model.V2rayEndpointTcp
+		if err := json.Unmarshal([]byte(*config.Tcp), &tcp); nil != err {
 			return "", errors.New("配置错误，稍后重试一下吧，或者联系管理员")
 		}
 
-		if _, ok := tcp["header"]; !ok {
-			return "", errors.New("配置错误，稍后重试一下吧，或者联系管理员")
-		}
-
-		if _, ok := tcp["header"].(map[string]string)["type"]; !ok {
-			return "", errors.New("配置错误，稍后重试一下吧，或者联系管理员")
-		}
-
-		header := tcp["header"].(map[string]string)
-
-		vMess.Type = header["type"]
+		vMess.Type = tcp.Type
 	}
 
-	if model.V2rayEndpointTransportTypeWebSocket == *endpoint.TransportType {
+	if model.V2rayEndpointTransportTypeWebSocket == *config.TransportType {
 		vMess.Net = "ws"
 		vMess.Type = ""
 
-		var webSocket map[string]interface{}
-		if err := json.Unmarshal([]byte(*endpoint.WebSocket), &webSocket); nil != err {
+		var webSocket model.V2rayEndpointWebSocket
+		if err := json.Unmarshal([]byte(*config.WebSocket), &webSocket); nil != err {
 			return "", errors.New("配置错误，稍后重试一下吧，或者联系管理员")
 		}
 
-		if _, ok := webSocket["path"]; !ok {
-			return "", errors.New("配置错误，稍后重试一下吧，或者联系管理员")
-		}
-
-		vMess.Path = webSocket["path"].(string)
+		vMess.Path = webSocket.Path
 	}
 
-	if model.V2rayEndpointTransportTypeKcp == *endpoint.TransportType {
+	if model.V2rayEndpointTransportTypeKcp == *config.TransportType {
 		vMess.Net = "kcp"
 
-		var kcp map[string]interface{}
-		if err := json.Unmarshal([]byte(*endpoint.Kcp), &kcp); nil != err {
+		var kcp model.V2rayEndpointKcp
+		if err := json.Unmarshal([]byte(*config.Kcp), &kcp); nil != err {
 			return "", errors.New("配置错误，稍后重试一下吧，或者联系管理员")
 		}
 
-		if _, ok := kcp["header"]; !ok {
-			return "", errors.New("配置错误，稍后重试一下吧，或者联系管理员")
-		}
-
-		if _, ok := kcp["header"].(map[string]string)["type"]; !ok {
-			return "", errors.New("配置错误，稍后重试一下吧，或者联系管理员")
-		}
-
-		header := kcp["header"].(map[string]string)
-
-		vMess.Type = header["type"]
+		vMess.Type = kcp.Type
 	}
 
-	if model.V2rayEndpointTransportTypeHttp2 == *endpoint.TransportType {
+	if model.V2rayEndpointTransportTypeHttp2 == *config.TransportType {
 		vMess.Net = "h2"
 		vMess.Type = ""
 
-		var http2 map[string]interface{}
-		if err := json.Unmarshal([]byte(*endpoint.Http2), &http2); nil != err {
+		var http2 model.V2rayEndpointHttp2
+		if err := json.Unmarshal([]byte(*config.Http2), &http2); nil != err {
 			return "", errors.New("配置错误，稍后重试一下吧，或者联系管理员")
 		}
 
-		if _, ok := http2["host"]; !ok {
-			return "", errors.New("配置错误，稍后重试一下吧，或者联系管理员")
-		}
-
-		if _, ok := http2["path"]; !ok {
-			return "", errors.New("配置错误，稍后重试一下吧，或者联系管理员")
-		}
-
-		vMess.Host = strings.Join(http2["host"].([]string), ",")
-		vMess.Path = http2["path"].(string)
+		vMess.Host = http2.Host
+		vMess.Path = http2.Path
 	}
 
 	content, err := json.Marshal(vMess)

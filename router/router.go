@@ -13,10 +13,12 @@ func RegisterApiRouter(engine *gin.RouterGroup) error {
 	}
 
 	engine.POST("/auth", jwt.LoginHandler)
-	engine.POST("/auth/logout", jwt.LogoutHandler)
 
 	engine.Use(jwt.MiddlewareFunc())
+	engine.POST("/auth/logout", jwt.LogoutHandler)
+
 	engine.GET("/v2ray-endpoint", controller.V2rayEndpointList)
+	engine.GET("/v2ray-endpoint/detail", controller.V2rayEndpointDetail)
 	engine.POST("/v2ray-endpoint/new", controller.V2rayEndpointNew)
 	engine.POST("/v2ray-endpoint/remove", controller.V2rayEndpointRemove)
 	engine.POST("/v2ray-endpoint/download", controller.V2rayEndpointDownload)

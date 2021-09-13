@@ -9,10 +9,11 @@
           <div class="el-col-4">{{ item.user_id }}</div>
           <div class="el-col-2">{{ item.alter_id }}</div>
           <div class="el-col-2">{{ getTransportType(item.transport_type) }}</div>
-          <div class="el-col-xl-6 el-col-lg-6 el-col-md-6">{{ item.remark ? item.remark : '-' }}</div>
-          <div class="el-col-xl-4 el-col-lg-4 el-col-md-4">
+          <div class="el-col-xl-6 el-col-lg-4 el-col-md-4">{{ item.remark ? item.remark : '-' }}</div>
+          <div class="el-col-xl-4 el-col-lg-6 el-col-md-6">
             <el-button type="primary" :loading="item.downloading" @click="download(item)">生成VMess链接</el-button>
-            <el-button type="primary" class="margin-left" :loading="item.downloading" @click="download(item)">生成完整配置</el-button>
+            <el-button type="primary" class="margin-left" :loading="item.loading" @click="showDetail(item)">显示完整配置
+            </el-button>
             <el-button type="danger" class="delete-button" icon="el-icon-delete" circle
                        @click="removeItem = item; showRemoveModal = true" v-show="item.show_delete_button"></el-button>
           </div>
@@ -40,14 +41,11 @@
   </div>
 
   <Remove v-model:show="showRemoveModal" v-bind:loading="removing" v-on:confirm="remove"></Remove>
-
   <NewV2rayEndpoint v-model:show="showNewModal" v-on:success="load"></NewV2rayEndpoint>
-
   <Download v-model:show="showDownloadModal"></Download>
-
   <QRCode v-model:show="showQRCodeModal" v-bind:content="v2rayNgVMessString"></QRCode>
-
   <DeployV2rayServer v-model:show="showDevelopV2rayModal" v-on:success="load"></DeployV2rayServer>
+  <EndpointDetail v-model:show="showDetailModal" v-bind:data="endpointDetail"></EndpointDetail>
 </template>
 
 <script lang="ts">
@@ -66,12 +64,18 @@ import NewV2rayEndpoint from "@/components/NewV2rayEndpoint.vue"
 import Download from "@/components/Download.vue"
 import QRCode from "@/components/QRCode.vue"
 import DeployV2rayServer from "@/components/DeployV2rayServer.vue"
+import {
+  API_V2RAY_ENDPOINT_DETAIL, V2rayEndpointDetailData,
+  V2rayEndpointDetailParams,
+  V2rayEndpointDetailResponse
+} from "@/api/v2ray_endpoint_detail"
+import EndpointDetail from "@/components/EndpointDetail.vue";
 
 const md5 = require('md5')
 
 export default defineComponent({
   name: 'Home',
-  components: {DeployV2rayServer, QRCode, Download, NewV2rayEndpoint, Remove},
+  components: {EndpointDetail, DeployV2rayServer, QRCode, Download, NewV2rayEndpoint, Remove},
   data() {
     return {
       loading: true,
@@ -84,6 +88,8 @@ export default defineComponent({
       showQRCodeModal: false,
       showDevelopV2rayModal: false,
       v2rayNgVMessString: "",
+      endpointDetail: new V2rayEndpointDetailData(),
+      showDetailModal: false,
     }
   },
 
@@ -150,6 +156,26 @@ export default defineComponent({
         this.$message.success("删除成功")
 
         this.load()
+      })
+    },
+
+    showDetail(item: V2rayEndpointListItem) {
+      item.loading = true
+
+      let params = new V2rayEndpointDetailParams()
+      params.id = item.id
+
+      axios.get(API_V2RAY_ENDPOINT_DETAIL, {params}).then((response: AxiosResponse<V2rayEndpointDetailResponse>) => {
+        item.loading = false
+
+        if (0 != response.data.code) {
+          this.$message.error(response.data.message)
+
+          return
+        }
+
+        this.endpointDetail = response.data.data
+        this.showDetailModal = true
       })
     },
   },

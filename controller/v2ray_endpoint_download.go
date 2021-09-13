@@ -12,8 +12,7 @@ import (
 )
 
 type V2rayEndpointDownloadBody struct {
-	Id   uint `json:"id"`
-	Type int  `json:"type"` // 下载类型：1表示V2rayX；2表示V2rayNG
+	Id uint `json:"id"`
 }
 
 func V2rayEndpointDownload(c *gin.Context) {

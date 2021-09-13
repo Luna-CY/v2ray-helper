@@ -32,3 +32,45 @@ type V2rayEndpoint struct {
 func (e *V2rayEndpoint) TableName() string {
 	return "v2ray_endpoint"
 }
+
+type Header struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
+type V2rayEndpointTcp struct {
+	Type    string `json:"type"`
+	Request struct {
+		Version string   `json:"version"`
+		Method  string   `json:"method"`
+		Path    string   `json:"path"`
+		Headers []Header `json:"headers"`
+	} `json:"request"`
+	Response struct {
+		Version string   `json:"version"`
+		Status  string   `json:"status"`
+		Reason  string   `json:"reason"`
+		Headers []Header `json:"headers"`
+	} `json:"response"`
+}
+
+type V2rayEndpointWebSocket struct {
+	Path    string   `json:"path"`
+	Headers []Header `json:"headers"`
+}
+
+type V2rayEndpointKcp struct {
+	Type             string `json:"type"`
+	Mtu              int    `json:"mtu"`
+	Tti              int    `json:"tti"`
+	UpLinkCapacity   int    `json:"uplink_capacity"`
+	DownLinkCapacity int    `json:"downlink_capacity"`
+	Congestion       bool   `json:"congestion"`
+	ReadBufferSize   int    `json:"read_buffer_size"`
+	WriteBufferSize  int    `json:"write_buffer_size"`
+}
+
+type V2rayEndpointHttp2 struct {
+	Host string `json:"host"`
+	Path string `json:"path"`
+}
