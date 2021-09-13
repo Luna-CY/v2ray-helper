@@ -18,11 +18,19 @@ func TestInstallCaddy(t *testing.T) {
 		_ = os.RemoveAll(td)
 	}()
 
-	if err := InstallCaddy("linux", "amd64", "2.4.5", td); nil != err {
+	if err := InstallCaddy("linux", "amd64", "2.4.5", td, filepath.Join(td, "etc", "caddy", "Caddyfile"), filepath.Join(td, "etc", "systemd", "system", "caddy.service")); nil != err {
 		t.Fatal(err)
 	}
 
 	if err := checkFileIsExists(filepath.Join(td, "caddy")); nil != err {
+		t.Fatal(err)
+	}
+
+	if err := checkFileIsExists(filepath.Join(td, "etc", "caddy", "Caddyfile")); nil != err {
+		t.Fatal(err)
+	}
+
+	if err := checkFileIsExists(filepath.Join(td, "etc", "systemd", "system", "caddy.service")); nil != err {
 		t.Fatal(err)
 	}
 }

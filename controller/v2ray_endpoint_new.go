@@ -7,6 +7,7 @@ import (
 	"github.com/Luna-CY/v2ray-helper/common/http/response"
 	"github.com/Luna-CY/v2ray-helper/common/logger"
 	"github.com/Luna-CY/v2ray-helper/common/util"
+	"github.com/Luna-CY/v2ray-helper/common/v2ray"
 	"github.com/Luna-CY/v2ray-helper/dataservice"
 	"github.com/gin-gonic/gin"
 	"strings"
@@ -19,19 +20,38 @@ type V2rayEndpointNewForm struct {
 	Host    string `json:"host"`
 	Port    int    `json:"port"`
 	UserId  string `json:"user_id"`
-	Sni     string `json:"sni"`
 	AlterId int    `json:"alter_id"`
 	UseTls  bool   `json:"use_tls"`
 
 	TransportType int `json:"transport_type"`
 	Tcp           struct {
-		Type string `json:"type"`
+		Type    string `json:"type"`
+		Request struct {
+			Version string               `json:"version"`
+			Method  string               `json:"method"`
+			Path    string               `json:"path"`
+			Headers []v2ray.ConfigHeader `json:"headers"`
+		} `json:"request"`
+		Response struct {
+			Version string               `json:"version"`
+			Status  string               `json:"status"`
+			Reason  string               `json:"reason"`
+			Headers []v2ray.ConfigHeader `json:"headers"`
+		} `json:"response"`
 	} `json:"tcp"`
 	WebSocket struct {
-		Path string `json:"path"`
+		Path    string               `json:"path"`
+		Headers []v2ray.ConfigHeader `json:"headers"`
 	} `json:"web_socket"`
 	Kcp struct {
-		Type string `json:"type"`
+		Type             string `json:"type"`
+		Mtu              int    `json:"mtu"`
+		Tti              int    `json:"tti"`
+		UpLinkCapacity   int    `json:"uplink_capacity"`
+		DownLinkCapacity int    `json:"downlink_capacity"`
+		Congestion       bool   `json:"congestion"`
+		ReadBufferSize   int    `json:"read_buffer_size"`
+		WriteBufferSize  int    `json:"write_buffer_size"`
 	} `json:"kcp"`
 	Http2 struct {
 		Host string `json:"host"`
@@ -51,7 +71,6 @@ func V2rayEndpointNew(c *gin.Context) {
 	body.Remark = strings.TrimSpace(body.Remark)
 	body.Host = strings.TrimSpace(body.Host)
 	body.UserId = strings.TrimSpace(body.UserId)
-	body.Sni = strings.TrimSpace(body.Sni)
 	body.Tcp.Type = strings.TrimSpace(body.Tcp.Type)
 	body.WebSocket.Path = strings.TrimSpace(body.WebSocket.Path)
 	body.Kcp.Type = strings.TrimSpace(body.Kcp.Type)
@@ -110,13 +129,16 @@ func V2rayEndpointNew(c *gin.Context) {
 	kcpString := string(kcp)
 	http2String := string(http2)
 
+	one := 1
+
 	endpoint := model.V2rayEndpoint{
+		Cloud:         &one,
+		Endpoint:      &one,
 		Remark:        &body.Remark,
 		Host:          &body.Host,
 		Port:          &body.Port,
 		UserId:        &body.UserId,
 		AlterId:       &body.AlterId,
-		Sni:           &body.Sni,
 		UseTls:        &useTls,
 		TransportType: &body.TransportType,
 		Tcp:           &tcpString,

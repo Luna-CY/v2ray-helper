@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
 	"os"
 	"path/filepath"
 	"strings"
@@ -184,15 +183,6 @@ func SetConfig(configPath string, config *Config) error {
 	}
 
 	for _, client := range config.Clients {
-		if "" == client.UserId {
-			id, err := uuid.NewUUID()
-			if nil != err {
-				return errors.New(fmt.Sprintf("无法生成用户ID: %v", err))
-			}
-
-			client.UserId = id.String()
-		}
-
 		inbound.Settings.Clients = append(inbound.Settings.Clients, vConfigInboundClient{
 			Id:      client.UserId,
 			AlterId: client.AlterId,
@@ -203,6 +193,9 @@ func SetConfig(configPath string, config *Config) error {
 
 	switch config.TransportType {
 	case TransportTypeTcp:
+		// TCP协议需要V2ray来监听端口
+		inbound.Listen = "0.0.0.0"
+
 		inbound.StreamSettings.Network = "tcp"
 		inbound.StreamSettings.TcpSettings = &vConfigInboundStreamTcp{}
 		inbound.StreamSettings.TcpSettings.Header.Type = config.Tcp.Type
@@ -242,6 +235,9 @@ func SetConfig(configPath string, config *Config) error {
 			}
 		}
 	case TransportTypeKcp:
+		// KCP协议需要V2ray来监听端口
+		inbound.Listen = "0.0.0.0"
+
 		inbound.StreamSettings.Network = "kcp"
 		inbound.StreamSettings.KcpSettings = &vConfigInboundStreamKcp{}
 		inbound.StreamSettings.KcpSettings.Mtu = config.Kcp.Mtu

@@ -15,11 +15,11 @@ var (
 
 func Init(rootPath string) error {
 	mc = &mainConfig{
-		Listen:             "0.0.0.0:8888",
-		DisableV2rayDeploy: false,
-		Key:                "-",
-		RemoveKey:          "-",
-		LogLevel:           "error",
+		Listen:           "0.0.0.0:8888",
+		AllowV2rayDeploy: true,
+		Key:              "-",
+		RemoveKey:        "-",
+		LogLevel:         "error",
 	}
 
 	if err := loadConfig(filepath.Join(rootPath, "config", "main.prod.config.yaml"), filepath.Join(rootPath, "config", "main.local.config.yaml"), &mc); nil != err {

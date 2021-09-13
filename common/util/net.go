@@ -2,7 +2,9 @@ package util
 
 import (
 	"errors"
+	"fmt"
 	"net"
+	"os/exec"
 )
 
 // GetPublicIpv4 获取外网IPv4地址
@@ -24,4 +26,17 @@ func GetPublicIpv4() (string, error) {
 
 	return "", errors.New("获取IP地址失败")
 
+}
+
+func CheckLocalPortIsAllow(port int) (bool, error) {
+	res, err := exec.Command("lsof", "-i", fmt.Sprintf(":%v", port)).Output()
+	if nil != err && 0 != len(res) {
+		return false, errors.New(fmt.Sprintf("检查端口失败: %v", err))
+	}
+
+	if 0 < len(res) {
+		return false, nil
+	}
+
+	return true, nil
 }

@@ -20,3 +20,10 @@ export class Pagination {
 
   public size = 20
 }
+
+export class Header {
+
+  public key = ""
+
+  public value = ""
+}

@@ -25,19 +25,19 @@
             <el-radio :label="3">自定义配置</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="监听端口" prop="port">
-          <el-input v-model="form.v2ray_port" type="number" min="1" max="65535"
-                    placeholder="V2ray服务器监听的端口号，默认值3000"></el-input>
-        </el-form-item>
         <el-form-item label="传输方式" prop="transport_type">
-          <el-select v-model="form.transport_type" class="w-100">
+          <el-select v-model="form.v2ray_config.transport_type" class="w-100">
             <el-option :value="1" label="TCP"></el-option>
             <el-option :value="2" label="WebSocket"></el-option>
             <el-option :value="3" label="KCP"></el-option>
             <el-option :value="4" label="HTTP2"></el-option>
           </el-select>
         </el-form-item>
-        <template v-for="client in form.clients" v-bind:key="client.user_id">
+        <el-form-item label="监听端口"
+                      v-if="1 === parseInt(form.v2ray_config.transport_type.toString()) || 3 === parseInt(form.v2ray_config.transport_type.toString())">
+          <el-input v-model="form.v2ray_config.v2ray_port" placeholder="V2ray监听的端口号"></el-input>
+        </el-form-item>
+        <template v-for="client in form.v2ray_config.clients" v-bind:key="client.user_id">
           <div class="inline-form-item-client">
             <el-form-item label="用户ID" class="form-item-user-id">
               <el-input v-model="client.user_id" placeholder="用户ID，请勿使用过短的用户ID，若不填写将会自动生成"></el-input>
@@ -51,32 +51,33 @@
         <el-form-item label-width="0" class="content-center">
           <el-button type="primary" @click="addClient">添加一个用户</el-button>
         </el-form-item>
-        <template v-if="1 === parseInt(form.transport_type.toString())">
+        <template v-if="1 === parseInt(form.v2ray_config.transport_type.toString())">
           <el-divider content-position="left">TCP传输配置</el-divider>
           <el-form-item label="伪装类型">
-            <el-select v-model="form.tcp.type">
+            <el-select v-model="form.v2ray_config.tcp.type">
               <el-option value="none" label="NONE"></el-option>
               <el-option value="http" label="HTTP"></el-option>
             </el-select>
           </el-form-item>
-          <template v-if="'http' === form.tcp.type">
+          <template v-if="'http' === form.v2ray_config.tcp.type">
             <div class="inline-form-item-2">
               <el-form-item label="请求版本" class="form-item">
-                <el-select v-model="form.tcp.request.version">
+                <el-select v-model="form.v2ray_config.tcp.request.version">
                   <el-option value="1.1" label="HTTP/1.1"></el-option>
                 </el-select>
               </el-form-item>
               <el-form-item label="请求方式" class="form-item">
-                <el-select v-model="form.tcp.request.method">
+                <el-select v-model="form.v2ray_config.tcp.request.method">
                   <el-option value="GET" label="GET"></el-option>
                   <el-option value="POST" label="POST"></el-option>
                 </el-select>
               </el-form-item>
             </div>
             <el-form-item label="请求路径">
-              <el-input v-model="form.tcp.request.path" placeholder="请求路径，多个路径用英文,分隔，每次请求会随机选择一个，默认为/"></el-input>
+              <el-input v-model="form.v2ray_config.tcp.request.path"
+                        placeholder="请求路径，多个路径用英文,分隔，每次请求会随机选择一个，默认为/"></el-input>
             </el-form-item>
-            <template v-for="header in form.tcp.request.headers" v-bind:key="header.key">
+            <template v-for="header in form.v2ray_config.tcp.request.headers" v-bind:key="header">
               <div class="inline-form-item-2">
                 <el-form-item label="字段名" class="form-item">
                   <el-input v-model="header.key" placeholder="自定义头的字段名称"></el-input>
@@ -91,18 +92,18 @@
             </el-form-item>
             <div class="inline-form-item-3">
               <el-form-item label="响应版本" class="form-item">
-                <el-select v-model="form.tcp.response.version">
+                <el-select v-model="form.v2ray_config.tcp.response.version">
                   <el-option value="1.1" label="HTTP/1.1"></el-option>
                 </el-select>
               </el-form-item>
               <el-form-item label="状态码" class="form-item">
-                <el-input v-model="form.tcp.response.status" placeholder="HTTP响应的状态码，默认为200"></el-input>
+                <el-input v-model="form.v2ray_config.tcp.response.status" placeholder="HTTP响应的状态码，默认为200"></el-input>
               </el-form-item>
               <el-form-item label="状态描述" class="form-item">
-                <el-input v-model="form.tcp.response.reason" placeholder="HTTP响应的状态描述，默认为OK"></el-input>
+                <el-input v-model="form.v2ray_config.tcp.response.reason" placeholder="HTTP响应的状态描述，默认为OK"></el-input>
               </el-form-item>
             </div>
-            <template v-for="header in form.tcp.response.headers" v-bind:key="header.key">
+            <template v-for="header in form.v2ray_config.tcp.response.headers" v-bind:key="header">
               <div class="inline-form-item-2">
                 <el-form-item label="字段名" class="form-item">
                   <el-input v-model="header.key" placeholder="自定义头的字段名称"></el-input>
@@ -117,12 +118,12 @@
             </el-form-item>
           </template>
         </template>
-        <template v-if="2 === parseInt(form.transport_type.toString())">
+        <template v-if="2 === parseInt(form.v2ray_config.transport_type.toString())">
           <el-divider content-position="left">WebSocket传输配置</el-divider>
           <el-form-item label="路径">
-            <el-input v-model="form.web_socket.path" placeholder="URI路径"></el-input>
+            <el-input v-model="form.v2ray_config.web_socket.path" placeholder="URI路径"></el-input>
           </el-form-item>
-          <template v-for="header in form.web_socket.headers" v-bind:key="header.key">
+          <template v-for="header in form.v2ray_config.web_socket.headers" v-bind:key="header">
             <div class="inline-form-item-2">
               <el-form-item label="字段名" class="form-item">
                 <el-input v-model="header.key" placeholder="自定义头的字段名称"></el-input>
@@ -136,11 +137,11 @@
             <el-button type="primary" @click="addWebSocketHeader">添加自定义头字段</el-button>
           </el-form-item>
         </template>
-        <template v-if="3 === parseInt(form.transport_type.toString())">
+        <template v-if="3 === parseInt(form.v2ray_config.transport_type.toString())">
           <el-divider content-position="left">KCP传输配置</el-divider>
           <div class="inline-form-item-2">
             <el-form-item label="伪装类型" class="form-item">
-              <el-select v-model="form.kcp.type" class="w-100">
+              <el-select v-model="form.v2ray_config.kcp.type" class="w-100">
                 <el-option value="none" label="none"></el-option>
                 <el-option value="srtp" label="srtp"></el-option>
                 <el-option value="utp" label="utp"></el-option>
@@ -150,57 +151,53 @@
               </el-select>
             </el-form-item>
             <el-form-item label="开启拥塞控制" class="form-item">
-              <el-switch v-model="form.kcp.congestion"></el-switch>
+              <el-switch v-model="form.v2ray_config.kcp.congestion"></el-switch>
             </el-form-item>
           </div>
           <div class="inline-form-item-2">
             <el-form-item label="MTU大小" class="form-item">
-              <el-input v-model="form.kcp.mtu" type="number" min="576" max="1460"
+              <el-input v-model="form.v2ray_config.kcp.mtu" type="number" min="576" max="1460"
                         placeholder="传输单元大小，576-1460之间的整数，默认为1350"></el-input>
             </el-form-item>
             <el-form-item label="TTI间隔时间" class="form-item">
-              <el-input v-model="form.kcp.tti" type="number" min="10" max="100"
+              <el-input v-model="form.v2ray_config.kcp.tti" type="number" min="10" max="100"
                         placeholder="传输间隔时间，10-100之间的整数，默认为50"></el-input>
             </el-form-item>
           </div>
           <div class="inline-form-item-2">
             <el-form-item label="上行带宽" class="form-item">
-              <el-input v-model="form.kcp.uplink_capacity" type="number" min="0" placeholder="上行带宽大小，默认为5，单位MB/s">
+              <el-input v-model="form.v2ray_config.kcp.uplink_capacity" type="number" min="0"
+                        placeholder="上行带宽大小，默认为5，单位MB/s">
                 <template #append>MB/S</template>
               </el-input>
             </el-form-item>
             <el-form-item label="读取缓冲区大小" class="form-item">
-              <el-input v-model="form.kcp.read_buffer_size" type="number" min="1" placeholder="读取缓冲区大小，默认为2，单位MB">
+              <el-input v-model="form.v2ray_config.kcp.read_buffer_size" type="number" min="1"
+                        placeholder="读取缓冲区大小，默认为2，单位MB">
                 <template #append>MB</template>
               </el-input>
             </el-form-item>
           </div>
           <div class="inline-form-item-2">
             <el-form-item label="下行带宽" class="form-item">
-              <el-input v-model="form.kcp.downlink_capacity" type="number" min="0"
+              <el-input v-model="form.v2ray_config.kcp.downlink_capacity" type="number" min="0"
                         placeholder="下行带宽大小，默认为20，单位MB/s">
                 <template #append>MB/S</template>
               </el-input>
             </el-form-item>
             <el-form-item label="写入缓冲区大小" class="form-item">
-              <el-input v-model="form.kcp.write_buffer_size" type="number" min="1" placeholder="写入缓冲区大小，默认为2，单位MB">
+              <el-input v-model="form.v2ray_config.kcp.write_buffer_size" type="number" min="1"
+                        placeholder="写入缓冲区大小，默认为2，单位MB">
                 <template #append>MB</template>
               </el-input>
             </el-form-item>
           </div>
         </template>
-        <template v-if="4 === parseInt(form.transport_type.toString())">
-          <el-divider content-position="left">HTTP2传输配置</el-divider>
-          <el-form-item label="域名">
-            <el-input v-model="form.http2.host" placeholder="HTTP2的域名，多个使用英文,分隔"></el-input>
-          </el-form-item>
-          <el-form-item label="路径">
-            <el-input v-model="form.http2.path" placeholder="URI路径"></el-input>
-          </el-form-item>
-        </template>
-        <template v-if="4 !== parseInt(form.install_type.toString())">
+        <template
+            v-if="4 !== parseInt(form.install_type.toString()) && 3 !== parseInt(form.v2ray_config.transport_type.toString())">
           <el-divider content-position="left">HTTPS配置
-            <el-tooltip content="HTTPS证书通过Caddy自动申请及续期" placement="right"><i class="el-icon-info"></i></el-tooltip>
+            <el-tooltip content="WebSocket模式通过Caddy自动申请及续期证书；TCP模式可以自动申请证书或手动上传证书" placement="right"><i
+                class="el-icon-info"></i></el-tooltip>
           </el-divider>
           <el-form-item label="使用HTTPS">
             <el-switch v-model="form.use_tls"></el-switch>
@@ -210,7 +207,7 @@
           </el-form-item>
           <el-form-item label="HTTPS证书" v-if="form.use_tls">
             <el-radio-group v-model="form.cert_type">
-              <el-radio :label="1">申请新证书</el-radio>
+              <el-radio :label="1">自动申请证书</el-radio>
               <el-radio :label="2" disabled>上传证书(暂未支持)</el-radio>
             </el-radio-group>
           </el-form-item>
@@ -233,10 +230,9 @@
 
 <script lang="ts">
 import {defineComponent} from "vue"
-import {API_V2RAY_SERVER_DEPLOY, Client, Header, V2rayServerDeployForm} from "@/api/v2ray_server_develop"
-import axios, {AxiosResponse} from "axios";
-import {API_V2RAY_ENDPOINT_NEW} from "@/api/v2ray_endpoint_new";
-import {BaseResponse} from "@/api/base";
+import {API_V2RAY_SERVER_DEPLOY, Client, V2rayServerDeployForm} from "@/api/v2ray_server_develop"
+import axios, {AxiosResponse} from "axios"
+import {BaseResponse, Header} from "@/api/base"
 
 export default defineComponent({
   name: "DeployV2rayServer",
@@ -249,35 +245,35 @@ export default defineComponent({
 
   watch: {
     show: function () {
-      this.form.v2ray_port = 3000
-      this.form.transport_type = 2
-      this.form.web_socket.path = "/v2ray-ws-path"
+      this.form.v2ray_config.v2ray_port = 3000
+      this.form.v2ray_config.transport_type = 2
+      this.form.v2ray_config.web_socket.path = "/v2ray-ws-path"
       this.form.use_tls = true
       this.form.use_cloudreve = false
 
-      this.form.clients = new Array<Client>()
+      this.form.v2ray_config.clients = new Array<Client>()
       this.addClient()
     },
 
     'form.config_type': function () {
       if (1 == this.form.config_type) {
-        this.form.v2ray_port = 3000
-        this.form.transport_type = 2
-        this.form.web_socket.path = "/v2ray-ws-path"
+        this.form.v2ray_config.v2ray_port = 3000
+        this.form.v2ray_config.transport_type = 2
+        this.form.v2ray_config.web_socket.path = "/v2ray-ws-path"
         this.form.use_tls = true
         this.form.use_cloudreve = false
       }
 
       if (2 == this.form.config_type) {
-        this.form.v2ray_port = 3000
-        this.form.transport_type = 3
-        this.form.use_tls = true
+        this.form.v2ray_config.v2ray_port = 3000
+        this.form.v2ray_config.transport_type = 3
+        this.form.use_tls = false
         this.form.use_cloudreve = false
       }
 
       if (3 == this.form.config_type) {
-        this.form.v2ray_port = 3000
-        this.form.transport_type = 1
+        this.form.v2ray_config.v2ray_port = 3000
+        this.form.v2ray_config.transport_type = 1
         this.form.use_tls = false
         this.form.use_cloudreve = false
       }
@@ -317,7 +313,18 @@ export default defineComponent({
           return
         }
 
-        this.form.v2ray_port = parseInt(this.form.v2ray_port.toString())
+        this.form.v2ray_config.v2ray_port = parseInt(this.form.v2ray_config.v2ray_port.toString())
+
+        this.form.v2ray_config.kcp.mtu = parseInt(this.form.v2ray_config.kcp.mtu.toString())
+        this.form.v2ray_config.kcp.tti = parseInt(this.form.v2ray_config.kcp.tti.toString())
+        this.form.v2ray_config.kcp.uplink_capacity = parseInt(this.form.v2ray_config.kcp.uplink_capacity.toString())
+        this.form.v2ray_config.kcp.downlink_capacity = parseInt(this.form.v2ray_config.kcp.downlink_capacity.toString())
+        this.form.v2ray_config.kcp.read_buffer_size = parseInt(this.form.v2ray_config.kcp.read_buffer_size.toString())
+        this.form.v2ray_config.kcp.write_buffer_size = parseInt(this.form.v2ray_config.kcp.write_buffer_size.toString())
+
+        for (let i = 0; i < this.form.v2ray_config.clients.length; i++) {
+          this.form.v2ray_config.clients[i].alter_id = parseInt(this.form.v2ray_config.clients[i].alter_id.toString())
+        }
 
         this.saving = true
         axios.post(API_V2RAY_SERVER_DEPLOY, this.form).then((response: AxiosResponse<BaseResponse>) => {
@@ -334,19 +341,19 @@ export default defineComponent({
     },
 
     addWebSocketHeader() {
-      this.form.web_socket.headers.push(new Header())
+      this.form.v2ray_config.web_socket.headers.push(new Header())
     },
 
     addTcpRequestHeader() {
-      this.form.tcp.request.headers.push(new Header())
+      this.form.v2ray_config.tcp.request.headers.push(new Header())
     },
 
     addTcpResponseHeader() {
-      this.form.tcp.response.headers.push(new Header())
+      this.form.v2ray_config.tcp.response.headers.push(new Header())
     },
 
     addClient() {
-      this.form.clients.push(new Client())
+      this.form.v2ray_config.clients.push(new Client())
     },
 
     validateTlsHost(a: any, b: any, c: any) {
@@ -360,7 +367,7 @@ export default defineComponent({
     },
 
     validateUseCloudreve(a: any, b: any, c: any) {
-      if (this.form.use_cloudreve && (1 == this.form.transport_type || 3 == this.form.transport_type)) {
+      if (this.form.use_cloudreve && (1 == this.form.v2ray_config.transport_type || 3 == this.form.v2ray_config.transport_type)) {
         c(new Error("配置Cloudreve时V2ray不支持使用TCP与KCP，请使用WebSocket或HTTP2"))
 
         return

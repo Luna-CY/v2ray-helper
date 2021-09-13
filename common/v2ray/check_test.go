@@ -35,11 +35,11 @@ func TestCheckSystem(t *testing.T) {
 		t.Fatal("测试失败")
 	}
 
-	if !CheckSystem("freebsd", "386") {
+	if CheckSystem("freebsd", "386") {
 		t.Fatal("测试失败")
 	}
 
-	if !CheckSystem("freebsd", "amd64") {
+	if CheckSystem("freebsd", "amd64") {
 		t.Fatal("测试失败")
 	}
 
@@ -51,11 +51,11 @@ func TestCheckSystem(t *testing.T) {
 		t.Fatal("测试失败")
 	}
 
-	if !CheckSystem("darwin", "amd64") {
+	if CheckSystem("darwin", "amd64") {
 		t.Fatal("测试失败")
 	}
 
-	if !CheckSystem("darwin", "arm64") {
+	if CheckSystem("darwin", "arm64") {
 		t.Fatal("测试失败")
 	}
 

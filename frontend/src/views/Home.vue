@@ -8,10 +8,11 @@
           <div class="el-col-2">{{ item.port }}</div>
           <div class="el-col-4">{{ item.user_id }}</div>
           <div class="el-col-2">{{ item.alter_id }}</div>
-          <div class="el-col-2">{{ getMode(item.transport_type) }}</div>
+          <div class="el-col-2">{{ getTransportType(item.transport_type) }}</div>
           <div class="el-col-xl-6 el-col-lg-6 el-col-md-6">{{ item.remark ? item.remark : '-' }}</div>
-          <div class="el-col-xl-2 el-col-lg-2 el-col-md-2">
-            <el-button type="primary" :loading="item.downloading" @click="download(item)">生成配置</el-button>
+          <div class="el-col-xl-4 el-col-lg-4 el-col-md-4">
+            <el-button type="primary" :loading="item.downloading" @click="download(item)">生成VMess链接</el-button>
+            <el-button type="primary" class="margin-left" :loading="item.downloading" @click="download(item)">生成完整配置</el-button>
             <el-button type="danger" class="delete-button" icon="el-icon-delete" circle
                        @click="removeItem = item; showRemoveModal = true" v-show="item.show_delete_button"></el-button>
           </div>
@@ -32,34 +33,8 @@
     </div>
 
     <div class="el-main el-main-sm-and-down hidden-md-and-up">
-      <template v-for="item in data" v-bind:key="item.id">
-        <div class="endpoint-box el-row margin-bottom" v-show="!item.show_generate_menu">
-          <div class="el-col-12">{{ item.host }}</div>
-          <div class="el-col-9">{{ getMode(item.transport_type) }}</div>
-          <div class="el-col-3">
-            <el-button type="primary" icon="el-icon-menu" circle @click="item.show_generate_menu = true"></el-button>
-          </div>
-        </div>
-        <div class="endpoint-box el-row margin-bottom" v-show="item.show_generate_menu">
-          <div class="el-col-21">
-            <el-button type="primary" :loading="item.downloading" @click="download(item)">生成配置</el-button>
-            <el-button type="danger" @click="removeItem = item; showRemoveModal = true">删除</el-button>
-          </div>
-          <div class="el-col-3">
-            <el-button type="primary" icon="el-icon-menu" circle @click="item.show_generate_menu = false"></el-button>
-          </div>
-        </div>
-      </template>
-
-      <div class="endpoint-box el-row margin-bottom" v-if="0 === data.length">
-        <div class="el-col-24">暂时没有可用的配置</div>
-      </div>
-
-      <div class="el-row">
-        <div class="el-col-24">
-          <el-button type="success" size="medium" @click="showNewModal = true">添加配置</el-button>
-          <el-button type="primary" size="medium" @click="showDownloadModal = true">下载客户端</el-button>
-        </div>
+      <div class="endpoint-box el-row margin-bottom">
+        <div class="el-col-24">暂未适配手机端</div>
       </div>
     </div>
   </div>
@@ -132,7 +107,7 @@ export default defineComponent({
         this.data = response.data.data.data
       })
     },
-    getMode(transportType: number) {
+    getTransportType(transportType: number) {
       let map = {1: "TCP", 2: "WebSocket", 3: "KCP", 4: "HTTP2"} as any
 
       return map[transportType]

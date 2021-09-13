@@ -14,11 +14,11 @@ disable-v2ray-deploy: true
 log-level: error`
 
 type mainConfig struct {
-	Listen             string `yaml:"listen"`
-	DisableV2rayDeploy bool   `yaml:"disable-v2ray-deploy"`
-	Key                string `yaml:"key"`
-	RemoveKey          string `yaml:"remove-key"`
-	LogLevel           string `yaml:"log-level"`
+	Listen           string `yaml:"listen"`
+	AllowV2rayDeploy bool   `yaml:"allow-v2ray-deploy"`
+	Key              string `yaml:"key"`
+	RemoveKey        string `yaml:"remove-key"`
+	LogLevel         string `yaml:"log-level"`
 }
 
 func (m *mainConfig) GetListen() string {

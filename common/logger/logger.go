@@ -23,7 +23,7 @@ func Init(rootPath string) error {
 		}
 
 		//写入文件
-		file, err := os.OpenFile(logPath, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+		file, err := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, os.ModeAppend)
 		if err != nil {
 			return errors.New(fmt.Sprintf("初始化日志组件失败: %v", err))
 		}

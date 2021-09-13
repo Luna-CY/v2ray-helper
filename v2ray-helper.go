@@ -10,6 +10,10 @@ import (
 	"github.com/Luna-CY/v2ray-helper/middleware"
 	"github.com/Luna-CY/v2ray-helper/router"
 	"github.com/Luna-CY/v2ray-helper/staticfile/webstatic"
+	"github.com/Luna-CY/v2ray-helper/staticfile/webstatic/img/imgclient"
+	"github.com/Luna-CY/v2ray-helper/staticfile/webstatic/img/imghelp"
+	"github.com/Luna-CY/v2ray-helper/staticfile/webstatic/img/imgicons"
+	"github.com/Luna-CY/v2ray-helper/staticfile/webstatic/webjs"
 	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -54,16 +58,23 @@ func main() {
 	}
 
 	rootFileSystem := assetfs.AssetFS{Asset: webstatic.Asset, AssetDir: webstatic.AssetDir, AssetInfo: webstatic.AssetInfo, Prefix: "web"}
-	javascriptFileSystem := assetfs.AssetFS{Asset: webstatic.Asset, AssetDir: webstatic.AssetDir, AssetInfo: webstatic.AssetInfo, Prefix: "web/js"}
 	cssFileSystem := assetfs.AssetFS{Asset: webstatic.Asset, AssetDir: webstatic.AssetDir, AssetInfo: webstatic.AssetInfo, Prefix: "web/css"}
-	imgFileSystem := assetfs.AssetFS{Asset: webstatic.Asset, AssetDir: webstatic.AssetDir, AssetInfo: webstatic.AssetInfo, Prefix: "web/img"}
 	fontFileSystem := assetfs.AssetFS{Asset: webstatic.Asset, AssetDir: webstatic.AssetDir, AssetInfo: webstatic.AssetInfo, Prefix: "web/fonts"}
+
+	javascriptFileSystem := assetfs.AssetFS{Asset: webjs.Asset, AssetDir: webjs.AssetDir, AssetInfo: webjs.AssetInfo, Prefix: "web/js"}
+
+	imgClientFileSystem := assetfs.AssetFS{Asset: imgclient.Asset, AssetDir: imgclient.AssetDir, AssetInfo: imgclient.AssetInfo, Prefix: "web/img/client"}
+	imgHelpFileSystem := assetfs.AssetFS{Asset: imghelp.Asset, AssetDir: imghelp.AssetDir, AssetInfo: imghelp.AssetInfo, Prefix: "web/img/help"}
+	imgIconsFileSystem := assetfs.AssetFS{Asset: imgicons.Asset, AssetDir: imgicons.AssetDir, AssetInfo: imgicons.AssetInfo, Prefix: "web/img/icons"}
 
 	engine.StaticFS("/js", &javascriptFileSystem)
 	engine.StaticFS("/css", &cssFileSystem)
-	engine.StaticFS("/img", &imgFileSystem)
 	engine.StaticFS("/fonts", &fontFileSystem)
+	engine.StaticFS("/img/client", &imgClientFileSystem)
+	engine.StaticFS("/img/help", &imgHelpFileSystem)
+	engine.StaticFS("/img/icons", &imgIconsFileSystem)
 	engine.StaticFS("/favicon.ico", &rootFileSystem)
+
 	engine.GET("/manifest.json", func(c *gin.Context) {
 		c.Writer.WriteHeader(200)
 		c.Writer.Header().Set("Content-Type", "application/json")

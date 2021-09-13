@@ -10,15 +10,11 @@ const CmdPath = "/usr/local/bin/v2ray"
 
 // CheckSystem 检查是否支持系统
 func CheckSystem(goos, goArch string) bool {
-	if "freebsd" == goos && ("386" == goArch || "amd64" == goArch) {
-		return true
+	if "linux" != goos {
+		return false
 	}
 
-	if "linux" == goos && ("386" == goArch || "amd64" == goArch || "arm" == goArch || "arm64" == goArch) {
-		return true
-	}
-
-	if "darwin" == goos && ("amd64" == goArch || "arm64" == goArch) {
+	if "386" == goArch || "amd64" == goArch || "arm" == goArch || "arm64" == goArch {
 		return true
 	}
 

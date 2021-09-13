@@ -14,6 +14,7 @@ import (
 	"github.com/Luna-CY/v2ray-helper/common/webserver"
 	"github.com/Luna-CY/v2ray-helper/dataservice"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"os"
 	"runtime"
 	"strings"
@@ -53,7 +54,7 @@ func V2rayServerDeploy(c *gin.Context) {
 		return
 	}
 
-	if configurator.GetMainConfig().DisableV2rayDeploy {
+	if !configurator.GetMainConfig().AllowV2rayDeploy {
 		response.Response(c, code.BadRequest, "当前服务器已禁止部署V2ray", nil)
 
 		return
@@ -87,7 +88,73 @@ func V2rayServerDeploy(c *gin.Context) {
 		}
 	}
 
-	body = v2rayServerDeployBodyFilter(body)
+	body, err := v2rayServerDeployBodyFilter(body)
+	if nil != err {
+		logger.GetLogger().Errorln(err)
+		response.Response(c, code.BadRequest, "过滤输入失败，详细请查看日志", nil)
+
+		return
+	}
+
+	// 如果有Nginx服务器并且已启动，那么停止Nginx，否则Caddy无法启动
+	nginxIsRunning, err := webserver.CheckNginxIsRunning()
+	if nil != err {
+		logger.GetLogger().Errorln(err)
+
+		response.Response(c, code.ServerError, "检查Nginx服务状态失败，详细请查看日志。请使用强制安装或重新配置安装方式", nil)
+
+		return
+	}
+
+	if nginxIsRunning {
+		if err := webserver.StopNginx(); nil != err {
+			logger.GetLogger().Errorln(err)
+
+			response.Response(c, code.ServerError, "停止Nginx服务失败，详细请查看日志。请使用强制安装或重新配置安装方式", nil)
+
+			return
+		}
+	}
+
+	v2rayIsRunning, err := v2ray.IsRunning()
+	if nil != err {
+		logger.GetLogger().Errorln(err)
+
+		response.Response(c, code.ServerError, "检查V2ray服务状态失败，详细请查看日志。请使用强制安装或重新配置安装方式", nil)
+
+		return
+	}
+
+	// 如果服务正在运行必须先停止V2ray服务，否则无法重新安装
+	if v2rayIsRunning {
+		if err := v2ray.Stop(); nil != err {
+			logger.GetLogger().Errorln(err)
+
+			response.Response(c, code.ServerError, "停止V2ray服务失败，详细请查看日志。请使用强制安装或重新配置安装方式", nil)
+
+			return
+		}
+	}
+
+	caddyIsRunning, err := webserver.CheckCaddyIsRunning()
+	if nil != err {
+		logger.GetLogger().Errorln(err)
+
+		response.Response(c, code.ServerError, "检查Caddy服务状态失败，详细请查看日志。请使用强制安装或重新配置安装方式", nil)
+
+		return
+	}
+
+	// 如果Caddy已启动需要停止服务，否则无法重新安装
+	if caddyIsRunning {
+		if err := webserver.StopCaddy(); nil != err {
+			logger.GetLogger().Errorln(err)
+
+			response.Response(c, code.ServerError, "停止Caddy服务失败，详细请查看日志。请使用强制安装或重新配置安装方式", nil)
+
+			return
+		}
+	}
 
 	// 仅在默认安装、强制安装、仅升级V2ray时安装V2ray
 	if InstallTypeDefault == body.InstallType || InstallTypeForce == body.InstallType || InstallTypeUpgrade == body.InstallType {
@@ -103,35 +170,32 @@ func V2rayServerDeploy(c *gin.Context) {
 	// 仅在默认安装、强制安装与仅配置V2ray时配置V2ray
 	if InstallTypeDefault == body.InstallType || InstallTypeForce == body.InstallType || InstallTypeReConfig == body.InstallType {
 		if err := v2ray.SetConfig(v2ray.ConfigPath, &body.V2rayConfig); nil != err {
-			if err := v2ray.InstallLastRelease(); nil != err {
-				logger.GetLogger().Errorln(err)
+			logger.GetLogger().Errorln(err)
 
-				response.Response(c, code.ServerError, "配置V2ray失败，详细请查看日志。请使用强制安装或重新配置安装方式", nil)
+			response.Response(c, code.ServerError, "配置V2ray失败，详细请查看日志。请使用强制安装或重新配置安装方式", nil)
 
-				return
-			}
+			return
 		}
 	}
 
+	// 启动V2ray服务
+	if err := v2ray.Start(); nil != err {
+		logger.GetLogger().Errorln(err)
+
+		response.Response(c, code.ServerError, "启动V2ray服务失败，详细请查看日志。请使用强制安装或重新配置安装方式", nil)
+
+		return
+	}
+
+	// 如果使用的传输类型是WebSocket，需要安装Caddy
 	// 仅在默认安装与强制安装时配置Caddy
-	if InstallTypeDefault == body.InstallType || InstallTypeForce == body.InstallType {
-		caddyIsInstall, err := webserver.CaddyIsInstall()
-		if nil != err {
+	if v2ray.TransportTypeWebSocket == body.V2rayConfig.TransportType && (InstallTypeDefault == body.InstallType || InstallTypeForce == body.InstallType) {
+		if err := webserver.InstallCaddyLastRelease(); nil != err {
 			logger.GetLogger().Errorln(err)
 
 			response.Response(c, code.ServerError, "安装Caddy失败，详细请查看日志", nil)
 
 			return
-		}
-
-		if !caddyIsInstall {
-			if err := webserver.InstallCaddyLastRelease(); nil != err {
-				logger.GetLogger().Errorln(err)
-
-				response.Response(c, code.ServerError, "安装Caddy失败，详细请查看日志", nil)
-
-				return
-			}
 		}
 
 		proxyPath := "/"
@@ -146,6 +210,18 @@ func V2rayServerDeploy(c *gin.Context) {
 			logger.GetLogger().Errorln(err)
 
 			response.Response(c, code.ServerError, "安装Caddy失败，详细请查看日志", nil)
+
+			return
+		}
+	}
+
+	// 启动Caddy服务
+	// WebSocket需要启动Caddy
+	if v2ray.TransportTypeWebSocket == body.V2rayConfig.TransportType {
+		if err := webserver.StartCaddy(); nil != err {
+			logger.GetLogger().Errorln(err)
+
+			response.Response(c, code.ServerError, "启动Caddy服务失败，详细请查看日志。请使用强制安装或重新配置安装方式", nil)
 
 			return
 		}
@@ -171,7 +247,20 @@ func V2rayServerDeploy(c *gin.Context) {
 }
 
 // v2rayServerDeployBodyFilter 表单过滤
-func v2rayServerDeployBodyFilter(body V2rayServerDeployForm) V2rayServerDeployForm {
+func v2rayServerDeployBodyFilter(body V2rayServerDeployForm) (V2rayServerDeployForm, error) {
+	for i, client := range body.V2rayConfig.Clients {
+		if "" == client.UserId {
+			id, err := uuid.NewRandom()
+			if nil != err {
+				return body, errors.New(fmt.Sprintf("无法生成用户ID: %v", err))
+			}
+
+			client.UserId = id.String()
+		}
+
+		body.V2rayConfig.Clients[i] = client
+	}
+
 	body.V2rayConfig.Tcp.Type = strings.TrimSpace(body.V2rayConfig.Tcp.Type)
 	body.V2rayConfig.Tcp.Request.Version = strings.TrimSpace(body.V2rayConfig.Tcp.Request.Version)
 	body.V2rayConfig.Tcp.Request.Method = strings.TrimSpace(body.V2rayConfig.Tcp.Request.Method)
@@ -243,7 +332,7 @@ func v2rayServerDeployBodyFilter(body V2rayServerDeployForm) V2rayServerDeployFo
 
 	body.TlsHost = strings.TrimSpace(body.TlsHost)
 
-	return body
+	return body, nil
 }
 
 // generateConfig 生成客户端配置
@@ -288,13 +377,21 @@ func generateConfig(body V2rayServerDeployForm) error {
 		port = 443
 	}
 
+	if v2ray.TransportTypeTcp == body.V2rayConfig.TransportType || v2ray.TransportTypeKcp == body.V2rayConfig.TransportType {
+		port = body.V2rayConfig.V2rayPort
+	}
+
 	useTls := 0
 	if body.UseTls {
 		useTls = 1
 	}
 
+	one := 1
+
 	for _, client := range body.V2rayConfig.Clients {
 		endpoint := model.V2rayEndpoint{
+			Cloud:         &one,
+			Endpoint:      &one,
 			Host:          &host,
 			Port:          &port,
 			UserId:        &client.UserId,
