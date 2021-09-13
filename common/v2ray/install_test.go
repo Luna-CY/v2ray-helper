@@ -2,21 +2,13 @@ package v2ray
 
 import (
 	"errors"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
 )
 
 func TestInstall(t *testing.T) {
-	td, err := ioutil.TempDir("", "")
-	if nil != err {
-		t.Fatal(err)
-	}
-
-	defer func() {
-		_ = os.RemoveAll(td)
-	}()
+	td := t.TempDir()
 
 	if err := Install("linux", "amd64", "4.41.1", td, filepath.Join(td, "share"), filepath.Join(td, "etc")); nil != err {
 		t.Fatal(err)

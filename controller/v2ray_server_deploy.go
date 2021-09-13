@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/Luna-CY/v2ray-helper/common/certificate"
 	"github.com/Luna-CY/v2ray-helper/common/configurator"
 	"github.com/Luna-CY/v2ray-helper/common/database/model"
 	"github.com/Luna-CY/v2ray-helper/common/http/code"
@@ -96,6 +97,18 @@ func V2rayServerDeploy(c *gin.Context) {
 		return
 	}
 
+	if v2ray.TransportTypeHttp2 == body.V2rayConfig.TransportType && !body.UseTls {
+		response.Response(c, code.BadRequest, "使用HTTP2模式时必须开启HTTPS选项", nil)
+
+		return
+	}
+
+	if body.UseTls && "" == body.TlsHost {
+		response.Response(c, code.BadRequest, "开启HTTPS时必须填写域名，且域名必须绑定到此服务器", nil)
+
+		return
+	}
+
 	// 如果有Nginx服务器并且已启动，那么停止Nginx，否则Caddy无法启动
 	nginxIsRunning, err := webserver.CheckNginxIsRunning()
 	if nil != err {
@@ -154,6 +167,22 @@ func V2rayServerDeploy(c *gin.Context) {
 
 			return
 		}
+	}
+
+	if body.UseTls {
+		// 先申请证书
+		key, cert, err := certificate.IssueNew(body.TlsHost, configurator.GetMainConfig().Email)
+		if nil != err {
+			logger.GetLogger().Errorln(err)
+
+			response.Response(c, code.ServerError, "申请HTTPS证书失败，详细请查看日志", nil)
+
+			return
+		}
+
+		body.V2rayConfig.UseTls = true
+		body.V2rayConfig.TlsKey = key
+		body.V2rayConfig.TlsCert = cert
 	}
 
 	// 仅在默认安装、强制安装、仅升级V2ray时安装V2ray

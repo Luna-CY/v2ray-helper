@@ -63,6 +63,11 @@ type Config struct {
 		Host string `json:"host"`
 		Path string `json:"path"`
 	} `json:"http2"`
+
+	UseTls  bool
+	TlsHost string
+	TlsKey  []byte
+	TlsCert []byte
 }
 
 type ConfigClient struct {
@@ -224,6 +229,16 @@ func SetConfig(configPath string, config *Config) error {
 				}
 			}
 		}
+
+		// 启用TLS
+		if config.UseTls {
+			inbound.StreamSettings.Security = "tls"
+			inbound.StreamSettings.TlsSettings.ServerName = config.TlsHost
+			inbound.StreamSettings.TlsSettings.Certificates = append(inbound.StreamSettings.TlsSettings.Certificates, vConfigInboundTlsCertificate{
+				Key:         strings.Split(string(config.TlsKey), "\n"),
+				Certificate: strings.Split(string(config.TlsCert), "\n"),
+			})
+		}
 	case TransportTypeWebSocket:
 		inbound.StreamSettings.Network = "ws"
 		inbound.StreamSettings.WsSettings = &vConfigInboundStreamWebSocket{}
@@ -253,6 +268,16 @@ func SetConfig(configPath string, config *Config) error {
 		inbound.StreamSettings.HttpSettings = &vConfigInboundStreamHttp{}
 		inbound.StreamSettings.HttpSettings.Host = strings.Split(config.Http2.Host, ",")
 		inbound.StreamSettings.HttpSettings.Path = config.Http2.Path
+
+		// 启用TLS
+		if config.UseTls {
+			inbound.StreamSettings.Security = "tls"
+			inbound.StreamSettings.TlsSettings.ServerName = config.TlsHost
+			inbound.StreamSettings.TlsSettings.Certificates = append(inbound.StreamSettings.TlsSettings.Certificates, vConfigInboundTlsCertificate{
+				Key:         strings.Split(string(config.TlsKey), "\n"),
+				Certificate: strings.Split(string(config.TlsCert), "\n"),
+			})
+		}
 	default:
 		return errors.New(fmt.Sprintf("未受支持的传输方式: %v", config.TransportType))
 	}

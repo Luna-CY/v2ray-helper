@@ -16,6 +16,7 @@ var (
 func Init(rootPath string) error {
 	mc = &mainConfig{
 		Listen:           "0.0.0.0:8888",
+		Email:            "myself@v2ray-helper.net",
 		AllowV2rayDeploy: true,
 		Key:              "-",
 		RemoveKey:        "-",

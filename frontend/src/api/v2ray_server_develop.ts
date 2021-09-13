@@ -94,6 +94,13 @@ export class V2rayServerDeployForm {
 
       public type = "none"
     }
+
+    public http2 = new class {
+
+      public host = ""
+
+      public path = ""
+    }
   }
 }
 

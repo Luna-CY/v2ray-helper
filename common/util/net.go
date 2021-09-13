@@ -3,29 +3,18 @@ package util
 import (
 	"errors"
 	"fmt"
-	"net"
 	"os/exec"
+	"strings"
 )
 
 // GetPublicIpv4 获取外网IPv4地址
 func GetPublicIpv4() (string, error) {
-	addrs, err := net.InterfaceAddrs()
-	if err != nil {
-		return "", err
+	res, err := exec.Command("sh", "-c", "dig +short myip.opendns.com @resolver1.opendns.com").Output()
+	if nil != err {
+		return "", errors.New(fmt.Sprintf("无法获取本机外网IP: %v", err))
 	}
 
-	for _, address := range addrs {
-		// 检查ip地址判断是否回环地址
-		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
-			if ipnet.IP.To4() != nil {
-				return ipnet.IP.String(), nil
-			}
-
-		}
-	}
-
-	return "", errors.New("获取IP地址失败")
-
+	return strings.TrimSpace(string(res)), nil
 }
 
 func CheckLocalPortIsAllow(port int) (bool, error) {

@@ -5,17 +5,17 @@ import (
 	"strings"
 )
 
-const defaultLogPath = "/var/log/v2ray-subscription.log"
-
 const DefaultMainConfigContent = `listen: 0.0.0.0:8888
 key: '-'
 remove-key: '-'
-disable-v2ray-deploy: true
+email: myself@v2ray-helper.net
+allow-v2ray-deploy: true
 log-level: error`
 
 type mainConfig struct {
 	Listen           string `yaml:"listen"`
 	AllowV2rayDeploy bool   `yaml:"allow-v2ray-deploy"`
+	Email            string `yaml:"email"`
 	Key              string `yaml:"key"`
 	RemoveKey        string `yaml:"remove-key"`
 	LogLevel         string `yaml:"log-level"`

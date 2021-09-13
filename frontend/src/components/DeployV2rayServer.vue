@@ -193,6 +193,15 @@
             </el-form-item>
           </div>
         </template>
+        <template v-if="4 === parseInt(form.v2ray_config.transport_type.toString()) && false">
+          <el-divider content-position="left">HTTP2传输配置</el-divider>
+          <el-form-item label="域名">
+            <el-input v-model="form.v2ray_config.http2.host" placeholder="HTTP2的域名，多个使用英文,分隔"></el-input>
+          </el-form-item>
+          <el-form-item label="路径">
+            <el-input v-model="form.v2ray_config.http2.path" placeholder="URI路径"></el-input>
+          </el-form-item>
+        </template>
         <template
             v-if="4 !== parseInt(form.install_type.toString()) && 3 !== parseInt(form.v2ray_config.transport_type.toString())">
           <el-divider content-position="left">HTTPS配置
@@ -200,7 +209,8 @@
                 class="el-icon-info"></i></el-tooltip>
           </el-divider>
           <el-form-item label="使用HTTPS">
-            <el-switch v-model="form.use_tls"></el-switch>
+            <el-switch v-model="form.use_tls"
+                       :disabled="4 === parseInt(form.v2ray_config.transport_type.toString())"></el-switch>
           </el-form-item>
           <el-form-item label="HTTPS域名" prop="tls_host" v-if="form.use_tls">
             <el-input v-model="form.tls_host" placeholder="HTTPS域名，该域名必须已被解析到目标服务器的IP地址"></el-input>
@@ -276,6 +286,12 @@ export default defineComponent({
         this.form.v2ray_config.transport_type = 1
         this.form.use_tls = false
         this.form.use_cloudreve = false
+      }
+    },
+
+    'form.v2ray_config.transport_type': function () {
+      if (4 == this.form.v2ray_config.transport_type) {
+        this.form.use_tls = true
       }
     }
   },
