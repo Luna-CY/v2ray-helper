@@ -1,9 +1,27 @@
 <template>
   <div class="content-center el-container">
     <div class="el-main el-main-md-and-up hidden-sm-and-down">
+      <div class="el-row margin-bottom-2x" v-if="$store.getters.local.is_default_key">
+        <div class="el-col-24">
+          <el-alert type="error" effect="dark" :closable="false">
+            <template #title>
+              <div class="endpoint-alter-box">当前应用使用的口令为默认口令，请及时修改以免造成损失</div>
+            </template>
+          </el-alert>
+        </div>
+      </div>
+      <div class="el-row margin-bottom-2x" v-if="$store.getters.local.is_default_remove_key">
+        <div class="el-col-24">
+          <el-alert type="error" effect="dark" :closable="false">
+            <template #title>
+              <div class="endpoint-alter-box">当前应用使用的配置删除口令为默认口令，请及时修改以免造成损失</div>
+            </template>
+          </el-alert>
+        </div>
+      </div>
       <template v-for="item in data" v-bind:key="item.id">
-        <div class="endpoint-box el-row margin-bottom-2x" v-on:mouseover="item.show_delete_button = true"
-             v-on:mouseout="item.show_delete_button = false">
+        <div class="endpoint-box el-row margin-bottom-2x" v-on:mouseout="item.show_delete_button = false"
+             v-on:mouseover="item.show_delete_button = true">
           <div class="el-col-4">{{ item.host }}</div>
           <div class="el-col-2">{{ item.port }}</div>
           <div class="el-col-4">{{ item.user_id }}</div>
@@ -11,24 +29,24 @@
           <div class="el-col-2">{{ getTransportType(item.transport_type) }}</div>
           <div class="el-col-xl-6 el-col-lg-4 el-col-md-4">{{ item.remark ? item.remark : '-' }}</div>
           <div class="el-col-xl-4 el-col-lg-6 el-col-md-6">
-            <el-button type="primary" :loading="item.downloading" @click="download(item)">生成VMess链接</el-button>
-            <el-button type="primary" class="margin-left" :loading="item.loading" @click="showDetail(item)">显示完整配置
+            <el-button :loading="item.downloading" type="primary" @click="download(item)">生成VMess链接</el-button>
+            <el-button :loading="item.loading" class="margin-left" type="primary" @click="showDetail(item)">显示完整配置
             </el-button>
-            <el-button type="danger" class="delete-button" icon="el-icon-delete" circle
-                       @click="removeItem = item; showRemoveModal = true" v-show="item.show_delete_button"></el-button>
+            <el-button v-show="item.show_delete_button" circle class="delete-button" icon="el-icon-delete"
+                       type="danger" @click="removeItem = item; showRemoveModal = true"></el-button>
           </div>
         </div>
       </template>
 
-      <div class="endpoint-box el-row margin-bottom-2x" v-if="0 === data.length">
+      <div v-if="0 === data.length" class="endpoint-box el-row margin-bottom-2x">
         <div class="el-col-24">暂时没有可用的配置列表</div>
       </div>
 
       <div class="el-row">
         <div class="el-col-24">
-          <el-button type="success" size="medium" @click="showNewModal = true">添加配置</el-button>
-          <el-button type="primary" size="medium" @click="showDevelopV2rayModal = true">部署服务器</el-button>
-          <el-button type="primary" size="medium" @click="showDownloadModal = true">下载客户端</el-button>
+          <el-button size="medium" type="success" @click="showNewModal = true">添加配置</el-button>
+          <el-button size="medium" type="primary" @click="showDevelopV2rayModal = true">部署服务器</el-button>
+          <el-button size="medium" type="primary" @click="showDownloadModal = true">下载客户端</el-button>
         </div>
       </div>
     </div>
@@ -65,17 +83,22 @@ import Download from "@/components/Download.vue"
 import QRCode from "@/components/QRCode.vue"
 import DeployV2rayServer from "@/components/DeployV2rayServer.vue"
 import {
-  API_V2RAY_ENDPOINT_DETAIL, V2rayEndpointDetailData,
+  API_V2RAY_ENDPOINT_DETAIL,
+  V2rayEndpointDetailData,
   V2rayEndpointDetailParams,
   V2rayEndpointDetailResponse
 } from "@/api/v2ray_endpoint_detail"
 import EndpointDetail from "@/components/EndpointDetail.vue";
+import {API_META_INFO, MetaInfoResponse} from "@/api/meta_info";
+import {StoryStateLocal} from "@/store";
 
 const md5 = require('md5')
 
 export default defineComponent({
   name: 'Home',
+
   components: {EndpointDetail, DeployV2rayServer, QRCode, Download, NewV2rayEndpoint, Remove},
+
   data() {
     return {
       loading: true,
@@ -94,6 +117,20 @@ export default defineComponent({
   },
 
   mounted() {
+    axios.get(API_META_INFO).then((response: AxiosResponse<MetaInfoResponse>) => {
+      if (0 != response.data.code) {
+        this.$message.error(response.data.message)
+
+        return
+      }
+
+      let state = new StoryStateLocal()
+      state.is_default_key = response.data.data.is_default_key
+      state.is_default_remove_key = response.data.data.is_default_remove_key
+
+      this.$store.commit('local', state)
+    })
+
     this.load()
   },
 
@@ -215,5 +252,9 @@ body {
     background-color: #fff;
     padding: 15px;
   }
+}
+
+.endpoint-alter-box {
+  padding: 10px;
 }
 </style>

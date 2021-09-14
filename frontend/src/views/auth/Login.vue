@@ -3,10 +3,10 @@
     <div class="login-form">
       <el-form ref="LoginForm" :model="form" :rules="rules" label-width="0" onsubmit="return false" v-on:submit="login">
         <el-form-item prop="key">
-          <el-input v-model="form.key" placeholder="口令" size="medium" autocomplete="off"
-                    prefix-icon="el-icon-key">
+          <el-input v-model="form.key" autocomplete="off" placeholder="口令" prefix-icon="el-icon-key"
+                    size="medium">
             <template #append>
-              <el-button :loading="logging" type="primary" @click="login" icon="el-icon-check"></el-button>
+              <el-button :loading="logging" icon="el-icon-check" type="primary" @click="login"></el-button>
             </template>
           </el-input>
         </el-form-item>

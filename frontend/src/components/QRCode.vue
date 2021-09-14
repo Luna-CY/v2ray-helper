@@ -1,16 +1,22 @@
 <template>
-  <el-dialog width="60%" :model-value="show" @close="close" destroy-on-close>
+  <el-dialog :model-value="show" destroy-on-close width="80%" @close="close" :fullscreen="true">
     <div class="content-center hidden-sm-and-down">
       <div class="content-center">扫描二维码或复制下方字符串到剪贴板并通过剪贴板导入</div>
       <div class="qr-code margin-top">
-        <qrcode-vue :value="content" :size="350" level="H"/>
+        <qrcode-vue :size="480" :value="content" level="H"/>
       </div>
-      <div class="margin-top">{{ content }}</div>
+      <div class="margin-top">
+        <el-input v-model="content" id="vmess-content">
+          <template #append>
+            <el-button @click="copy" icon="el-icon-document-copy"></el-button>
+          </template>
+        </el-input>
+      </div>
     </div>
     <div class="content-center hidden-md-and-up">
       <div class="content-center">扫描二维码或复制下方字符串到剪贴板并通过剪贴板导入</div>
       <div class="qr-code margin-top">
-        <qrcode-vue :value="content" :size="180" level="H"/>
+        <qrcode-vue :size="180" :value="content" level="H"/>
       </div>
       <div class="margin-top">{{ content }}</div>
     </div>
@@ -37,10 +43,19 @@ export default defineComponent({
     close() {
       this.$emit('update:show', false)
     },
+
+    copy() {
+      let input = document.querySelector('#vmess-content') as any;
+      input.select();
+
+      if (document.execCommand('copy')) {
+        this.$message.success("复制成功")
+      }
+    }
   },
 })
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
 </style>

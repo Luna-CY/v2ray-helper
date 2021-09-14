@@ -1,5 +1,5 @@
 <template>
-  <img alt="404.png" src="@/assets/404.png" class="error-404">
+  <img alt="404.png" class="error-404" src="@/assets/404.png">
 </template>
 
 <script lang="ts">

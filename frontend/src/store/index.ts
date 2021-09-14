@@ -9,6 +9,10 @@ export class StoryStateToken {
 }
 
 export class StoryStateLocal {
+
+  public is_default_key = false
+
+  public is_default_remove_key = false
 }
 
 class StoryState {
@@ -39,6 +43,9 @@ export default createStore({
       state.token = payload
 
       sessionStorage.setItem(USER_TOKEN_KEY, JSON.stringify(payload))
+    },
+    local(state: StoryState, payload: StoryStateLocal) {
+      state.local = payload
     },
   },
   actions: {

@@ -1,14 +1,14 @@
 <template>
-  <el-dialog width="60%" :model-value="show" @close="close" destroy-on-close>
+  <el-dialog :model-value="show" destroy-on-close width="80%" @close="close" :fullscreen="true">
     <el-table :data="data" border style="width: 100%">
-      <el-table-column prop="os" label="系统类型"></el-table-column>
-      <el-table-column prop="client" label="客户端"></el-table-column>
+      <el-table-column label="系统类型" prop="os"></el-table-column>
+      <el-table-column label="客户端" prop="client"></el-table-column>
       <el-table-column label="操作" width="200">
         <template #default="scope">
-          <el-link type="primary" :underline="false" :href="scope.row.git" target="_blank">GitHub</el-link>
-          <el-link type="primary" :underline="false" :href="scope.row.address" class="margin-left" target="_blank">下载
+          <el-link :href="scope.row.git" :underline="false" target="_blank" type="primary">GitHub</el-link>
+          <el-link :href="scope.row.address" :underline="false" class="margin-left" target="_blank" type="primary">下载
           </el-link>
-          <el-link type="primary" :underline="false" :href="scope.row.helper" class="margin-left">配置帮助</el-link>
+          <el-link :href="scope.row.helper" :underline="false" class="margin-left" type="primary">配置帮助</el-link>
         </template>
       </el-table-column>
     </el-table>
@@ -63,7 +63,7 @@ export default defineComponent({
 })
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .download-client-box-md-and-up {
   height: 300px;
   width: 100%;

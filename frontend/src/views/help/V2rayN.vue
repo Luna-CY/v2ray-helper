@@ -18,7 +18,7 @@ export default defineComponent({
 })
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .el-main.el-main-padding {
   --el-main-padding: 30px;
 }

@@ -1,7 +1,7 @@
 <template>
-  <el-dialog width="60%" :model-value="show" @close="close" :close-on-click-modal="false"
-             :close-on-press-escape="false" destroy-on-close>
-    <el-form :model="form" label-width="120px" ref="V2rayServerDeploy" :rules="rules">
+  <el-dialog :close-on-click-modal="false" :close-on-press-escape="false" :model-value="show" destroy-on-close
+             width="80%" @close="close" :fullscreen="true">
+    <el-form ref="V2rayServerDeploy" :model="form" :rules="rules" label-width="120px">
       <el-form-item label="选择服务器">
         <el-radio-group v-model="form.server_type">
           <el-radio :label="1">当前服务器</el-radio>
@@ -33,43 +33,43 @@
             <el-option :value="4" label="HTTP2"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="监听端口"
-                      v-if="1 === parseInt(form.v2ray_config.transport_type.toString()) || 3 === parseInt(form.v2ray_config.transport_type.toString())">
+        <el-form-item v-if="1 === parseInt(form.v2ray_config.transport_type.toString()) || 3 === parseInt(form.v2ray_config.transport_type.toString())"
+                      label="监听端口">
           <el-input v-model="form.v2ray_config.v2ray_port" placeholder="V2ray监听的端口号"></el-input>
         </el-form-item>
         <template v-for="client in form.v2ray_config.clients" v-bind:key="client.user_id">
           <div class="inline-form-item-client">
-            <el-form-item label="用户ID" class="form-item-user-id">
+            <el-form-item class="form-item-user-id" label="用户ID">
               <el-input v-model="client.user_id" placeholder="用户ID，请勿使用过短的用户ID，若不填写将会自动生成"></el-input>
             </el-form-item>
-            <el-form-item label="额外ID" label-width="60px" class="form-item-alter-id">
-              <el-input v-model="client.alter_id" type="number" min="0" max="65535"
-                        placeholder="额外ID的数量，推荐值4，可选值0-65535"></el-input>
+            <el-form-item class="form-item-alter-id" label="额外ID" label-width="60px">
+              <el-input v-model="client.alter_id" max="65535" min="0" placeholder="额外ID的数量，推荐值4，可选值0-65535"
+                        type="number"></el-input>
             </el-form-item>
           </div>
         </template>
-        <el-form-item label-width="0" class="content-center">
+        <el-form-item class="content-center" label-width="0">
           <el-button type="primary" @click="addClient">添加一个用户</el-button>
         </el-form-item>
         <template v-if="1 === parseInt(form.v2ray_config.transport_type.toString())">
           <el-divider content-position="left">TCP传输配置</el-divider>
           <el-form-item label="伪装类型">
             <el-select v-model="form.v2ray_config.tcp.type">
-              <el-option value="none" label="NONE"></el-option>
-              <el-option value="http" label="HTTP"></el-option>
+              <el-option label="NONE" value="none"></el-option>
+              <el-option label="HTTP" value="http"></el-option>
             </el-select>
           </el-form-item>
           <template v-if="'http' === form.v2ray_config.tcp.type">
             <div class="inline-form-item-2">
-              <el-form-item label="请求版本" class="form-item">
+              <el-form-item class="form-item" label="请求版本">
                 <el-select v-model="form.v2ray_config.tcp.request.version">
-                  <el-option value="1.1" label="HTTP/1.1"></el-option>
+                  <el-option label="HTTP/1.1" value="1.1"></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label="请求方式" class="form-item">
+              <el-form-item class="form-item" label="请求方式">
                 <el-select v-model="form.v2ray_config.tcp.request.method">
-                  <el-option value="GET" label="GET"></el-option>
-                  <el-option value="POST" label="POST"></el-option>
+                  <el-option label="GET" value="GET"></el-option>
+                  <el-option label="POST" value="POST"></el-option>
                 </el-select>
               </el-form-item>
             </div>
@@ -79,41 +79,41 @@
             </el-form-item>
             <template v-for="header in form.v2ray_config.tcp.request.headers" v-bind:key="header">
               <div class="inline-form-item-2">
-                <el-form-item label="字段名" class="form-item">
+                <el-form-item class="form-item" label="字段名">
                   <el-input v-model="header.key" placeholder="自定义头的字段名称"></el-input>
                 </el-form-item>
-                <el-form-item label="字段值" class="form-item">
+                <el-form-item class="form-item" label="字段值">
                   <el-input v-model="header.value" placeholder="自定义头的字段值"></el-input>
                 </el-form-item>
               </div>
             </template>
-            <el-form-item label-width="0" class="content-center">
+            <el-form-item class="content-center" label-width="0">
               <el-button type="primary" @click="addTcpRequestHeader">添加自定义请求头字段</el-button>
             </el-form-item>
             <div class="inline-form-item-3">
-              <el-form-item label="响应版本" class="form-item">
+              <el-form-item class="form-item" label="响应版本">
                 <el-select v-model="form.v2ray_config.tcp.response.version">
-                  <el-option value="1.1" label="HTTP/1.1"></el-option>
+                  <el-option label="HTTP/1.1" value="1.1"></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label="状态码" class="form-item">
+              <el-form-item class="form-item" label="状态码">
                 <el-input v-model="form.v2ray_config.tcp.response.status" placeholder="HTTP响应的状态码，默认为200"></el-input>
               </el-form-item>
-              <el-form-item label="状态描述" class="form-item">
+              <el-form-item class="form-item" label="状态描述">
                 <el-input v-model="form.v2ray_config.tcp.response.reason" placeholder="HTTP响应的状态描述，默认为OK"></el-input>
               </el-form-item>
             </div>
             <template v-for="header in form.v2ray_config.tcp.response.headers" v-bind:key="header">
               <div class="inline-form-item-2">
-                <el-form-item label="字段名" class="form-item">
+                <el-form-item class="form-item" label="字段名">
                   <el-input v-model="header.key" placeholder="自定义头的字段名称"></el-input>
                 </el-form-item>
-                <el-form-item label="字段值" class="form-item">
+                <el-form-item class="form-item" label="字段值">
                   <el-input v-model="header.value" placeholder="自定义头的字段值"></el-input>
                 </el-form-item>
               </div>
             </template>
-            <el-form-item label-width="0" class="content-center">
+            <el-form-item class="content-center" label-width="0">
               <el-button type="primary" @click="addTcpResponseHeader">添加自定义响应头字段</el-button>
             </el-form-item>
           </template>
@@ -125,69 +125,69 @@
           </el-form-item>
           <template v-for="header in form.v2ray_config.web_socket.headers" v-bind:key="header">
             <div class="inline-form-item-2">
-              <el-form-item label="字段名" class="form-item">
+              <el-form-item class="form-item" label="字段名">
                 <el-input v-model="header.key" placeholder="自定义头的字段名称"></el-input>
               </el-form-item>
-              <el-form-item label="字段值" class="form-item">
+              <el-form-item class="form-item" label="字段值">
                 <el-input v-model="header.value" placeholder="自定义头的字段值"></el-input>
               </el-form-item>
             </div>
           </template>
-          <el-form-item label-width="0" class="content-center">
+          <el-form-item class="content-center" label-width="0">
             <el-button type="primary" @click="addWebSocketHeader">添加自定义头字段</el-button>
           </el-form-item>
         </template>
         <template v-if="3 === parseInt(form.v2ray_config.transport_type.toString())">
           <el-divider content-position="left">KCP传输配置</el-divider>
           <div class="inline-form-item-2">
-            <el-form-item label="伪装类型" class="form-item">
+            <el-form-item class="form-item" label="伪装类型">
               <el-select v-model="form.v2ray_config.kcp.type" class="w-100">
-                <el-option value="none" label="none"></el-option>
-                <el-option value="srtp" label="srtp"></el-option>
-                <el-option value="utp" label="utp"></el-option>
-                <el-option value="wechat-video" label="wechat-video"></el-option>
-                <el-option value="dtls" label="dtls"></el-option>
-                <el-option value="wireguard" label="wireguard"></el-option>
+                <el-option label="none" value="none"></el-option>
+                <el-option label="srtp" value="srtp"></el-option>
+                <el-option label="utp" value="utp"></el-option>
+                <el-option label="wechat-video" value="wechat-video"></el-option>
+                <el-option label="dtls" value="dtls"></el-option>
+                <el-option label="wireguard" value="wireguard"></el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="开启拥塞控制" class="form-item">
+            <el-form-item class="form-item" label="开启拥塞控制">
               <el-switch v-model="form.v2ray_config.kcp.congestion"></el-switch>
             </el-form-item>
           </div>
           <div class="inline-form-item-2">
-            <el-form-item label="MTU大小" class="form-item">
-              <el-input v-model="form.v2ray_config.kcp.mtu" type="number" min="576" max="1460"
-                        placeholder="传输单元大小，576-1460之间的整数，默认为1350"></el-input>
+            <el-form-item class="form-item" label="MTU大小">
+              <el-input v-model="form.v2ray_config.kcp.mtu" max="1460" min="576" placeholder="传输单元大小，576-1460之间的整数，默认为1350"
+                        type="number"></el-input>
             </el-form-item>
-            <el-form-item label="TTI间隔时间" class="form-item">
-              <el-input v-model="form.v2ray_config.kcp.tti" type="number" min="10" max="100"
-                        placeholder="传输间隔时间，10-100之间的整数，默认为50"></el-input>
+            <el-form-item class="form-item" label="TTI间隔时间">
+              <el-input v-model="form.v2ray_config.kcp.tti" max="100" min="10" placeholder="传输间隔时间，10-100之间的整数，默认为50"
+                        type="number"></el-input>
             </el-form-item>
           </div>
           <div class="inline-form-item-2">
-            <el-form-item label="上行带宽" class="form-item">
-              <el-input v-model="form.v2ray_config.kcp.uplink_capacity" type="number" min="0"
-                        placeholder="上行带宽大小，默认为5，单位MB/s">
+            <el-form-item class="form-item" label="上行带宽">
+              <el-input v-model="form.v2ray_config.kcp.uplink_capacity" min="0" placeholder="上行带宽大小，默认为5，单位MB/s"
+                        type="number">
                 <template #append>MB/S</template>
               </el-input>
             </el-form-item>
-            <el-form-item label="读取缓冲区大小" class="form-item">
-              <el-input v-model="form.v2ray_config.kcp.read_buffer_size" type="number" min="1"
-                        placeholder="读取缓冲区大小，默认为2，单位MB">
+            <el-form-item class="form-item" label="读取缓冲区大小">
+              <el-input v-model="form.v2ray_config.kcp.read_buffer_size" min="1" placeholder="读取缓冲区大小，默认为2，单位MB"
+                        type="number">
                 <template #append>MB</template>
               </el-input>
             </el-form-item>
           </div>
           <div class="inline-form-item-2">
-            <el-form-item label="下行带宽" class="form-item">
-              <el-input v-model="form.v2ray_config.kcp.downlink_capacity" type="number" min="0"
-                        placeholder="下行带宽大小，默认为20，单位MB/s">
+            <el-form-item class="form-item" label="下行带宽">
+              <el-input v-model="form.v2ray_config.kcp.downlink_capacity" min="0" placeholder="下行带宽大小，默认为20，单位MB/s"
+                        type="number">
                 <template #append>MB/S</template>
               </el-input>
             </el-form-item>
-            <el-form-item label="写入缓冲区大小" class="form-item">
-              <el-input v-model="form.v2ray_config.kcp.write_buffer_size" type="number" min="1"
-                        placeholder="写入缓冲区大小，默认为2，单位MB">
+            <el-form-item class="form-item" label="写入缓冲区大小">
+              <el-input v-model="form.v2ray_config.kcp.write_buffer_size" min="1" placeholder="写入缓冲区大小，默认为2，单位MB"
+                        type="number">
                 <template #append>MB</template>
               </el-input>
             </el-form-item>
@@ -212,10 +212,10 @@
             <el-switch v-model="form.use_tls"
                        :disabled="4 === parseInt(form.v2ray_config.transport_type.toString())"></el-switch>
           </el-form-item>
-          <el-form-item label="HTTPS域名" prop="tls_host" v-if="form.use_tls">
+          <el-form-item v-if="form.use_tls" label="HTTPS域名" prop="tls_host">
             <el-input v-model="form.tls_host" placeholder="HTTPS域名，该域名必须已被解析到目标服务器的IP地址"></el-input>
           </el-form-item>
-          <el-form-item label="HTTPS证书" v-if="form.use_tls">
+          <el-form-item v-if="form.use_tls" label="HTTPS证书">
             <el-radio-group v-model="form.cert_type">
               <el-radio :label="1">自动申请证书</el-radio>
               <el-radio :label="2" disabled>上传证书(暂未支持)</el-radio>
@@ -230,9 +230,9 @@
           <!--          </el-form-item>-->
         </template>
       </template>
-      <el-form-item label-width="0" class="content-center">
+      <el-form-item class="content-center" label-width="0">
         <el-button type="danger" @click="close">取消</el-button>
-        <el-button type="primary" @click="save" :loading="saving">开始部署</el-button>
+        <el-button :loading="saving" type="primary" @click="save">开始部署</el-button>
       </el-form-item>
     </el-form>
   </el-dialog>
@@ -395,7 +395,7 @@ export default defineComponent({
 })
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .inline-form-item-2 {
   display: flex;
 
