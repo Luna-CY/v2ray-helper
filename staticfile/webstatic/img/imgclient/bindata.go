@@ -95,7 +95,7 @@ func webImgClientV2raynIco() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/img/client/v2rayN.ico", size: 67646, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
+	info := bindataFileInfo{name: "web/img/client/v2rayN.ico", size: 67646, mode: os.FileMode(420), modTime: time.Unix(1631613922, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -115,7 +115,7 @@ func webImgClientV2rayngPng() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/img/client/v2rayNG.png", size: 2520, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
+	info := bindataFileInfo{name: "web/img/client/v2rayNG.png", size: 2520, mode: os.FileMode(420), modTime: time.Unix(1631613922, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -135,7 +135,7 @@ func webImgClientVx128Png() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/img/client/vx128.png", size: 10996, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
+	info := bindataFileInfo{name: "web/img/client/vx128.png", size: 10996, mode: os.FileMode(420), modTime: time.Unix(1631613922, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }

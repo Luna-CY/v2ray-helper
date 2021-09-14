@@ -107,7 +107,7 @@ func webImgIconsAndroidChrome192x192Png() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/img/icons/android-chrome-192x192.png", size: 9416, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
+	info := bindataFileInfo{name: "web/img/icons/android-chrome-192x192.png", size: 9416, mode: os.FileMode(420), modTime: time.Unix(1631613922, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -127,7 +127,7 @@ func webImgIconsAndroidChrome512x512Png() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/img/icons/android-chrome-512x512.png", size: 29808, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
+	info := bindataFileInfo{name: "web/img/icons/android-chrome-512x512.png", size: 29808, mode: os.FileMode(420), modTime: time.Unix(1631613922, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -147,7 +147,7 @@ func webImgIconsAndroidChromeMaskable192x192Png() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/img/icons/android-chrome-maskable-192x192.png", size: 6401, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
+	info := bindataFileInfo{name: "web/img/icons/android-chrome-maskable-192x192.png", size: 6401, mode: os.FileMode(420), modTime: time.Unix(1631613922, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -167,7 +167,7 @@ func webImgIconsAndroidChromeMaskable512x512Png() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/img/icons/android-chrome-maskable-512x512.png", size: 23038, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
+	info := bindataFileInfo{name: "web/img/icons/android-chrome-maskable-512x512.png", size: 23038, mode: os.FileMode(420), modTime: time.Unix(1631613922, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -187,7 +187,7 @@ func webImgIconsAppleTouchIcon120x120Png() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/img/icons/apple-touch-icon-120x120.png", size: 3369, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
+	info := bindataFileInfo{name: "web/img/icons/apple-touch-icon-120x120.png", size: 3369, mode: os.FileMode(420), modTime: time.Unix(1631613922, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -207,7 +207,7 @@ func webImgIconsAppleTouchIcon152x152Png() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/img/icons/apple-touch-icon-152x152.png", size: 4046, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
+	info := bindataFileInfo{name: "web/img/icons/apple-touch-icon-152x152.png", size: 4046, mode: os.FileMode(420), modTime: time.Unix(1631613922, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -227,7 +227,7 @@ func webImgIconsAppleTouchIcon180x180Png() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/img/icons/apple-touch-icon-180x180.png", size: 4678, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
+	info := bindataFileInfo{name: "web/img/icons/apple-touch-icon-180x180.png", size: 4678, mode: os.FileMode(420), modTime: time.Unix(1631613922, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -247,7 +247,7 @@ func webImgIconsAppleTouchIcon60x60Png() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/img/icons/apple-touch-icon-60x60.png", size: 1491, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
+	info := bindataFileInfo{name: "web/img/icons/apple-touch-icon-60x60.png", size: 1491, mode: os.FileMode(420), modTime: time.Unix(1631613922, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -267,7 +267,7 @@ func webImgIconsAppleTouchIcon76x76Png() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/img/icons/apple-touch-icon-76x76.png", size: 1823, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
+	info := bindataFileInfo{name: "web/img/icons/apple-touch-icon-76x76.png", size: 1823, mode: os.FileMode(420), modTime: time.Unix(1631613922, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -287,7 +287,7 @@ func webImgIconsAppleTouchIconPng() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/img/icons/apple-touch-icon.png", size: 4678, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
+	info := bindataFileInfo{name: "web/img/icons/apple-touch-icon.png", size: 4678, mode: os.FileMode(420), modTime: time.Unix(1631613922, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -307,7 +307,7 @@ func webImgIconsFavicon16x16Png() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/img/icons/favicon-16x16.png", size: 799, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
+	info := bindataFileInfo{name: "web/img/icons/favicon-16x16.png", size: 799, mode: os.FileMode(420), modTime: time.Unix(1631613922, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -327,7 +327,7 @@ func webImgIconsFavicon32x32Png() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/img/icons/favicon-32x32.png", size: 1271, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
+	info := bindataFileInfo{name: "web/img/icons/favicon-32x32.png", size: 1271, mode: os.FileMode(420), modTime: time.Unix(1631613922, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -347,7 +347,7 @@ func webImgIconsMsapplicationIcon144x144Png() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/img/icons/msapplication-icon-144x144.png", size: 1169, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
+	info := bindataFileInfo{name: "web/img/icons/msapplication-icon-144x144.png", size: 1169, mode: os.FileMode(420), modTime: time.Unix(1631613922, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -367,7 +367,7 @@ func webImgIconsMstile150x150Png() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/img/icons/mstile-150x150.png", size: 4282, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
+	info := bindataFileInfo{name: "web/img/icons/mstile-150x150.png", size: 4282, mode: os.FileMode(420), modTime: time.Unix(1631613922, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -387,7 +387,7 @@ func webImgIconsSafariPinnedTabSvg() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/img/icons/safari-pinned-tab.svg", size: 215, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
+	info := bindataFileInfo{name: "web/img/icons/safari-pinned-tab.svg", size: 215, mode: os.FileMode(420), modTime: time.Unix(1631613922, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }

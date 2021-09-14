@@ -20,8 +20,8 @@
         <el-divider content-position="left">V2ray配置选择</el-divider>
         <el-form-item label="选择配置">
           <el-radio-group v-model="form.config_type">
-            <el-radio :label="1">预设配置(WebSocket/HTTPS)</el-radio>
-            <el-radio :label="2">预设配置(KCP/HTTPS)</el-radio>
+            <el-radio :label="1">预设配置(WebSocket)</el-radio>
+            <el-radio :label="2">预设配置(KCP)</el-radio>
             <el-radio :label="3">自定义配置</el-radio>
           </el-radio-group>
         </el-form-item>
