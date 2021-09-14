@@ -14,12 +14,15 @@ import (
 	"path/filepath"
 )
 
-func InitRuntime(rootPath string) error {
-	if err := os.MkdirAll(filepath.Join(rootPath, "config"), 0755); nil != err {
+var rootPath = ""
+
+// InitRuntime 初始化运行环境
+func InitRuntime(path string) error {
+	if err := os.MkdirAll(filepath.Join(path, "config"), 0755); nil != err {
 		return errors.New(fmt.Sprintf("初始化运行环境失败: %v", err))
 	}
 
-	mainConfigPath := filepath.Join(rootPath, "config", "main.prod.config.yaml")
+	mainConfigPath := filepath.Join(path, "config", "main.prod.config.yaml")
 	mainConfigExists, err := fileExists(mainConfigPath)
 	if nil != err {
 		return err
@@ -37,7 +40,7 @@ func InitRuntime(rootPath string) error {
 		}
 	}
 
-	dbPath := filepath.Join(rootPath, "main.db")
+	dbPath := filepath.Join(path, "main.db")
 	dbExists, err := fileExists(dbPath)
 	if nil != err {
 		return err
@@ -49,9 +52,12 @@ func InitRuntime(rootPath string) error {
 		}
 	}
 
+	rootPath = path
+
 	return nil
 }
 
+// Migrate 数据库迁移
 func Migrate(db, version string) error {
 	td, err := ioutil.TempDir("", "")
 	if nil != err {
@@ -104,8 +110,8 @@ func Migrate(db, version string) error {
 	return nil
 }
 
-// GetRootPath 获取项目运行根目录
-func GetRootPath(homeDir string) string {
+// AbsRootPath 获取项目运行绝对目录
+func AbsRootPath(homeDir string) string {
 	if "" != homeDir {
 		if filepath.IsAbs(homeDir) {
 			return homeDir
@@ -126,6 +132,11 @@ func GetRootPath(homeDir string) string {
 	}
 
 	return filepath.Dir(executable)
+}
+
+// GetRootPath 获取根目录
+func GetRootPath() string {
+	return rootPath
 }
 
 func fileExists(path string) (bool, error) {

@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/Luna-CY/v2ray-helper/common/certificate"
 	"github.com/Luna-CY/v2ray-helper/common/configurator"
 	"github.com/Luna-CY/v2ray-helper/common/database"
 	"github.com/Luna-CY/v2ray-helper/common/logger"
@@ -28,21 +29,26 @@ func main() {
 	flag.Parse()
 
 	homeDir = strings.TrimSpace(homeDir)
+	rootAbsPath := runtime.AbsRootPath(homeDir)
 
-	if err := runtime.InitRuntime(runtime.GetRootPath(homeDir)); nil != err {
+	if err := runtime.InitRuntime(rootAbsPath); nil != err {
 		log.Fatalln(fmt.Sprintf("初始化运行环境失败: %v", err))
 	}
 
-	if err := configurator.Init(runtime.GetRootPath(homeDir)); nil != err {
+	if err := configurator.Init(rootAbsPath); nil != err {
 		log.Fatalln(fmt.Sprintf("初始化配置器失败: %v", err))
 	}
 
-	if err := logger.Init(runtime.GetRootPath(homeDir)); nil != err {
+	if err := logger.Init(rootAbsPath); nil != err {
 		log.Fatalln(fmt.Sprintf("初始化日志失败: %v", err))
 	}
 
-	if err := database.Init(filepath.Join(runtime.GetRootPath(homeDir), "main.db"), 10); nil != err {
+	if err := database.Init(filepath.Join(rootAbsPath, "main.db"), 10); nil != err {
 		log.Fatalln(fmt.Sprintf("初始化数据库失败: %v", err))
+	}
+
+	if err := certificate.Init(rootAbsPath); nil != err {
+		log.Fatalln(fmt.Sprintf("初始化证书管理器失败: %v", err))
 	}
 
 	engine := gin.New()

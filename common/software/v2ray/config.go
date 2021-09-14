@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/Luna-CY/v2ray-helper/common/certificate"
+	"github.com/Luna-CY/v2ray-helper/common/runtime"
 	"os"
 	"path/filepath"
 	"strings"
@@ -196,6 +198,18 @@ func SetConfig(configPath string, config *Config) error {
 
 	inbound.StreamSettings.Security = "none"
 
+	cert := vConfigInboundTlsCertificate{
+		Usage: "encipherment",
+	}
+
+	if 0 != len(config.TlsKey) && 0 != len(config.TlsCert) {
+		cert.Key = strings.Split(string(config.TlsKey), "\n")
+		cert.Certificate = strings.Split(string(config.TlsCert), "\n")
+	} else {
+		cert.KeyFile = filepath.Join(runtime.GetRootPath(), certificate.CertDirName, config.TlsHost, "private.key")
+		cert.CertificateFile = filepath.Join(runtime.GetRootPath(), certificate.CertDirName, config.TlsHost, "cert.pem")
+	}
+
 	switch config.TransportType {
 	case TransportTypeTcp:
 		// TCP协议需要V2ray来监听端口
@@ -234,10 +248,7 @@ func SetConfig(configPath string, config *Config) error {
 		if config.UseTls {
 			inbound.StreamSettings.Security = "tls"
 			inbound.StreamSettings.TlsSettings.ServerName = config.TlsHost
-			inbound.StreamSettings.TlsSettings.Certificates = append(inbound.StreamSettings.TlsSettings.Certificates, vConfigInboundTlsCertificate{
-				Key:         strings.Split(string(config.TlsKey), "\n"),
-				Certificate: strings.Split(string(config.TlsCert), "\n"),
-			})
+			inbound.StreamSettings.TlsSettings.Certificates = append(inbound.StreamSettings.TlsSettings.Certificates, cert)
 		}
 	case TransportTypeWebSocket:
 		inbound.StreamSettings.Network = "ws"
@@ -273,10 +284,7 @@ func SetConfig(configPath string, config *Config) error {
 		if config.UseTls {
 			inbound.StreamSettings.Security = "tls"
 			inbound.StreamSettings.TlsSettings.ServerName = config.TlsHost
-			inbound.StreamSettings.TlsSettings.Certificates = append(inbound.StreamSettings.TlsSettings.Certificates, vConfigInboundTlsCertificate{
-				Key:         strings.Split(string(config.TlsKey), "\n"),
-				Certificate: strings.Split(string(config.TlsCert), "\n"),
-			})
+			inbound.StreamSettings.TlsSettings.Certificates = append(inbound.StreamSettings.TlsSettings.Certificates, cert)
 		}
 	default:
 		return errors.New(fmt.Sprintf("未受支持的传输方式: %v", config.TransportType))

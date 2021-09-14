@@ -1,4 +1,4 @@
-package webserver
+package caddy
 
 import (
 	"archive/tar"
@@ -16,22 +16,22 @@ import (
 	"strings"
 )
 
-const CaddyInstallTo = "/usr/local/bin"
-const CaddyConfigPath = "/etc/caddy/Caddyfile"
-const CaddySystemdPath = "/etc/systemd/system/caddy.service"
+const InstallTo = "/usr/local/bin"
+const ConfigPath = "/etc/caddy/Caddyfile"
+const SystemdPath = "/etc/systemd/system/caddy.service"
 
-const caddyLastReleaseApi = "https://api.github.com/repos/caddyserver/caddy/releases/latest"
-const caddyDownloadUrlTemplate = "https://github.com/caddyserver/caddy/releases/download/v%v/caddy_%v_%v_%v.tar.gz"
+const lastReleaseApi = "https://api.github.com/repos/caddyserver/caddy/releases/latest"
+const downloadUrlTemplate = "https://github.com/caddyserver/caddy/releases/download/v%v/caddy_%v_%v_%v.tar.gz"
 
-const caddyConfigTemplate = `%v:%v {
+const configTemplate = `%v:%v {
     reverse_proxy %v 127.0.0.1:%v
 }`
-const caddyAndCloudConfigTemplate = `%v:%v {
+const cloudConfigTemplate = `%v:%v {
     reverse_proxy %v 127.0.0.1:%v
 
     reverse_proxy / 127.0.0.1:5212
 }`
-const caddySystemdConfig = `[Unit]
+const systemdConfig = `[Unit]
 Description=Caddy Service
 Documentation=https://caddyserver.com/docs/
 After=network.target nss-lookup.target
@@ -45,9 +45,9 @@ RestartPreventExitStatus=23
 [Install]
 WantedBy=multi-user.target`
 
-// CaddyIsInstall 检查是否已安装Caddy
-func CaddyIsInstall() (bool, error) {
-	stat, err := os.Stat(filepath.Join(CaddyInstallTo, "caddy"))
+// IsInstall 检查是否已安装Caddy
+func IsInstall() (bool, error) {
+	stat, err := os.Stat(filepath.Join(InstallTo, "caddy"))
 	if nil != err {
 		if os.IsNotExist(err) {
 			return false, nil
@@ -63,9 +63,9 @@ func CaddyIsInstall() (bool, error) {
 	return true, nil
 }
 
-// InstallCaddy 安装Caddy
-func InstallCaddy(goos, goArch, version, installTo, configPath, systemdPath string) error {
-	downloadUrl, err := GetCaddyDownloadUrl(goos, goArch, version)
+// Install 安装Caddy
+func Install(goos, goArch, version, installTo, configPath, systemdPath string) error {
+	downloadUrl, err := GetDownloadUrl(goos, goArch, version)
 	if nil != err {
 		return err
 	}
@@ -130,7 +130,7 @@ func InstallCaddy(goos, goArch, version, installTo, configPath, systemdPath stri
 	}
 	defer systemdFile.Close()
 
-	if _, err := systemdFile.WriteString(caddySystemdConfig); nil != err {
+	if _, err := systemdFile.WriteString(systemdConfig); nil != err {
 		return errors.New(fmt.Sprintf("安装Caddy失败: %v", err))
 	}
 
@@ -138,28 +138,43 @@ func InstallCaddy(goos, goArch, version, installTo, configPath, systemdPath stri
 		return errors.New(fmt.Sprintf("安装Caddy失败: %v", err))
 	}
 
-	// 重置配置文件
-	configFile, err := os.OpenFile(configPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+	// 如果配置文件不存在就创建一个新的配置文件
+	stat, err := os.Stat(configPath)
 	if nil != err {
-		return errors.New(fmt.Sprintf("安装Caddy失败: %v", err))
+		if !os.IsNotExist(err) {
+			return errors.New(fmt.Sprintf("安装Caddy失败: %v", err))
+		}
+
+		configFile, err := os.OpenFile(configPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+		if nil != err {
+			return errors.New(fmt.Sprintf("安装Caddy失败: %v", err))
+		}
+		defer configFile.Close()
+	} else {
+		if stat.IsDir() {
+			configFile, err := os.OpenFile(configPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+			if nil != err {
+				return errors.New(fmt.Sprintf("安装Caddy失败: %v", err))
+			}
+			defer configFile.Close()
+		}
 	}
-	defer configFile.Close()
 
 	return nil
 }
 
-// InstallCaddyLastRelease 安装最新版本
-func InstallCaddyLastRelease() error {
-	version, err := GetCaddyLastReleaseVersion()
+// InstallLastRelease 安装最新版本
+func InstallLastRelease() error {
+	version, err := GetLastReleaseVersion()
 	if nil != err {
 		return err
 	}
 
-	return InstallCaddy(runtime.GOOS, runtime.GOARCH, version, CaddyInstallTo, CaddyConfigPath, CaddySystemdPath)
+	return Install(runtime.GOOS, runtime.GOARCH, version, InstallTo, ConfigPath, SystemdPath)
 }
 
-// AppendCaddyConfig 添加Caddy的配置
-func AppendCaddyConfig(configPath, host string, useTls bool, CaddyPort int, cloud bool, path string) error {
+// AppendConfig 添加Caddy的配置
+func AppendConfig(configPath, host string, useTls bool, CaddyPort int, cloud bool, path string) error {
 	port := 443
 	if !useTls {
 		port = 80
@@ -171,9 +186,9 @@ func AppendCaddyConfig(configPath, host string, useTls bool, CaddyPort int, clou
 			return errors.New(fmt.Sprintf("参数错误，同时配置cloudreve时，path参数不能为/"))
 		}
 
-		content = fmt.Sprintf(caddyAndCloudConfigTemplate, host, port, path, CaddyPort)
+		content = fmt.Sprintf(cloudConfigTemplate, host, port, path, CaddyPort)
 	} else {
-		content = fmt.Sprintf(caddyConfigTemplate, host, port, path, CaddyPort)
+		content = fmt.Sprintf(configTemplate, host, port, path, CaddyPort)
 	}
 
 	if err := os.MkdirAll(filepath.Dir(configPath), 0755); nil != err {
@@ -193,19 +208,19 @@ func AppendCaddyConfig(configPath, host string, useTls bool, CaddyPort int, clou
 	return nil
 }
 
-// AppendCaddyConfigOnlyV2rayToSystem 只添加Caddy的配置到系统
-func AppendCaddyConfigOnlyV2rayToSystem(host string, useTls bool, CaddyPort int, path string) error {
-	return AppendCaddyConfig(CaddyConfigPath, host, useTls, CaddyPort, false, path)
+// AppendConfigOnlyV2rayToSystem 只添加Caddy的配置到系统
+func AppendConfigOnlyV2rayToSystem(host string, useTls bool, CaddyPort int, path string) error {
+	return AppendConfig(ConfigPath, host, useTls, CaddyPort, false, path)
 }
 
-// AppendCaddyConfigCaddyAndCloudToSystem 添加Caddy与Cloudreve的配置到系统
-func AppendCaddyConfigCaddyAndCloudToSystem(host string, useTls bool, CaddyPort int, path string) error {
-	return AppendCaddyConfig(CaddyConfigPath, host, useTls, CaddyPort, true, path)
+// AppendConfigCaddyAndCloudToSystem 添加Caddy与Cloudreve的配置到系统
+func AppendConfigCaddyAndCloudToSystem(host string, useTls bool, CaddyPort int, path string) error {
+	return AppendConfig(ConfigPath, host, useTls, CaddyPort, true, path)
 }
 
-// GetCaddyLastReleaseVersion 获取Caddy最后一个版本的版本号
-func GetCaddyLastReleaseVersion() (string, error) {
-	res, err := http.Get(caddyLastReleaseApi)
+// GetLastReleaseVersion 获取Caddy最后一个版本的版本号
+func GetLastReleaseVersion() (string, error) {
+	res, err := http.Get(lastReleaseApi)
 	if nil != err {
 		return "", errors.New(fmt.Sprintf("查询版本数据失败: %v", err))
 	}
@@ -224,25 +239,25 @@ func GetCaddyLastReleaseVersion() (string, error) {
 	return strings.Trim(response.TagName, "v"), nil
 }
 
-// GetCaddyDownloadUrl 获取版本的下载链接
-func GetCaddyDownloadUrl(goos, goArch, version string) (string, error) {
+// GetDownloadUrl 获取版本的下载链接
+func GetDownloadUrl(goos, goArch, version string) (string, error) {
 	if "linux" != goos {
 		return "", errors.New(fmt.Sprintf("未受支持的系统: %v %v", goos, goArch))
 	}
 
 	if "amd64" == goArch {
-		return fmt.Sprintf(caddyDownloadUrlTemplate, version, version, goos, "amd64"), nil
+		return fmt.Sprintf(downloadUrlTemplate, version, version, goos, "amd64"), nil
 	}
 
 	if "arm64" == goArch {
-		return fmt.Sprintf(caddyDownloadUrlTemplate, version, version, goos, "arm64"), nil
+		return fmt.Sprintf(downloadUrlTemplate, version, version, goos, "arm64"), nil
 	}
 
 	return "", errors.New(fmt.Sprintf("未受支持的系统: %v %v", goos, goArch))
 }
 
-// CheckCaddyIsRunning 检查Caddy是否在运行状态
-func CheckCaddyIsRunning() (bool, error) {
+// IsRunning 检查Caddy是否在运行状态
+func IsRunning() (bool, error) {
 	res, err := exec.Command("sh", "-c", "ps -ef | grep '/usr/local/bin/caddy' | grep -v grep | awk '{print $2}'").Output()
 	if nil != err && 0 != len(res) {
 		return false, errors.New(fmt.Sprintf("检查Caddy运行状态失败: %v", err))
@@ -251,8 +266,8 @@ func CheckCaddyIsRunning() (bool, error) {
 	return "" != strings.TrimSpace(string(res)), nil
 }
 
-// StartCaddy 启动Caddy服务
-func StartCaddy() error {
+// Start 启动Caddy服务
+func Start() error {
 	_, err := exec.Command("service", "caddy", "start").Output()
 	if nil != err {
 		return errors.New(fmt.Sprintf("启动Caddy服务失败: %v", err))
@@ -261,8 +276,8 @@ func StartCaddy() error {
 	return nil
 }
 
-// ReStartCaddy 重启Caddy服务
-func ReStartCaddy() error {
+// ReStart 重启Caddy服务
+func ReStart() error {
 	_, err := exec.Command("service", "caddy", "restart").Output()
 	if nil != err {
 		return errors.New(fmt.Sprintf("重启Caddy服务失败: %v", err))
@@ -271,8 +286,8 @@ func ReStartCaddy() error {
 	return nil
 }
 
-// StopCaddy 停止Caddy服务
-func StopCaddy() error {
+// Stop 停止Caddy服务
+func Stop() error {
 	_, err := exec.Command("service", "caddy", "stop").Output()
 	if nil != err {
 		return errors.New(fmt.Sprintf("重启Caddy服务失败: %v", err))

@@ -1,4 +1,4 @@
-package webserver
+package caddy
 
 import (
 	"errors"
@@ -10,7 +10,7 @@ import (
 func TestInstallCaddy(t *testing.T) {
 	td := t.TempDir()
 
-	if err := InstallCaddy("linux", "amd64", "2.4.5", td, filepath.Join(td, "etc", "caddy", "Caddyfile"), filepath.Join(td, "etc", "systemd", "system", "caddy.service")); nil != err {
+	if err := Install("linux", "amd64", "2.4.5", td, filepath.Join(td, "etc", "caddy", "Caddyfile"), filepath.Join(td, "etc", "systemd", "system", "caddy.service")); nil != err {
 		t.Fatal(err)
 	}
 

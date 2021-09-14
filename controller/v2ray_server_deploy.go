@@ -10,9 +10,10 @@ import (
 	"github.com/Luna-CY/v2ray-helper/common/http/code"
 	"github.com/Luna-CY/v2ray-helper/common/http/response"
 	"github.com/Luna-CY/v2ray-helper/common/logger"
+	"github.com/Luna-CY/v2ray-helper/common/software/caddy"
+	"github.com/Luna-CY/v2ray-helper/common/software/nginx"
+	"github.com/Luna-CY/v2ray-helper/common/software/v2ray"
 	"github.com/Luna-CY/v2ray-helper/common/util"
-	"github.com/Luna-CY/v2ray-helper/common/v2ray"
-	"github.com/Luna-CY/v2ray-helper/common/webserver"
 	"github.com/Luna-CY/v2ray-helper/dataservice"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -110,7 +111,7 @@ func V2rayServerDeploy(c *gin.Context) {
 	}
 
 	// 如果有Nginx服务器并且已启动，那么停止Nginx，否则Caddy无法启动
-	nginxIsRunning, err := webserver.CheckNginxIsRunning()
+	nginxIsRunning, err := nginx.IsRunning()
 	if nil != err {
 		logger.GetLogger().Errorln(err)
 
@@ -120,7 +121,7 @@ func V2rayServerDeploy(c *gin.Context) {
 	}
 
 	if nginxIsRunning {
-		if err := webserver.StopNginx(); nil != err {
+		if err := nginx.Stop(); nil != err {
 			logger.GetLogger().Errorln(err)
 
 			response.Response(c, code.ServerError, "停止Nginx服务失败，详细请查看日志。请使用强制安装或重新配置安装方式", nil)
@@ -149,7 +150,7 @@ func V2rayServerDeploy(c *gin.Context) {
 		}
 	}
 
-	caddyIsRunning, err := webserver.CheckCaddyIsRunning()
+	caddyIsRunning, err := caddy.IsRunning()
 	if nil != err {
 		logger.GetLogger().Errorln(err)
 
@@ -160,7 +161,7 @@ func V2rayServerDeploy(c *gin.Context) {
 
 	// 如果Caddy已启动需要停止服务，否则无法重新安装
 	if caddyIsRunning {
-		if err := webserver.StopCaddy(); nil != err {
+		if err := caddy.Stop(); nil != err {
 			logger.GetLogger().Errorln(err)
 
 			response.Response(c, code.ServerError, "停止Caddy服务失败，详细请查看日志。请使用强制安装或重新配置安装方式", nil)
@@ -170,19 +171,31 @@ func V2rayServerDeploy(c *gin.Context) {
 	}
 
 	if body.UseTls {
-		// 先申请证书
-		key, cert, err := certificate.IssueNew(body.TlsHost, configurator.GetMainConfig().Email)
+		certIsExists, err := certificate.CertIsExists(body.TlsHost)
 		if nil != err {
 			logger.GetLogger().Errorln(err)
 
-			response.Response(c, code.ServerError, "申请HTTPS证书失败，详细请查看日志", nil)
+			response.Response(c, code.ServerError, "申请证书失败，详细请查看日志", nil)
 
 			return
 		}
 
+		// 如果证书不存在先申请证书
+		if !certIsExists {
+			key, cert, err := certificate.IssueNew(body.TlsHost, configurator.GetMainConfig().Email)
+			if nil != err {
+				logger.GetLogger().Errorln(err)
+
+				response.Response(c, code.ServerError, "申请HTTPS证书失败，详细请查看日志", nil)
+
+				return
+			}
+
+			body.V2rayConfig.TlsKey = key
+			body.V2rayConfig.TlsCert = cert
+		}
+
 		body.V2rayConfig.UseTls = true
-		body.V2rayConfig.TlsKey = key
-		body.V2rayConfig.TlsCert = cert
 	}
 
 	// 仅在默认安装、强制安装、仅升级V2ray时安装V2ray
@@ -219,7 +232,7 @@ func V2rayServerDeploy(c *gin.Context) {
 	// 如果使用的传输类型是WebSocket，需要安装Caddy
 	// 仅在默认安装与强制安装时配置Caddy
 	if v2ray.TransportTypeWebSocket == body.V2rayConfig.TransportType && (InstallTypeDefault == body.InstallType || InstallTypeForce == body.InstallType) {
-		if err := webserver.InstallCaddyLastRelease(); nil != err {
+		if err := caddy.InstallLastRelease(); nil != err {
 			logger.GetLogger().Errorln(err)
 
 			response.Response(c, code.ServerError, "安装Caddy失败，详细请查看日志", nil)
@@ -235,7 +248,7 @@ func V2rayServerDeploy(c *gin.Context) {
 			proxyPath = body.V2rayConfig.Http2.Path
 		}
 
-		if err := webserver.AppendCaddyConfigOnlyV2rayToSystem(body.TlsHost, body.UseTls, body.V2rayConfig.V2rayPort, proxyPath); nil != err {
+		if err := caddy.AppendConfigOnlyV2rayToSystem(body.TlsHost, body.UseTls, body.V2rayConfig.V2rayPort, proxyPath); nil != err {
 			logger.GetLogger().Errorln(err)
 
 			response.Response(c, code.ServerError, "安装Caddy失败，详细请查看日志", nil)
@@ -247,7 +260,7 @@ func V2rayServerDeploy(c *gin.Context) {
 	// 启动Caddy服务
 	// WebSocket需要启动Caddy
 	if v2ray.TransportTypeWebSocket == body.V2rayConfig.TransportType {
-		if err := webserver.StartCaddy(); nil != err {
+		if err := caddy.Start(); nil != err {
 			logger.GetLogger().Errorln(err)
 
 			response.Response(c, code.ServerError, "启动Caddy服务失败，详细请查看日志。请使用强制安装或重新配置安装方式", nil)
