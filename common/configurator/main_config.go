@@ -6,6 +6,7 @@ import (
 )
 
 const DefaultMainConfigContent = `listen: 0.0.0.0:8888
+gin-release-mode: true
 key: '-'
 remove-key: '-'
 email: myself@v2ray-helper.net
@@ -14,6 +15,7 @@ log-level: error`
 
 type mainConfig struct {
 	Listen           string `yaml:"listen"`
+	GinReleaseMode   bool   `yaml:"gin-release-mode"`
 	AllowV2rayDeploy bool   `yaml:"allow-v2ray-deploy"`
 	Email            string `yaml:"email"`
 	Key              string `yaml:"key"`

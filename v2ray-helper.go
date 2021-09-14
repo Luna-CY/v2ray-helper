@@ -18,14 +18,20 @@ import (
 	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"github.com/gin-gonic/gin"
 	"log"
+	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 )
 
 func main() {
 	homeDir := ""
+	install := false
+	installAndEnable := false
 
 	flag.StringVar(&homeDir, "home-dir", "", "主目录，数据库及配置文件将放在此目录下，未指定时为当前目录")
+	flag.BoolVar(&install, "install", false, "安装为系统服务并退出")
+	flag.BoolVar(&installAndEnable, "install-and-enable", false, "安装为系统服务并且开机启动")
 	flag.Parse()
 
 	homeDir = strings.TrimSpace(homeDir)
@@ -39,6 +45,11 @@ func main() {
 		log.Fatalln(fmt.Sprintf("初始化配置器失败: %v", err))
 	}
 
+	// 设置GIN模式需要在其他组件初始化之前
+	if configurator.GetMainConfig().GinReleaseMode {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	if err := logger.Init(rootAbsPath); nil != err {
 		log.Fatalln(fmt.Sprintf("初始化日志失败: %v", err))
 	}
@@ -49,6 +60,13 @@ func main() {
 
 	if err := certificate.Init(rootAbsPath); nil != err {
 		log.Fatalln(fmt.Sprintf("初始化证书管理器失败: %v", err))
+	}
+
+	// 安装为系统服务并退出
+	if install || installAndEnable {
+		installAsService(installAndEnable)
+
+		os.Exit(0)
 	}
 
 	engine := gin.New()
@@ -98,4 +116,42 @@ func main() {
 	if err := engine.Run(configurator.GetMainConfig().GetListen()); nil != err {
 		log.Fatalf("启动服务器失败: %v\n", err)
 	}
+}
+
+const systemdConfigTemplate = `[Unit]
+Description=V2ray Helper Service
+Documentation=https://github.com/Luna-CY/v2ray-helper
+After=network.target nss-lookup.target
+
+[Service]
+Type=simple
+ExecStart=%v/v2ray-helper -home-dir %v
+Restart=on-failure
+RestartPreventExitStatus=23
+
+[Install]
+WantedBy=multi-user.target`
+
+// installAsService 安装为系统服务
+func installAsService(enable bool) {
+	configFile, err := os.OpenFile("/etc/systemd/system/v2ray-helper.service", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+	if nil != err {
+		log.Fatalf("安装为系统服务失败: %v\n", err)
+	}
+	defer configFile.Close()
+
+	if _, err := configFile.WriteString(fmt.Sprintf(systemdConfigTemplate, runtime.GetRootPath(), runtime.GetRootPath())); nil != err {
+		log.Fatalf("安装为系统服务失败: %v\n", err)
+	}
+
+	log.Println("安装成功")
+
+	if enable {
+		_, err := exec.Command("sh", "-c", "ln -sf /etc/systemd/system/v2ray-helper.service /etc/systemd/system/multi-user.target.wants/v2ray-helper.service").Output()
+		if nil != err {
+			log.Fatalf("设为开机自启失败: %v\n", err)
+		}
+	}
+
+	log.Println("设为开机自启成功")
 }
