@@ -19,7 +19,7 @@ const SharePath = "/usr/local/share"
 const SystemdPath = "/etc"
 
 // Install 安装指定版本
-func Install(goos, goArch, version, installTo, sharePath, systemdPath string) error {
+func Install(goos, goArch, version, installTo, sharePath, systemdPath, configPath string) error {
 	downloadUrl, err := GetDownloadUrl(goos, goArch, version)
 	if nil != err {
 		return err
@@ -93,6 +93,37 @@ func Install(goos, goArch, version, installTo, sharePath, systemdPath string) er
 		tf.Close()
 	}
 
+	// 添加默认配置文件
+	if err := os.MkdirAll(filepath.Dir(configPath), 0755); nil != err {
+		return errors.New(fmt.Sprintf("安装V2ray失败: %v", err))
+	}
+
+	// 如果配置文件不存在就创建一个新的配置文件
+	stat, err := os.Stat(configPath)
+	if nil != err {
+		if !os.IsNotExist(err) {
+			return errors.New(fmt.Sprintf("安装V2ray失败: %v", err))
+		}
+
+		configFile, err := os.OpenFile(configPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+		if nil != err {
+			return errors.New(fmt.Sprintf("安装V2ray失败: %v", err))
+		}
+		defer configFile.Close()
+	} else {
+		if stat.IsDir() {
+			if err := os.RemoveAll(configPath); nil != err {
+				return errors.New(fmt.Sprintf("安装V2ray失败: %v", err))
+			}
+		}
+
+		configFile, err := os.OpenFile(configPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+		if nil != err {
+			return errors.New(fmt.Sprintf("安装V2ray失败: %v", err))
+		}
+		defer configFile.Close()
+	}
+
 	return nil
 }
 
@@ -103,5 +134,5 @@ func InstallLastRelease() error {
 		return err
 	}
 
-	return Install(runtime.GOOS, runtime.GOARCH, version, InstallTo, SharePath, SystemdPath)
+	return Install(runtime.GOOS, runtime.GOARCH, version, InstallTo, SharePath, SystemdPath, ConfigPath)
 }

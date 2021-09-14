@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/Luna-CY/v2ray-helper/common/database/model"
 	"strconv"
+	"strings"
 )
 
 // GenerateVMessShareLink 生成通用分享连接
@@ -71,8 +72,8 @@ func GenerateVMessShareLink(config model.V2rayEndpoint) (string, error) {
 			return "", errors.New("配置错误，稍后重试一下吧，或者联系管理员")
 		}
 
-		vMess.Host = http2.Host
-		vMess.Path = http2.Path
+		vMess.Host = strings.Trim(fmt.Sprintf("%v,%v", *config.Host, http2.Host), ",")
+		vMess.Path = strings.Trim(http2.Path, ";")
 	}
 
 	content, err := json.Marshal(vMess)

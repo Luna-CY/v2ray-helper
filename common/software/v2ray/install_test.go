@@ -10,7 +10,7 @@ import (
 func TestInstall(t *testing.T) {
 	td := t.TempDir()
 
-	if err := Install("linux", "amd64", "4.41.1", td, filepath.Join(td, "share"), filepath.Join(td, "etc")); nil != err {
+	if err := Install("linux", "amd64", "4.41.1", td, filepath.Join(td, "share"), filepath.Join(td, "etc"), filepath.Join(td, "/usr/local/etc/v2ray/config.json")); nil != err {
 		t.Fatal(err)
 	}
 
@@ -35,6 +35,10 @@ func TestInstall(t *testing.T) {
 	}
 
 	if err := checkFileIsExists(filepath.Join(td, "etc/systemd/system/v2ray@.service")); nil != err {
+		t.Fatal(err)
+	}
+
+	if err := checkFileIsExists(filepath.Join(td, "usr/local/etc/v2ray/config.json")); nil != err {
 		t.Fatal(err)
 	}
 }

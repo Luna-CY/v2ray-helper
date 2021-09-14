@@ -27,11 +27,11 @@ func Start() error {
 	return nil
 }
 
-// ReStart 重启服务
-func ReStart() error {
-	_, err := exec.Command("service", "v2ray", "restart").Output()
+// Enable 设为开机启动
+func Enable() error {
+	_, err := exec.Command("sh", "-c", "ln -sf /etc/systemd/system/v2ray.service /etc/systemd/system/multi-user.target.wants/v2ray.service").Output()
 	if nil != err {
-		return errors.New(fmt.Sprintf("启动V2ray服务失败: %v", err))
+		return errors.New(fmt.Sprintf("V2ray服务设为开机启动失败: %v", err))
 	}
 
 	return nil
@@ -41,7 +41,7 @@ func ReStart() error {
 func Stop() error {
 	_, err := exec.Command("service", "v2ray", "stop").Output()
 	if nil != err {
-		return errors.New(fmt.Sprintf("启动V2ray服务失败: %v", err))
+		return errors.New(fmt.Sprintf("停止V2ray服务失败: %v", err))
 	}
 
 	return nil

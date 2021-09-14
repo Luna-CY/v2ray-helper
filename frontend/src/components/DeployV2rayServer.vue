@@ -33,8 +33,9 @@
             <el-option :value="4" label="HTTP2"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item v-if="1 === parseInt(form.v2ray_config.transport_type.toString()) || 3 === parseInt(form.v2ray_config.transport_type.toString())"
-                      label="监听端口">
+        <el-form-item
+            v-if="1 === parseInt(form.v2ray_config.transport_type.toString()) || 3 === parseInt(form.v2ray_config.transport_type.toString())"
+            label="监听端口">
           <el-input v-model="form.v2ray_config.v2ray_port" placeholder="V2ray监听的端口号"></el-input>
         </el-form-item>
         <template v-for="client in form.v2ray_config.clients" v-bind:key="client.user_id">
@@ -156,7 +157,8 @@
           </div>
           <div class="inline-form-item-2">
             <el-form-item class="form-item" label="MTU大小">
-              <el-input v-model="form.v2ray_config.kcp.mtu" max="1460" min="576" placeholder="传输单元大小，576-1460之间的整数，默认为1350"
+              <el-input v-model="form.v2ray_config.kcp.mtu" max="1460" min="576"
+                        placeholder="传输单元大小，576-1460之间的整数，默认为1350"
                         type="number"></el-input>
             </el-form-item>
             <el-form-item class="form-item" label="TTI间隔时间">
@@ -193,10 +195,11 @@
             </el-form-item>
           </div>
         </template>
-        <template v-if="4 === parseInt(form.v2ray_config.transport_type.toString()) && false">
+        <template v-if="4 === parseInt(form.v2ray_config.transport_type.toString())">
           <el-divider content-position="left">HTTP2传输配置</el-divider>
           <el-form-item label="域名">
-            <el-input v-model="form.v2ray_config.http2.host" placeholder="HTTP2的域名，多个使用英文,分隔"></el-input>
+            <el-input v-model="form.v2ray_config.http2.host"
+                      placeholder="HTTP2的域名列表，多个使用英文,分隔。列表内会自动添加HTTPS的域名，请不要重复添加"></el-input>
           </el-form-item>
           <el-form-item label="路径">
             <el-input v-model="form.v2ray_config.http2.path" placeholder="URI路径"></el-input>
@@ -221,18 +224,38 @@
               <el-radio :label="2" disabled>上传证书(暂未支持)</el-radio>
             </el-radio-group>
           </el-form-item>
-          <!--          <el-divider content-position="left">Cloudreve配置-->
-          <!--            <el-tooltip content="Cloudreve是一个轻量级私有云网盘服务，同时布置可增强伪装效果" placement="right"><i class="el-icon-info"></i>-->
-          <!--            </el-tooltip>-->
-          <!--          </el-divider>-->
-          <!--          <el-form-item label="配置Cloudreve" prop="use_cloudreve">-->
-          <!--            <el-switch v-model="form.use_cloudreve"></el-switch>-->
-          <!--          </el-form-item>-->
+        </template>
+        <el-divider content-position="left">站点伪装配置
+          <el-tooltip content="可以在部署V2ray的同时部署一个站点，可以增强伪装效果。TCP模式与KCP模式不支持站点伪装" placement="right">
+            <i class="el-icon-info"></i>
+          </el-tooltip>
+        </el-divider>
+        <div class="inline-form-item-2">
+          <el-form-item class="form-item-0" label="开启伪装">
+            <el-switch v-model="form.enable_web_service"
+                       :disabled="1 === parseInt(form.v2ray_config.transport_type.toString()) || 3 === parseInt(form.v2ray_config.transport_type.toString())"></el-switch>
+          </el-form-item>
+          <el-form-item class="form-item-1" label="伪装站点" label-width="80px">
+            <el-select v-model="form.web_service_type" class="w-100">
+              <el-option value="cloudreve" label="Cloudreve"></el-option>
+            </el-select>
+          </el-form-item>
+        </div>
+        <template v-if="form.enable_web_service && 'cloudreve' === form.web_service_type">
+          <el-divider content-position="left">Cloudreve配置信息</el-divider>
+          <div class="inline-form-item-2">
+            <el-form-item class="form-item" label="初始管理员账号">
+              <el-input v-model="response.cloudreve_admin" readonly placeholder="将在部署成功后回显"></el-input>
+            </el-form-item>
+            <el-form-item class="form-item" label="初始管理员密码">
+              <el-input v-model="response.cloudreve_password" readonly placeholder="将在部署成功后回显"></el-input>
+            </el-form-item>
+          </div>
         </template>
       </template>
       <el-form-item class="content-center" label-width="0">
-        <el-button type="danger" @click="close">取消</el-button>
-        <el-button :loading="saving" type="primary" @click="save">开始部署</el-button>
+        <el-button type="danger" @click="close" :disabled="deploing">关闭</el-button>
+        <el-button :loading="deploing" type="primary" @click="save">开始部署</el-button>
       </el-form-item>
     </el-form>
   </el-dialog>
@@ -240,9 +263,15 @@
 
 <script lang="ts">
 import {defineComponent} from "vue"
-import {API_V2RAY_SERVER_DEPLOY, Client, V2rayServerDeployForm} from "@/api/v2ray_server_develop"
+import {
+  API_V2RAY_SERVER_DEPLOY,
+  Client,
+  V2rayServerDeployData,
+  V2rayServerDeployForm,
+  V2rayServerDeployResponse
+} from "@/api/v2ray_server_develop"
 import axios, {AxiosResponse} from "axios"
-import {BaseResponse, Header} from "@/api/base"
+import {Header} from "@/api/base"
 
 export default defineComponent({
   name: "DeployV2rayServer",
@@ -259,7 +288,7 @@ export default defineComponent({
       this.form.v2ray_config.transport_type = 2
       this.form.v2ray_config.web_socket.path = "/v2ray-ws-path"
       this.form.use_tls = true
-      this.form.use_cloudreve = false
+      this.form.enable_web_service = true
 
       this.form.v2ray_config.clients = new Array<Client>()
       this.addClient()
@@ -271,21 +300,21 @@ export default defineComponent({
         this.form.v2ray_config.transport_type = 2
         this.form.v2ray_config.web_socket.path = "/v2ray-ws-path"
         this.form.use_tls = true
-        this.form.use_cloudreve = false
+        this.form.enable_web_service = true
       }
 
       if (2 == this.form.config_type) {
         this.form.v2ray_config.v2ray_port = 3000
         this.form.v2ray_config.transport_type = 3
         this.form.use_tls = false
-        this.form.use_cloudreve = false
+        this.form.enable_web_service = false
       }
 
       if (3 == this.form.config_type) {
         this.form.v2ray_config.v2ray_port = 3000
         this.form.v2ray_config.transport_type = 1
         this.form.use_tls = false
-        this.form.use_cloudreve = false
+        this.form.enable_web_service = false
       }
     },
 
@@ -293,18 +322,22 @@ export default defineComponent({
       if (4 == this.form.v2ray_config.transport_type) {
         this.form.use_tls = true
       }
+
+      if (1 == this.form.v2ray_config.transport_type || 3 == this.form.v2ray_config.transport_type) {
+        this.form.enable_web_service = false
+      }
     }
   },
 
   data() {
     return {
-      saving: false,
+      deploing: false,
       form: new V2rayServerDeployForm(),
       rules: {
         tls_host: [{validator: this.validateTlsHost, trigger: 'blur'}],
-        use_cloudreve: [{validator: this.validateUseCloudreve, trigger: 'blur'}],
       },
       headers: [],
+      response: new V2rayServerDeployData()
     }
   },
 
@@ -316,8 +349,6 @@ export default defineComponent({
     },
 
     success() {
-      this.close()
-
       this.$emit('success')
     },
 
@@ -342,15 +373,17 @@ export default defineComponent({
           this.form.v2ray_config.clients[i].alter_id = parseInt(this.form.v2ray_config.clients[i].alter_id.toString())
         }
 
-        this.saving = true
-        axios.post(API_V2RAY_SERVER_DEPLOY, this.form).then((response: AxiosResponse<BaseResponse>) => {
-          this.saving = false
+        this.deploing = true
+        axios.post(API_V2RAY_SERVER_DEPLOY, this.form).then((response: AxiosResponse<V2rayServerDeployResponse>) => {
+          this.deploing = false
           if (0 != response.data.code) {
             this.$message.error(response.data.message)
 
             return
           }
 
+          this.response = response.data.data
+          this.$message.success("部署成功，已自动生成配置文件")
           this.success()
         })
       })
@@ -381,16 +414,6 @@ export default defineComponent({
 
       c()
     },
-
-    validateUseCloudreve(a: any, b: any, c: any) {
-      if (this.form.use_cloudreve && (1 == this.form.v2ray_config.transport_type || 3 == this.form.v2ray_config.transport_type)) {
-        c(new Error("配置Cloudreve时V2ray不支持使用TCP与KCP，请使用WebSocket或HTTP2"))
-
-        return
-      }
-
-      c()
-    }
   },
 })
 </script>

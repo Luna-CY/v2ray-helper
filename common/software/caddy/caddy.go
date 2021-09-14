@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/Luna-CY/v2ray-helper/common/certificate"
+	vhr "github.com/Luna-CY/v2ray-helper/common/runtime"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -26,10 +28,30 @@ const downloadUrlTemplate = "https://github.com/caddyserver/caddy/releases/downl
 const configTemplate = `%v:%v {
     reverse_proxy %v 127.0.0.1:%v
 }`
-const cloudConfigTemplate = `%v:%v {
+const configTlsTemplate = `%v:%v {
+    tls %v %v
+
+    reverse_proxy %v 127.0.0.1:%v {
+        transport http {
+            versions h2c
+        }
+    }
+}`
+const configCloudreveTemplate = `%v:%v {
     reverse_proxy %v 127.0.0.1:%v
 
-    reverse_proxy / 127.0.0.1:5212
+    reverse_proxy 127.0.0.1:5212
+}`
+const configCloudreveAndTlsTemplate = `%v:%v {
+    tls %v %v
+
+    reverse_proxy %v 127.0.0.1:%v {
+        transport http {
+            versions h2c
+        }
+    }
+
+    reverse_proxy 127.0.0.1:5212
 }`
 const systemdConfig = `[Unit]
 Description=Caddy Service
@@ -134,6 +156,7 @@ func Install(goos, goArch, version, installTo, configPath, systemdPath string) e
 		return errors.New(fmt.Sprintf("安装Caddy失败: %v", err))
 	}
 
+	// 添加默认配置文件
 	if err := os.MkdirAll(filepath.Dir(configPath), 0755); nil != err {
 		return errors.New(fmt.Sprintf("安装Caddy失败: %v", err))
 	}
@@ -152,12 +175,16 @@ func Install(goos, goArch, version, installTo, configPath, systemdPath string) e
 		defer configFile.Close()
 	} else {
 		if stat.IsDir() {
-			configFile, err := os.OpenFile(configPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
-			if nil != err {
+			if err := os.RemoveAll(configPath); nil != err {
 				return errors.New(fmt.Sprintf("安装Caddy失败: %v", err))
 			}
-			defer configFile.Close()
 		}
+
+		configFile, err := os.OpenFile(configPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+		if nil != err {
+			return errors.New(fmt.Sprintf("安装Caddy失败: %v", err))
+		}
+		defer configFile.Close()
 	}
 
 	return nil
@@ -174,28 +201,48 @@ func InstallLastRelease() error {
 }
 
 // AppendConfig 添加Caddy的配置
-func AppendConfig(configPath, host string, useTls bool, CaddyPort int, cloud bool, path string) error {
+func AppendConfig(configPath, host string, useTls bool, v2rayPort int, path string, cloudreve, cusTls bool) error {
 	port := 443
 	if !useTls {
 		port = 80
 	}
 
-	var content string
-	if cloud {
+	content := fmt.Sprintf(configTemplate, host, port, path, v2rayPort)
+
+	// 自定义证书
+	if cusTls {
+		key := filepath.Join(vhr.GetRootPath(), certificate.CertDirName, host, "private.key")
+		cert := filepath.Join(vhr.GetRootPath(), certificate.CertDirName, host, "cert.pem")
+
+		content = fmt.Sprintf(configTlsTemplate, host, port, cert, key, path, v2rayPort)
+	}
+
+	// Cloudreve
+	if cloudreve {
 		if "/" == path {
 			return errors.New(fmt.Sprintf("参数错误，同时配置cloudreve时，path参数不能为/"))
 		}
 
-		content = fmt.Sprintf(cloudConfigTemplate, host, port, path, CaddyPort)
-	} else {
-		content = fmt.Sprintf(configTemplate, host, port, path, CaddyPort)
+		content = fmt.Sprintf(configCloudreveTemplate, host, port, path, v2rayPort)
+	}
+
+	// Cloudreve与自定义证书
+	if cloudreve && cusTls {
+		if "/" == path {
+			return errors.New(fmt.Sprintf("参数错误，同时配置cloudreve时，path参数不能为/"))
+		}
+
+		key := filepath.Join(vhr.GetRootPath(), certificate.CertDirName, host, "private.key")
+		cert := filepath.Join(vhr.GetRootPath(), certificate.CertDirName, host, "cert.pem")
+
+		content = fmt.Sprintf(configCloudreveAndTlsTemplate, host, port, cert, key, path, v2rayPort)
 	}
 
 	if err := os.MkdirAll(filepath.Dir(configPath), 0755); nil != err {
 		return errors.New(fmt.Sprintf("配置Caddy失败: %v", err))
 	}
 
-	cf, err := os.OpenFile(configPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	cf, err := os.OpenFile(configPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if nil != err {
 		return errors.New(fmt.Sprintf("无法打开配置文件: %v", err))
 	}
@@ -208,14 +255,24 @@ func AppendConfig(configPath, host string, useTls bool, CaddyPort int, cloud boo
 	return nil
 }
 
-// AppendConfigOnlyV2rayToSystem 只添加Caddy的配置到系统
-func AppendConfigOnlyV2rayToSystem(host string, useTls bool, CaddyPort int, path string) error {
-	return AppendConfig(ConfigPath, host, useTls, CaddyPort, false, path)
+// AppendConfigOnlyV2rayToSystem 只添加V2ray的配置到系统
+func AppendConfigOnlyV2rayToSystem(host string, useTls bool, v2rayPort int, path string) error {
+	return AppendConfig(ConfigPath, host, useTls, v2rayPort, path, false, false)
 }
 
-// AppendConfigCaddyAndCloudToSystem 添加Caddy与Cloudreve的配置到系统
-func AppendConfigCaddyAndCloudToSystem(host string, useTls bool, CaddyPort int, path string) error {
-	return AppendConfig(ConfigPath, host, useTls, CaddyPort, true, path)
+// AppendConfigV2rayAndHTTP2ToSystem 添加V2ray的配置与HTTP2到系统
+func AppendConfigV2rayAndHTTP2ToSystem(host string, useTls bool, v2rayPort int, path string) error {
+	return AppendConfig(ConfigPath, host, useTls, v2rayPort, path, false, true)
+}
+
+// AppendConfigV2rayAndCloudreveToSystem 添加V2ray与Cloudreve的配置到系统
+func AppendConfigV2rayAndCloudreveToSystem(host string, useTls bool, v2rayPort int, path string) error {
+	return AppendConfig(ConfigPath, host, useTls, v2rayPort, path, true, false)
+}
+
+// AppendConfigV2rayAndHTTP2AndCloudreveToSystem 添加V2ray的HTTP2模式与Cloudreve两个配置到系统
+func AppendConfigV2rayAndHTTP2AndCloudreveToSystem(host string, useTls bool, v2rayPort int, path string) error {
+	return AppendConfig(ConfigPath, host, useTls, v2rayPort, path, true, true)
 }
 
 // GetLastReleaseVersion 获取Caddy最后一个版本的版本号
@@ -276,11 +333,11 @@ func Start() error {
 	return nil
 }
 
-// ReStart 重启Caddy服务
-func ReStart() error {
-	_, err := exec.Command("service", "caddy", "restart").Output()
+// Enable 设置为开机启动
+func Enable() error {
+	_, err := exec.Command("sh", "-c", "ln -sf /etc/systemd/system/caddy.service /etc/systemd/system/multi-user.target.wants/caddy.service").Output()
 	if nil != err {
-		return errors.New(fmt.Sprintf("重启Caddy服务失败: %v", err))
+		return errors.New(fmt.Sprintf("Caddy服务设为开机启动失败: %v", err))
 	}
 
 	return nil
@@ -290,7 +347,7 @@ func ReStart() error {
 func Stop() error {
 	_, err := exec.Command("service", "caddy", "stop").Output()
 	if nil != err {
-		return errors.New(fmt.Sprintf("重启Caddy服务失败: %v", err))
+		return errors.New(fmt.Sprintf("停止Caddy服务失败: %v", err))
 	}
 
 	return nil

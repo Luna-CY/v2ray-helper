@@ -1,4 +1,4 @@
-import {Header} from "@/api/base"
+import {BaseResponse, Header} from "@/api/base"
 
 export const API_V2RAY_SERVER_DEPLOY = "/api/v2ray-server-deploy"
 
@@ -26,9 +26,11 @@ export class V2rayServerDeployForm {
 
   public cert_type = 1 // 证书类型：1申请新证书；2上传证书
 
-  // Cloudreve配置
+  // 站点伪装配置
 
-  public use_cloudreve = false
+  public enable_web_service = false
+
+  public web_service_type = "cloudreve"
 
   // V2ray部署配置
 
@@ -99,9 +101,21 @@ export class V2rayServerDeployForm {
 
       public host = ""
 
-      public path = ""
+      public path = "/"
     }
   }
+}
+
+export class V2rayServerDeployResponse extends BaseResponse {
+
+  public data = new V2rayServerDeployData()
+}
+
+export class V2rayServerDeployData {
+
+  public cloudreve_admin = ""
+
+  public cloudreve_password = ""
 }
 
 export class Client {
