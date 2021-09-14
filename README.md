@@ -10,6 +10,9 @@ V2ray配置管理面板，可以对v2ray的客户端配置进行管理，同时�
 - 站点伪装（一键部署Cloudreve，暂未支持其他，有需要可以提交issue）
 - 自动HTTPS证书申请
 
+![alt 配置列表](https://github.com/Luna-CY/v2ray-helper/raw/master/resources/image/v2ray-helper-1.png)
+![alt 配置列表](https://github.com/Luna-CY/v2ray-helper/raw/master/resources/image/v2ray-helper-2.png)
+
 ## 示例站点
 
 [http://vh.example.luna.xin](http://vh.example.luna.xin)，测试站点的key为默认的中短横线"-"，测试站点的数据定期删除
