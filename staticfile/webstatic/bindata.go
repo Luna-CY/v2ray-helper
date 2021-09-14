@@ -108,7 +108,7 @@ func webFaviconIco() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/favicon.ico", size: 4286, mode: os.FileMode(420), modTime: time.Unix(1631609827, 0)}
+	info := bindataFileInfo{name: "web/favicon.ico", size: 4286, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -128,7 +128,7 @@ func webIndexHtml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/index.html", size: 2373, mode: os.FileMode(420), modTime: time.Unix(1631609827, 0)}
+	info := bindataFileInfo{name: "web/index.html", size: 2373, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -148,7 +148,7 @@ func webManifestJson() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/manifest.json", size: 549, mode: os.FileMode(420), modTime: time.Unix(1631609827, 0)}
+	info := bindataFileInfo{name: "web/manifest.json", size: 549, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -168,7 +168,7 @@ func webPrecacheManifest51e660110ed99de180460c85da423dedJs() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/precache-manifest.51e660110ed99de180460c85da423ded.js", size: 3308, mode: os.FileMode(420), modTime: time.Unix(1631609827, 0)}
+	info := bindataFileInfo{name: "web/precache-manifest.51e660110ed99de180460c85da423ded.js", size: 3308, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -188,7 +188,7 @@ func webRobotsTxt() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/robots.txt", size: 26, mode: os.FileMode(420), modTime: time.Unix(1631609827, 0)}
+	info := bindataFileInfo{name: "web/robots.txt", size: 26, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -208,7 +208,7 @@ func webServiceWorkerJs() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/service-worker.js", size: 1063, mode: os.FileMode(420), modTime: time.Unix(1631609827, 0)}
+	info := bindataFileInfo{name: "web/service-worker.js", size: 1063, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -228,7 +228,7 @@ func webCssApp9edee24dCss() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/css/app.9edee24d.css", size: 2385, mode: os.FileMode(420), modTime: time.Unix(1631609827, 0)}
+	info := bindataFileInfo{name: "web/css/app.9edee24d.css", size: 2385, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -248,7 +248,7 @@ func webCssChunk16f51bccF2091e0fCss() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/css/chunk-16f51bcc.f2091e0f.css", size: 219, mode: os.FileMode(420), modTime: time.Unix(1631609827, 0)}
+	info := bindataFileInfo{name: "web/css/chunk-16f51bcc.f2091e0f.css", size: 219, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -268,7 +268,7 @@ func webCssChunk1b975c17C84cf7a9Css() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/css/chunk-1b975c17.c84cf7a9.css", size: 344, mode: os.FileMode(420), modTime: time.Unix(1631609827, 0)}
+	info := bindataFileInfo{name: "web/css/chunk-1b975c17.c84cf7a9.css", size: 344, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -288,7 +288,7 @@ func webCssChunk34ac5094B7891542Css() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/css/chunk-34ac5094.b7891542.css", size: 621, mode: os.FileMode(420), modTime: time.Unix(1631609827, 0)}
+	info := bindataFileInfo{name: "web/css/chunk-34ac5094.b7891542.css", size: 621, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -308,7 +308,7 @@ func webCssChunk41f8f6a023cdd15fCss() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/css/chunk-41f8f6a0.23cdd15f.css", size: 175, mode: os.FileMode(420), modTime: time.Unix(1631609827, 0)}
+	info := bindataFileInfo{name: "web/css/chunk-41f8f6a0.23cdd15f.css", size: 175, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -328,7 +328,7 @@ func webCssChunk4469a79bE5b533d9Css() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/css/chunk-4469a79b.e5b533d9.css", size: 94, mode: os.FileMode(420), modTime: time.Unix(1631609827, 0)}
+	info := bindataFileInfo{name: "web/css/chunk-4469a79b.e5b533d9.css", size: 94, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -348,7 +348,7 @@ func webCssChunk529fbd20D0ea4fd6Css() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/css/chunk-529fbd20.d0ea4fd6.css", size: 129, mode: os.FileMode(420), modTime: time.Unix(1631609827, 0)}
+	info := bindataFileInfo{name: "web/css/chunk-529fbd20.d0ea4fd6.css", size: 129, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -368,7 +368,7 @@ func webCssChunkVendors6656e812Css() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/css/chunk-vendors.6656e812.css", size: 287956, mode: os.FileMode(420), modTime: time.Unix(1631609827, 0)}
+	info := bindataFileInfo{name: "web/css/chunk-vendors.6656e812.css", size: 287956, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -388,7 +388,7 @@ func webFontsElementIconsAbe71f7dTtf() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/fonts/element-icons.abe71f7d.ttf", size: 50372, mode: os.FileMode(420), modTime: time.Unix(1631609827, 0)}
+	info := bindataFileInfo{name: "web/fonts/element-icons.abe71f7d.ttf", size: 50372, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -408,7 +408,7 @@ func webFontsElementIconsD9491be2Woff() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/fonts/element-icons.d9491be2.woff", size: 24820, mode: os.FileMode(420), modTime: time.Unix(1631609827, 0)}
+	info := bindataFileInfo{name: "web/fonts/element-icons.d9491be2.woff", size: 24820, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }

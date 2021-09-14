@@ -100,7 +100,7 @@ func webJsAppA02591dcJs() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/js/app.a02591dc.js", size: 88980, mode: os.FileMode(420), modTime: time.Unix(1631609827, 0)}
+	info := bindataFileInfo{name: "web/js/app.a02591dc.js", size: 88980, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -120,7 +120,7 @@ func webJsChunk16f51bcc832572c1Js() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/js/chunk-16f51bcc.832572c1.js", size: 2626, mode: os.FileMode(420), modTime: time.Unix(1631609827, 0)}
+	info := bindataFileInfo{name: "web/js/chunk-16f51bcc.832572c1.js", size: 2626, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -140,7 +140,7 @@ func webJsChunk1b975c17Cdc96f7aJs() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/js/chunk-1b975c17.cdc96f7a.js", size: 619, mode: os.FileMode(420), modTime: time.Unix(1631609827, 0)}
+	info := bindataFileInfo{name: "web/js/chunk-1b975c17.cdc96f7a.js", size: 619, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -160,7 +160,7 @@ func webJsChunk34ac5094B3c91399Js() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/js/chunk-34ac5094.b3c91399.js", size: 2288, mode: os.FileMode(420), modTime: time.Unix(1631609827, 0)}
+	info := bindataFileInfo{name: "web/js/chunk-34ac5094.b3c91399.js", size: 2288, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -180,7 +180,7 @@ func webJsChunk41f8f6a04f58112eJs() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/js/chunk-41f8f6a0.4f58112e.js", size: 3391, mode: os.FileMode(420), modTime: time.Unix(1631609827, 0)}
+	info := bindataFileInfo{name: "web/js/chunk-41f8f6a0.4f58112e.js", size: 3391, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -200,7 +200,7 @@ func webJsChunk4469a79bB4576984Js() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/js/chunk-4469a79b.b4576984.js", size: 833, mode: os.FileMode(420), modTime: time.Unix(1631609827, 0)}
+	info := bindataFileInfo{name: "web/js/chunk-4469a79b.b4576984.js", size: 833, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -220,7 +220,7 @@ func webJsChunk529fbd2053be367fJs() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/js/chunk-529fbd20.53be367f.js", size: 821, mode: os.FileMode(420), modTime: time.Unix(1631609827, 0)}
+	info := bindataFileInfo{name: "web/js/chunk-529fbd20.53be367f.js", size: 821, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -240,7 +240,7 @@ func webJsChunkVendors55ef5e7fJs() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/js/chunk-vendors.55ef5e7f.js", size: 964249, mode: os.FileMode(420), modTime: time.Unix(1631609827, 0)}
+	info := bindataFileInfo{name: "web/js/chunk-vendors.55ef5e7f.js", size: 964249, mode: os.FileMode(420), modTime: time.Unix(1631613388, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
