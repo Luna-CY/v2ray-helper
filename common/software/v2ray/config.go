@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/Luna-CY/v2ray-helper/common/certificate"
-	"github.com/Luna-CY/v2ray-helper/common/runtime"
 	"os"
 	"path/filepath"
 	"strings"
@@ -66,10 +64,10 @@ type Config struct {
 		Path string `json:"path"`
 	} `json:"http2"`
 
-	UseTls  bool
-	TlsHost string
-	TlsKey  []byte
-	TlsCert []byte
+	UseTls      bool
+	TlsHost     string
+	TlsKeyFile  string
+	TlsCertFile string
 }
 
 type ConfigClient struct {
@@ -243,13 +241,8 @@ func SetConfig(configPath string, config *Config) error {
 				Usage: "encipherment",
 			}
 
-			if 0 != len(config.TlsKey) && 0 != len(config.TlsCert) {
-				cert.Key = strings.Split(string(config.TlsKey), "\n")
-				cert.Certificate = strings.Split(string(config.TlsCert), "\n")
-			} else {
-				cert.KeyFile = filepath.Join(runtime.GetRootPath(), certificate.CertDirName, config.TlsHost, "private.key")
-				cert.CertificateFile = filepath.Join(runtime.GetRootPath(), certificate.CertDirName, config.TlsHost, "cert.pem")
-			}
+			cert.KeyFile = config.TlsKeyFile
+			cert.CertificateFile = config.TlsCertFile
 
 			inbound.StreamSettings.TlsSettings.Certificates = append(inbound.StreamSettings.TlsSettings.Certificates, cert)
 		}

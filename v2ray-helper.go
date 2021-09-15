@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"github.com/Luna-CY/v2ray-helper/common/certificate"
@@ -50,16 +51,17 @@ func main() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
+	// logger组件需要在其他组件之前初始化
 	if err := logger.Init(rootAbsPath); nil != err {
 		log.Fatalln(fmt.Sprintf("初始化日志失败: %v", err))
 	}
 
-	if err := database.Init(filepath.Join(rootAbsPath, "main.db"), 10); nil != err {
-		log.Fatalln(fmt.Sprintf("初始化数据库失败: %v", err))
+	if err := certificate.Init(context.Background()); nil != err {
+		log.Fatalln(fmt.Sprintf("初始化证书管理器失败: %v", err))
 	}
 
-	if err := certificate.Init(rootAbsPath); nil != err {
-		log.Fatalln(fmt.Sprintf("初始化证书管理器失败: %v", err))
+	if err := database.Init(filepath.Join(rootAbsPath, "main.db"), 10); nil != err {
+		log.Fatalln(fmt.Sprintf("初始化数据库失败: %v", err))
 	}
 
 	// 安装为系统服务并退出
@@ -68,6 +70,9 @@ func main() {
 
 		os.Exit(0)
 	}
+
+	// 自动续期证书
+	go certificate.GetManager().RenewLoop()
 
 	engine := gin.New()
 	engine.Use(middleware.LogRus())

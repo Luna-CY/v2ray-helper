@@ -100,7 +100,7 @@ func webImgHelpV2rayNgV2rayNgPath1Png() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/img/help/v2ray-ng/v2ray-ng-path-1.png", size: 179816, mode: os.FileMode(420), modTime: time.Unix(1631613922, 0)}
+	info := bindataFileInfo{name: "web/img/help/v2ray-ng/v2ray-ng-path-1.png", size: 179816, mode: os.FileMode(420), modTime: time.Unix(1631703817, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -120,7 +120,7 @@ func webImgHelpV2rayNgV2rayNgPath2Png() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/img/help/v2ray-ng/v2ray-ng-path-2.png", size: 185212, mode: os.FileMode(420), modTime: time.Unix(1631613922, 0)}
+	info := bindataFileInfo{name: "web/img/help/v2ray-ng/v2ray-ng-path-2.png", size: 185212, mode: os.FileMode(420), modTime: time.Unix(1631703817, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -140,7 +140,7 @@ func webImgHelpV2rayNgV2rayNgPath3Png() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/img/help/v2ray-ng/v2ray-ng-path-3.png", size: 208839, mode: os.FileMode(420), modTime: time.Unix(1631613922, 0)}
+	info := bindataFileInfo{name: "web/img/help/v2ray-ng/v2ray-ng-path-3.png", size: 208839, mode: os.FileMode(420), modTime: time.Unix(1631703817, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -160,7 +160,7 @@ func webImgHelpV2rayXV2rayXPath1Png() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/img/help/v2ray-x/v2ray-x-path-1.png", size: 54831, mode: os.FileMode(420), modTime: time.Unix(1631613922, 0)}
+	info := bindataFileInfo{name: "web/img/help/v2ray-x/v2ray-x-path-1.png", size: 54831, mode: os.FileMode(420), modTime: time.Unix(1631703817, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -180,7 +180,7 @@ func webImgHelpV2rayXV2rayXPath2Png() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/img/help/v2ray-x/v2ray-x-path-2.png", size: 46641, mode: os.FileMode(420), modTime: time.Unix(1631613922, 0)}
+	info := bindataFileInfo{name: "web/img/help/v2ray-x/v2ray-x-path-2.png", size: 46641, mode: os.FileMode(420), modTime: time.Unix(1631703817, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -200,7 +200,7 @@ func webImgHelpV2rayXV2rayXPath3Png() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/img/help/v2ray-x/v2ray-x-path-3.png", size: 86546, mode: os.FileMode(420), modTime: time.Unix(1631613922, 0)}
+	info := bindataFileInfo{name: "web/img/help/v2ray-x/v2ray-x-path-3.png", size: 86546, mode: os.FileMode(420), modTime: time.Unix(1631703817, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -220,7 +220,7 @@ func webImgHelpV2rayXV2rayXPath4Png() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/img/help/v2ray-x/v2ray-x-path-4.png", size: 21421, mode: os.FileMode(420), modTime: time.Unix(1631613922, 0)}
+	info := bindataFileInfo{name: "web/img/help/v2ray-x/v2ray-x-path-4.png", size: 21421, mode: os.FileMode(420), modTime: time.Unix(1631703817, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -240,7 +240,7 @@ func webImgHelpV2rayXV2rayXPath5Png() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "web/img/help/v2ray-x/v2ray-x-path-5.png", size: 46530, mode: os.FileMode(420), modTime: time.Unix(1631613922, 0)}
+	info := bindataFileInfo{name: "web/img/help/v2ray-x/v2ray-x-path-5.png", size: 46530, mode: os.FileMode(420), modTime: time.Unix(1631703817, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }

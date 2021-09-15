@@ -16,7 +16,7 @@
           <el-radio :label="4">仅配置V2ray</el-radio>
         </el-radio-group>
       </el-form-item>
-      <template v-if="3 !== parseInt(form.install_type.toString()) && 5 !== parseInt(form.install_type.toString())">
+      <template v-if="3 !== parseInt(form.install_type.toString())">
         <el-divider content-position="left">V2ray配置选择</el-divider>
         <el-form-item label="选择配置">
           <el-radio-group v-model="form.config_type">
@@ -38,7 +38,7 @@
             label="监听端口">
           <el-input v-model="form.v2ray_config.v2ray_port" placeholder="V2ray监听的端口号"></el-input>
         </el-form-item>
-        <template v-for="client in form.v2ray_config.clients" v-bind:key="client.user_id">
+        <template v-for="client in form.v2ray_config.clients" v-bind:key="client">
           <div class="inline-form-item-client">
             <el-form-item class="form-item-user-id" label="用户ID">
               <el-input v-model="client.user_id" placeholder="用户ID，请勿使用过短的用户ID，若不填写将会自动生成"></el-input>
@@ -205,15 +205,14 @@
             <el-input v-model="form.v2ray_config.http2.path" placeholder="URI路径"></el-input>
           </el-form-item>
         </template>
-        <template
-            v-if="4 !== parseInt(form.install_type.toString()) && 3 !== parseInt(form.v2ray_config.transport_type.toString())">
+        <template v-if="4 !== parseInt(form.install_type.toString())">
           <el-divider content-position="left">HTTPS配置
             <el-tooltip content="WebSocket模式通过Caddy自动申请及续期证书；TCP模式可以自动申请证书或手动上传证书" placement="right"><i
                 class="el-icon-info"></i></el-tooltip>
           </el-divider>
           <el-form-item label="使用HTTPS">
             <el-switch v-model="form.use_tls"
-                       :disabled="4 === parseInt(form.v2ray_config.transport_type.toString())"></el-switch>
+                       :disabled="3 === parseInt(form.v2ray_config.transport_type.toString()) || 4 === parseInt(form.v2ray_config.transport_type.toString())"></el-switch>
           </el-form-item>
           <el-form-item v-if="form.use_tls" label="HTTPS域名" prop="tls_host">
             <el-input v-model="form.tls_host" placeholder="HTTPS域名，该域名必须已被解析到目标服务器的IP地址"></el-input>
@@ -224,33 +223,33 @@
               <el-radio :label="2" disabled>上传证书(暂未支持)</el-radio>
             </el-radio-group>
           </el-form-item>
-        </template>
-        <el-divider content-position="left">站点伪装配置
-          <el-tooltip content="可以在部署V2ray的同时部署一个站点，可以增强伪装效果。TCP模式与KCP模式不支持站点伪装" placement="right">
-            <i class="el-icon-info"></i>
-          </el-tooltip>
-        </el-divider>
-        <div class="inline-form-item-2">
-          <el-form-item class="form-item-0" label="开启伪装">
-            <el-switch v-model="form.enable_web_service"
-                       :disabled="1 === parseInt(form.v2ray_config.transport_type.toString()) || 3 === parseInt(form.v2ray_config.transport_type.toString())"></el-switch>
-          </el-form-item>
-          <el-form-item class="form-item-1" label="伪装站点" label-width="80px">
-            <el-select v-model="form.web_service_type" class="w-100">
-              <el-option value="cloudreve" label="Cloudreve"></el-option>
-            </el-select>
-          </el-form-item>
-        </div>
-        <template v-if="form.enable_web_service && 'cloudreve' === form.web_service_type">
-          <el-divider content-position="left">Cloudreve配置信息</el-divider>
+          <el-divider content-position="left">站点伪装配置
+            <el-tooltip content="可以在部署V2ray的同时部署一个站点，可以增强伪装效果。TCP模式与KCP模式不支持站点伪装" placement="right">
+              <i class="el-icon-info"></i>
+            </el-tooltip>
+          </el-divider>
           <div class="inline-form-item-2">
-            <el-form-item class="form-item" label="初始管理员账号">
-              <el-input v-model="response.cloudreve_admin" readonly placeholder="将在部署成功后回显"></el-input>
+            <el-form-item class="form-item-0" label="开启伪装">
+              <el-switch v-model="form.enable_web_service"
+                         :disabled="1 === parseInt(form.v2ray_config.transport_type.toString()) || 3 === parseInt(form.v2ray_config.transport_type.toString())"></el-switch>
             </el-form-item>
-            <el-form-item class="form-item" label="初始管理员密码">
-              <el-input v-model="response.cloudreve_password" readonly placeholder="将在部署成功后回显"></el-input>
+            <el-form-item class="form-item-1" label="伪装站点" label-width="80px">
+              <el-select v-model="form.web_service_type" class="w-100">
+                <el-option value="cloudreve" label="Cloudreve"></el-option>
+              </el-select>
             </el-form-item>
           </div>
+          <template v-if="form.enable_web_service && 'cloudreve' === form.web_service_type">
+            <el-divider content-position="left">Cloudreve配置信息</el-divider>
+            <div class="inline-form-item-2">
+              <el-form-item class="form-item" label="初始管理员账号">
+                <el-input v-model="response.cloudreve_admin" readonly placeholder="将在部署成功后回显"></el-input>
+              </el-form-item>
+              <el-form-item class="form-item" label="初始管理员密码">
+                <el-input v-model="response.cloudreve_password" readonly placeholder="将在部署成功后回显"></el-input>
+              </el-form-item>
+            </div>
+          </template>
         </template>
       </template>
       <el-form-item class="content-center" label-width="0">
@@ -321,6 +320,10 @@ export default defineComponent({
     'form.v2ray_config.transport_type': function () {
       if (4 == this.form.v2ray_config.transport_type) {
         this.form.use_tls = true
+      }
+
+      if (3 == this.form.v2ray_config.transport_type) {
+        this.form.use_tls = false
       }
 
       if (1 == this.form.v2ray_config.transport_type || 3 == this.form.v2ray_config.transport_type) {

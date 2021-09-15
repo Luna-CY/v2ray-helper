@@ -139,6 +139,13 @@ func GetRootPath() string {
 	return rootPath
 }
 
+const CertDirName = "certs"
+
+// GetCertificatePath 获取证书目录的路径
+func GetCertificatePath() string {
+	return filepath.Join(rootPath, CertDirName)
+}
+
 func fileExists(path string) (bool, error) {
 	stat, err := os.Stat(path)
 	if nil != err {

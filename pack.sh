@@ -16,4 +16,4 @@ mkdir -p staticfile/webstatic/webjs
 go-bindata-assetfs -pkg webjs -o staticfile/webstatic/webjs/bindata.go web/js/... || exit
 
 env CGO_ENABLED=1 CC=x86_64-linux-musl-gcc CGO_LDFLAGS="-static" GOOS=linux GOARCH=amd64 go build ./v2ray-helper.go || exit
-tar zcf v2ray-helper-1.0.0.tgz v2ray-helper
+tar zcf v2ray-helper.tgz v2ray-helper

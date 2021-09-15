@@ -3,18 +3,25 @@ package util
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"os/exec"
-	"strings"
 )
 
 // GetPublicIpv4 获取外网IPv4地址
 func GetPublicIpv4() (string, error) {
-	res, err := exec.Command("sh", "-c", "dig +short myip.opendns.com @resolver1.opendns.com").Output()
+	res, err := http.Get("https://checkip.amazonaws.com")
+	if nil != err {
+		return "", errors.New(fmt.Sprintf("无法获取本机外网IP: %v", err))
+	}
+	defer res.Body.Close()
+
+	ipBytes, err := ioutil.ReadAll(res.Body)
 	if nil != err {
 		return "", errors.New(fmt.Sprintf("无法获取本机外网IP: %v", err))
 	}
 
-	return strings.TrimSpace(string(res)), nil
+	return string(ipBytes), nil
 }
 
 func CheckLocalPortIsAllow(port int) (bool, error) {

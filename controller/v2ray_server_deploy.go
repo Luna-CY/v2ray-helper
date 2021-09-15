@@ -124,81 +124,21 @@ func V2rayServerDeploy(c *gin.Context) {
 		return
 	}
 
+	if err := stopAllService(); nil != err {
+		logger.GetLogger().Errorln(err)
+
+		response.Response(c, code.BadRequest, "坚持Nginx/Caddy/V2ray/Cloudreve服务状态失败，详细请查看日志", nil)
+
+		return
+	}
+
 	result := map[string]interface{}{}
 
-	// 如果有Nginx服务器并且已启动，那么停止Nginx，否则Caddy无法启动
-	nginxIsRunning, err := nginx.IsRunning()
-	if nil != err {
-		logger.GetLogger().Errorln(err)
-
-		response.Response(c, code.ServerError, "检查Nginx服务状态失败，详细请查看日志。请使用重新安装的方式重试", nil)
-
-		return
-	}
-
-	if nginxIsRunning {
-		if err := nginx.Stop(); nil != err {
-			logger.GetLogger().Errorln(err)
-
-			response.Response(c, code.ServerError, "停止Nginx服务失败，详细请查看日志。请使用重新安装的方式重试", nil)
-
-			return
-		}
-	}
-
-	v2rayIsRunning, err := v2ray.IsRunning()
-	if nil != err {
-		logger.GetLogger().Errorln(err)
-
-		response.Response(c, code.ServerError, "检查V2ray服务状态失败，详细请查看日志。请使用重新安装的方式重试", nil)
-
-		return
-	}
-
-	// 如果服务正在运行必须先停止V2ray服务，否则无法重新安装
-	if v2rayIsRunning {
-		if err := v2ray.Stop(); nil != err {
-			logger.GetLogger().Errorln(err)
-
-			response.Response(c, code.ServerError, "停止V2ray服务失败，详细请查看日志。请使用重新安装的方式重试", nil)
-
-			return
-		}
-	}
-
-	caddyIsRunning, err := caddy.IsRunning()
-	if nil != err {
-		logger.GetLogger().Errorln(err)
-
-		response.Response(c, code.ServerError, "检查Caddy服务状态失败，详细请查看日志。请使用重新安装的方式重试", nil)
-
-		return
-	}
-
-	// 如果Caddy已启动需要停止服务，否则无法重新安装
-	if caddyIsRunning {
-		if err := caddy.Stop(); nil != err {
-			logger.GetLogger().Errorln(err)
-
-			response.Response(c, code.ServerError, "停止Caddy服务失败，详细请查看日志。请使用重新安装的方式重试", nil)
-
-			return
-		}
-	}
-
-	if body.UseTls {
-		certIsExists, err := certificate.CertIsExists(body.TlsHost)
-		if nil != err {
-			logger.GetLogger().Errorln(err)
-
-			response.Response(c, code.ServerError, "申请证书失败，详细请查看日志", nil)
-
-			return
-		}
-
+	// WebSocket通过Caddy自动申请证书
+	if body.UseTls && v2ray.TransportTypeWebSocket != body.V2rayConfig.TransportType {
 		// 如果证书不存在先申请证书
-		if !certIsExists {
-			key, cert, err := certificate.IssueNew(body.TlsHost, configurator.GetMainConfig().Email)
+		if !certificate.GetManager().CheckExists(body.TlsHost) {
+			cert, err := certificate.GetManager().IssueNew(body.TlsHost, configurator.GetMainConfig().Email)
 			if nil != err {
 				logger.GetLogger().Errorln(err)
 
@@ -207,8 +147,8 @@ func V2rayServerDeploy(c *gin.Context) {
 				return
 			}
 
-			body.V2rayConfig.TlsKey = key
-			body.V2rayConfig.TlsCert = cert
+			body.V2rayConfig.TlsKeyFile = cert.GetPrivateKeyFilePath()
+			body.V2rayConfig.TlsCertFile = cert.GetCertificateFilePath()
 		}
 
 		body.V2rayConfig.UseTls = true
@@ -256,59 +196,41 @@ func V2rayServerDeploy(c *gin.Context) {
 
 	// 如果使用的传输类型是WebSocket，需要安装Caddy
 	// 仅在默认安装与重新安装时配置Caddy
-	if (v2ray.TransportTypeWebSocket == body.V2rayConfig.TransportType || v2ray.TransportTypeHttp2 == body.V2rayConfig.TransportType) && (InstallTypeDefault == body.InstallType || InstallTypeForce == body.InstallType) {
-		if err := caddy.InstallLastRelease(); nil != err {
-			logger.GetLogger().Errorln(err)
-
-			response.Response(c, code.ServerError, "安装Caddy失败，详细请查看日志", nil)
-
-			return
-		}
-
-		if v2ray.TransportTypeWebSocket == body.V2rayConfig.TransportType {
-			if body.EnableWebService {
-				if err := caddy.AppendConfigV2rayAndCloudreveToSystem(body.TlsHost, body.UseTls, body.V2rayConfig.V2rayPort, body.V2rayConfig.WebSocket.Path); nil != err {
-					logger.GetLogger().Errorln(err)
-
-					response.Response(c, code.ServerError, "安装Caddy失败，详细请查看日志", nil)
-
-					return
-				}
-			} else {
-				if err := caddy.AppendConfigOnlyV2rayToSystem(body.TlsHost, body.UseTls, body.V2rayConfig.V2rayPort, body.V2rayConfig.WebSocket.Path); nil != err {
-					logger.GetLogger().Errorln(err)
-
-					response.Response(c, code.ServerError, "安装Caddy失败，详细请查看日志", nil)
-
-					return
-				}
-			}
-		}
-
-		if v2ray.TransportTypeHttp2 == body.V2rayConfig.TransportType {
-			if body.EnableWebService {
-				if err := caddy.AppendConfigV2rayAndHTTP2AndCloudreveToSystem(body.TlsHost, body.UseTls, body.V2rayConfig.V2rayPort, body.V2rayConfig.Http2.Path); nil != err {
-					logger.GetLogger().Errorln(err)
-
-					response.Response(c, code.ServerError, "安装Caddy失败，详细请查看日志", nil)
-
-					return
-				}
-			} else {
-				if err := caddy.AppendConfigV2rayAndHTTP2ToSystem(body.TlsHost, body.UseTls, body.V2rayConfig.V2rayPort, body.V2rayConfig.Http2.Path); nil != err {
-					logger.GetLogger().Errorln(err)
-
-					response.Response(c, code.ServerError, "安装Caddy失败，详细请查看日志", nil)
-
-					return
-				}
-			}
-		}
-	}
-
-	// 启动Caddy服务
-	// WebSocket需要启动Caddy
 	if v2ray.TransportTypeWebSocket == body.V2rayConfig.TransportType || v2ray.TransportTypeHttp2 == body.V2rayConfig.TransportType {
+		if InstallTypeDefault == body.InstallType || InstallTypeForce == body.InstallType {
+			if err := caddy.InstallLastRelease(); nil != err {
+				logger.GetLogger().Errorln(err)
+
+				response.Response(c, code.ServerError, "安装Caddy失败，详细请查看日志", nil)
+
+				return
+			}
+
+			port := caddy.PortHttp
+			if body.UseTls {
+				port = caddy.PortHttps
+			}
+
+			enableCloudreve := false
+			if body.EnableWebService {
+				enableCloudreve = true
+			}
+
+			enableHttp2 := false
+			if v2ray.TransportTypeHttp2 == body.V2rayConfig.TransportType {
+				enableHttp2 = true
+			}
+
+			if err := caddy.SetConfigToSystem(body.TlsHost, port, body.V2rayConfig.V2rayPort, body.V2rayConfig.WebSocket.Path, enableCloudreve, enableHttp2); nil != err {
+				logger.GetLogger().Errorln(err)
+
+				response.Response(c, code.ServerError, "安装Caddy失败，详细请查看日志", nil)
+
+				return
+			}
+		}
+
+		// 启动Caddy服务
 		if err := caddy.Start(); nil != err {
 			logger.GetLogger().Errorln(err)
 
@@ -329,25 +251,6 @@ func V2rayServerDeploy(c *gin.Context) {
 	// 处理站点伪装配置
 	if InstallTypeDefault == body.InstallType || InstallTypeForce == body.InstallType {
 		if body.EnableWebService && cloudreve.Name == body.WebServiceType {
-			cloudreveIsRunning, err := cloudreve.IsRunning()
-			if nil != err {
-				logger.GetLogger().Errorln(err)
-
-				response.Response(c, code.ServerError, "检查Cloudreve服务状态失败，详细请查看日志。请使用重新安装的方式重试", nil)
-
-				return
-			}
-
-			if cloudreveIsRunning {
-				if err := cloudreve.Stop(); nil != err {
-					logger.GetLogger().Errorln(err)
-
-					response.Response(c, code.ServerError, "停止Cloudreve服务失败，详细请查看日志。请使用重新安装的方式重试", nil)
-
-					return
-				}
-			}
-
 			if err := cloudreve.InstallLastRelease(); nil != err {
 				logger.GetLogger().Errorln(err)
 
@@ -563,6 +466,58 @@ func generateConfig(body V2rayServerDeployForm) error {
 
 		if err := dataservice.GetBaseService().Create(&endpoint); nil != err {
 			return errors.New(fmt.Sprintf("保存数据失败: %v", err))
+		}
+	}
+
+	return nil
+}
+
+// stopAllService 停止所有服务
+func stopAllService() error {
+	// 如果有Nginx服务器并且已启动，那么停止Nginx，否则Caddy无法启动
+	nginxIsRunning, err := nginx.IsRunning()
+	if nil != err {
+		return err
+	}
+
+	if nginxIsRunning {
+		if err := nginx.Stop(); nil != err {
+			return err
+		}
+	}
+
+	caddyIsRunning, err := caddy.IsRunning()
+	if nil != err {
+		return err
+	}
+
+	// 如果Caddy已启动需要停止服务，否则无法重新安装
+	if caddyIsRunning {
+		if err := caddy.Stop(); nil != err {
+			return err
+		}
+	}
+
+	v2rayIsRunning, err := v2ray.IsRunning()
+	if nil != err {
+		return err
+	}
+
+	// 如果服务正在运行必须先停止V2ray服务，否则无法重新安装
+	if v2rayIsRunning {
+		if err := v2ray.Stop(); nil != err {
+			return err
+		}
+	}
+
+	cloudreveIsRunning, err := cloudreve.IsRunning()
+	if nil != err {
+		return err
+	}
+
+	if cloudreveIsRunning {
+		if err := cloudreve.Stop(); nil != err {
+			return err
 		}
 	}
 

@@ -42,15 +42,19 @@ func V2rayEndpointDetail(c *gin.Context) {
 
 	res := map[string]interface{}{
 		"host":           *endpoint.Host,
-		"port":           *endpoint.Host,
-		"user_id":        *endpoint.Host,
-		"alter_id":       *endpoint.Host,
-		"use_tls":        *endpoint.Host,
+		"port":           *endpoint.Port,
+		"user_id":        *endpoint.UserId,
+		"alter_id":       *endpoint.AlterId,
+		"use_tls":        false,
 		"transport_type": *endpoint.TransportType,
 		"tcp":            gin.H{},
 		"web_socket":     gin.H{},
 		"kcp":            gin.H{},
 		"http2":          gin.H{},
+	}
+
+	if 1 == *endpoint.UseTls {
+		res["use_tls"] = true
 	}
 
 	if model.V2rayEndpointTransportTypeTcp == *endpoint.TransportType {
