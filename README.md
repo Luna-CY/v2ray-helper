@@ -1,23 +1,24 @@
 # v2ray-helper
 
-V2ray配置管理面板，可以对v2ray的客户端配置进行管理，同时该工具支持一键部署服务器
+V2ray一键部署服务，支持对V2ray常用代理协议(TCP/KCP/WebSocket/HTTP2)的一键部署与服务伪装，可视化UI面板配置
 
 ## 特性
 
+- 可视化配置面板
 - 客户端配置管理
 - 服务器一键部署
 - VMess链接生成
-- 站点伪装（一键部署Cloudreve，暂未支持其他，有需要可以提交issue）
-- 自动HTTPS证书申请
+- 站点伪装(一键部署Cloudreve，暂未支持其他，有需要可以提交issue)
+- HTTPS证书管理(自动申请、续期)
 
 ![alt 配置列表](https://github.com/Luna-CY/v2ray-helper/raw/master/resources/image/v2ray-helper-1.png)
-![alt 配置列表](https://github.com/Luna-CY/v2ray-helper/raw/master/resources/image/v2ray-helper-2.png)
+![alt 服务器部署](https://github.com/Luna-CY/v2ray-helper/raw/master/resources/image/v2ray-helper-2.png)
 
 ## 安装教程
 
 可以下载已打包的二进制包或手动构建
 
-`mkdir /usr/local/v2ray-helper && tar zxf v2ray-helper-1.0.0.tgz -C /usr/local/v2ray-helper`
+`mkdir /usr/local/v2ray-helper && tar zxf v2ray-helper-x.x.x.tgz -C /usr/local/v2ray-helper`
 
 ## 手动构建
 
