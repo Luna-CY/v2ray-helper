@@ -42,9 +42,6 @@ func Init(rootPath string) error {
 	//设置日志级别
 	logger.SetLevel(configurator.GetMainConfig().GetLogLevel())
 
-	//设置日志格式
-	logger.SetFormatter(&logrus.JSONFormatter{})
-
 	return nil
 }
 

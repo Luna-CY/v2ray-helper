@@ -1,20 +1,16 @@
 <template>
   <div class="content-center el-container">
     <div class="el-main el-main-md-and-up hidden-sm-and-down">
-      <div class="el-row margin-bottom-2x" v-if="$store.getters.local.is_default_key">
+      <div class="el-row margin-bottom-2x"
+           v-if="$store.getters.local.is_default_key || $store.getters.local.is_default_key">
         <div class="el-col-24">
           <el-alert type="error" effect="dark" :closable="false">
             <template #title>
-              <div class="endpoint-alter-box">当前应用使用的口令为默认口令，请及时修改以免造成损失</div>
-            </template>
-          </el-alert>
-        </div>
-      </div>
-      <div class="el-row margin-bottom-2x" v-if="$store.getters.local.is_default_remove_key">
-        <div class="el-col-24">
-          <el-alert type="error" effect="dark" :closable="false">
-            <template #title>
-              <div class="endpoint-alter-box">当前应用使用的配置删除口令为默认口令，请及时修改以免造成损失</div>
+              <div class="endpoint-alter-box">
+                <span v-if="$store.getters.local.is_default_key">当前应用使用的口令为默认口令，请及时修改以免造成损失</span>
+                <span v-if="$store.getters.local.is_default_key && $store.getters.local.is_default_remove_key">; </span>
+                <span v-if="$store.getters.local.is_default_remove_key">当前应用使用的配置删除口令为默认口令，请及时修改以免造成损失</span>
+              </div>
             </template>
           </el-alert>
         </div>

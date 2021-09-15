@@ -310,7 +310,7 @@ func v2rayServerDeployBodyFilter(body V2rayServerDeployForm) (V2rayServerDeployF
 				return body, errors.New(fmt.Sprintf("无法生成用户ID: %v", err))
 			}
 
-			client.UserId = id.String()
+			client.UserId = strings.ToUpper(id.String())
 		}
 
 		body.V2rayConfig.Clients[i] = client

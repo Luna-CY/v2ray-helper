@@ -197,6 +197,8 @@ func (m *Manager) renew(host string) error {
 		}
 	}()
 
+	enableCaddy := false
+
 	// 检查Caddy
 	caddyIsRunning, err := caddy.IsRunning()
 	if nil != err {
@@ -204,6 +206,7 @@ func (m *Manager) renew(host string) error {
 	}
 
 	if caddyIsRunning {
+		enableCaddy = true
 		if err := caddy.Stop(); nil != err {
 			return errors.New(fmt.Sprintf("停止Caddy服务失败: %v", err))
 		}
@@ -243,19 +246,21 @@ func (m *Manager) renew(host string) error {
 		logger.GetLogger().Errorln(err)
 	}
 
-	// 启动Caddy服务
-	if err := caddy.Start(); nil != err {
-		return errors.New(fmt.Sprintf("启动Caddy服务失败: %v", err))
-	}
+	if enableCaddy {
+		// 启动Caddy服务
+		if err := caddy.Start(); nil != err {
+			return errors.New(fmt.Sprintf("启动Caddy服务失败: %v", err))
+		}
 
-	// 检查Caddy
-	caddyIsRunning, err = caddy.IsRunning()
-	if nil != err {
-		return errors.New(fmt.Sprintf("检查Caddy状态失败: %v", err))
-	}
+		// 检查Caddy
+		caddyIsRunning, err = caddy.IsRunning()
+		if nil != err {
+			return errors.New(fmt.Sprintf("检查Caddy状态失败: %v", err))
+		}
 
-	if !caddyIsRunning {
-		return errors.New(fmt.Sprintf("启动Caddy服务失败: %v", err))
+		if !caddyIsRunning {
+			return errors.New(fmt.Sprintf("启动Caddy服务失败: %v", err))
+		}
 	}
 
 	// 启动V2ray服务

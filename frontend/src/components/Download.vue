@@ -8,7 +8,9 @@
           <el-link :href="scope.row.git" :underline="false" target="_blank" type="primary">GitHub</el-link>
           <el-link :href="scope.row.address" :underline="false" class="margin-left" target="_blank" type="primary">下载
           </el-link>
-          <el-link :href="scope.row.helper" :underline="false" class="margin-left" type="primary">配置帮助</el-link>
+          <el-link @click="$router.push({name: scope.row.helper})" :underline="false" class="margin-left"
+                   type="primary">配置帮助
+          </el-link>
         </template>
       </el-table-column>
     </el-table>
@@ -35,21 +37,21 @@ export default defineComponent({
           client: "V2rayN",
           git: "https://github.com/2dust/v2rayN/releases",
           address: "https://github.com/2dust/v2rayN/releases/download/4.20/v2rayN-Core.zip",
-          helper: "#/helper/v2ray-n",
+          helper: "HelperV2rayN",
         },
         {
           os: "MacOSX",
           client: "V2rayX",
           git: "https://github.com/Cenmrev/V2RayX/releases",
           address: "https://github.com/Cenmrev/V2RayX/releases/download/v1.5.1/V2RayX.app.zip",
-          helper: "#/helper/v2ray-x",
+          helper: "HelperV2rayX",
         },
         {
           os: "Android",
           client: "V2rayNG",
           git: "https://github.com/2dust/v2rayNG/releases",
           address: "https://github.com/2dust/v2rayNG/releases/download/1.6.18/v2rayNG_1.6.18.apk",
-          helper: "#/helper/v2ray-ng",
+          helper: "HelperV2rayNG",
         },
       ],
     }
