@@ -241,7 +241,11 @@
           </div>
           <template v-if="form.enable_web_service && 'cloudreve' === form.web_service_type">
             <el-divider content-position="left">Cloudreve配置信息</el-divider>
-            <div class="inline-form-item-2">
+            <el-form-item label="Cloudreve配置">
+              <el-checkbox v-model="form.cloudreve_config.enable_aria2" label="启用Aria2离线下载支持(不懂不要选)"></el-checkbox>
+              <el-checkbox v-model="form.cloudreve_config.reset_admin_password" label="重置管理员密码(首次部署请选中，否则无法获取初始密码)"></el-checkbox>
+            </el-form-item>
+            <div class="inline-form-item-2" v-if="form.cloudreve_config.reset_admin_password">
               <el-form-item class="form-item" label="初始管理员账号">
                 <el-input v-model="response.cloudreve_admin" readonly placeholder="将在部署成功后回显"></el-input>
               </el-form-item>

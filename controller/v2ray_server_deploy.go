@@ -10,6 +10,7 @@ import (
 	"github.com/Luna-CY/v2ray-helper/common/http/code"
 	"github.com/Luna-CY/v2ray-helper/common/http/response"
 	"github.com/Luna-CY/v2ray-helper/common/logger"
+	"github.com/Luna-CY/v2ray-helper/common/software/aria2"
 	"github.com/Luna-CY/v2ray-helper/common/software/caddy"
 	"github.com/Luna-CY/v2ray-helper/common/software/cloudreve"
 	"github.com/Luna-CY/v2ray-helper/common/software/nginx"
@@ -33,6 +34,11 @@ type V2rayServerDeployForm struct {
 
 	EnableWebService bool   `json:"enable_web_service"`
 	WebServiceType   string `json:"web_service_type"`
+
+	CloudreveConfig struct {
+		EnableAria2        bool `json:"enable_aria2"`
+		ResetAdminPassword bool `json:"reset_admin_password"`
+	} `json:"cloudreve_config"`
 
 	V2rayConfig v2ray.Config `json:"v2ray_config"`
 }
@@ -134,8 +140,7 @@ func V2rayServerDeploy(c *gin.Context) {
 
 	result := map[string]interface{}{}
 
-	// WebSocket通过Caddy自动申请证书
-	if body.UseTls && v2ray.TransportTypeWebSocket != body.V2rayConfig.TransportType {
+	if body.UseTls {
 		// 如果证书不存在先申请证书
 		if !certificate.GetManager().CheckExists(body.TlsHost) {
 			cert, err := certificate.GetManager().IssueNew(body.TlsHost, configurator.GetMainConfig().Email)
@@ -275,17 +280,53 @@ func V2rayServerDeploy(c *gin.Context) {
 				return
 			}
 
-			password, err := cloudreve.ResetAdminPassword()
-			if nil != err {
-				logger.GetLogger().Errorln(err)
+			if body.CloudreveConfig.EnableAria2 {
+				if err := aria2.InstallToSystem(); nil != err {
+					logger.GetLogger().Errorln(err)
 
-				response.Response(c, code.ServerError, "安装Cloudreve服务失败，详细请查看日志。请使用重新安装的方式重试", nil)
+					response.Response(c, code.ServerError, "安装Aria2服务失败，详细请查看日志。请使用重新安装的方式重试", nil)
 
-				return
+					return
+				}
+
+				if err := aria2.Enable(); nil != err {
+					logger.GetLogger().Errorln(err)
+
+					response.Response(c, code.ServerError, "安装Aria2服务失败，详细请查看日志。请使用重新安装的方式重试", nil)
+
+					return
+				}
+
+				if err := aria2.Start(); nil != err {
+					logger.GetLogger().Errorln(err)
+
+					response.Response(c, code.ServerError, "启动Aria2服务失败，详细请查看日志。请使用重新安装的方式重试", nil)
+
+					return
+				}
+
+				if err := cloudreve.SetAria2(cloudreve.DefaultDbPath, "http://127.0.0.1:6800", aria2.DefaultToken, cloudreve.Aria2TempPath); nil != err {
+					logger.GetLogger().Errorln(err)
+
+					response.Response(c, code.ServerError, "配置Cloudreve的Aria2模块失败，详细请查看日志。请使用重新安装的方式重试", nil)
+
+					return
+				}
 			}
 
-			result["cloudreve_admin"] = "admin@cloudreve.org"
-			result["cloudreve_password"] = password
+			if body.CloudreveConfig.ResetAdminPassword {
+				password, err := cloudreve.ResetAdminPassword()
+				if nil != err {
+					logger.GetLogger().Errorln(err)
+
+					response.Response(c, code.ServerError, "安装Cloudreve服务失败，详细请查看日志。请使用重新安装的方式重试", nil)
+
+					return
+				}
+
+				result["cloudreve_admin"] = "admin@cloudreve.org"
+				result["cloudreve_password"] = password
+			}
 		}
 	}
 
@@ -486,6 +527,10 @@ func stopAllService() error {
 		}
 	}
 
+	if err := nginx.Disable(); nil != err {
+		return err
+	}
+
 	caddyIsRunning, err := caddy.IsRunning()
 	if nil != err {
 		return err
@@ -496,6 +541,10 @@ func stopAllService() error {
 		if err := caddy.Stop(); nil != err {
 			return err
 		}
+	}
+
+	if err := caddy.Disable(); nil != err {
+		return err
 	}
 
 	v2rayIsRunning, err := v2ray.IsRunning()
@@ -519,6 +568,25 @@ func stopAllService() error {
 		if err := cloudreve.Stop(); nil != err {
 			return err
 		}
+	}
+
+	if err := cloudreve.Disable(); nil != err {
+		return err
+	}
+
+	aria2IsRunning, err := aria2.IsRunning()
+	if nil != err {
+		return err
+	}
+
+	if aria2IsRunning {
+		if err := aria2.Stop(); nil != err {
+			return err
+		}
+	}
+
+	if err := aria2.Disable(); nil != err {
+		return err
 	}
 
 	return nil

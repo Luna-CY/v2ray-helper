@@ -46,3 +46,13 @@ func Stop() error {
 
 	return nil
 }
+
+// Disable 取消开机自启
+func Disable() error {
+	_, err := exec.Command("sh", "-c", "rm -rf /etc/systemd/system/multi-user.target.wants/caddy.service").Output()
+	if nil != err {
+		return errors.New(fmt.Sprintf("Caddy服务取消开机启动失败: %v", err))
+	}
+
+	return nil
+}

@@ -32,6 +32,13 @@ export class V2rayServerDeployForm {
 
   public web_service_type = "cloudreve"
 
+  public cloudreve_config = new class {
+
+    public enable_aria2 = false
+
+    public reset_admin_password = true
+  }
+
   // V2ray部署配置
 
   public config_type = 1 // 1预设配置(WebSocket/HTTP)；2预设配置(WebSocket/HTTPS)；3自定义配置

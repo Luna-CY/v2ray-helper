@@ -205,6 +205,16 @@ func Stop() error {
 	return nil
 }
 
+// Disable 取消开机自启
+func Disable() error {
+	_, err := exec.Command("sh", "-c", "rm -rf /etc/systemd/system/multi-user.target.wants/cloudreve.service").Output()
+	if nil != err {
+		return errors.New(fmt.Sprintf("Cloudreve服务取消开机启动失败: %v", err))
+	}
+
+	return nil
+}
+
 // ResetAdminPassword 重置并获取管理员密码
 func ResetAdminPassword() (string, error) {
 	res, err := exec.Command("sh", "-c", "/usr/local/cloudreve/cloudreve --database-script ResetAdminPassword").Output()

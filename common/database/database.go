@@ -17,12 +17,12 @@ var md *gorm.DB
 func Init(database string, maxPoolNum int) error {
 	loggerConfig := logger.Config{
 		SlowThreshold: time.Second,
-		LogLevel:      logger.Info, // 不输出任何日志
+		LogLevel:      logger.Info,
 		Colorful:      false,
 	}
 
 	if gin.ReleaseMode == gin.Mode() {
-		loggerConfig.LogLevel = logger.Silent
+		loggerConfig.LogLevel = logger.Silent // 不输出任何日志
 	}
 
 	newLogger := logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), loggerConfig)
