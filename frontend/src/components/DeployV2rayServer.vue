@@ -2,21 +2,13 @@
   <el-dialog :close-on-click-modal="false" :close-on-press-escape="false" :model-value="show" destroy-on-close
              width="80%" @close="close" :fullscreen="true">
     <el-form ref="V2rayServerDeploy" :model="form" :rules="rules" label-width="120px">
-      <el-form-item label="选择服务器">
-        <el-radio-group v-model="form.server_type">
-          <el-radio :label="1">当前服务器</el-radio>
-          <el-radio :label="2" disabled>远程服务器(暂未支持)</el-radio>
-        </el-radio-group>
-      </el-form-item>
-      <el-form-item label="安装方式">
-        <el-radio-group v-model="form.install_type">
-          <el-radio :label="1">默认安装</el-radio>
-          <el-radio :label="2">重新安装</el-radio>
-          <el-radio :label="3">仅升级V2ray</el-radio>
-          <el-radio :label="4">仅配置V2ray</el-radio>
-        </el-radio-group>
-      </el-form-item>
-      <template v-if="3 !== parseInt(form.install_type.toString())">
+      <template v-if="!deploying">
+        <el-form-item label="安装方式">
+          <el-radio-group v-model="form.install_type">
+            <el-radio :label="1">默认安装</el-radio>
+            <el-radio :label="2">重新安装</el-radio>
+          </el-radio-group>
+        </el-form-item>
         <el-divider content-position="left">V2ray配置选择</el-divider>
         <el-form-item label="选择配置">
           <el-radio-group v-model="form.config_type">
@@ -243,22 +235,34 @@
             <el-divider content-position="left">Cloudreve配置信息</el-divider>
             <el-form-item label="Cloudreve配置">
               <el-checkbox v-model="form.cloudreve_config.enable_aria2" label="启用Aria2离线下载支持(不懂不要选)"></el-checkbox>
-              <el-checkbox v-model="form.cloudreve_config.reset_admin_password" label="重置管理员密码(首次部署请选中，否则无法获取初始密码)"></el-checkbox>
+              <el-checkbox v-model="form.cloudreve_config.reset_admin_password"
+                           label="重置管理员密码(首次部署请选中，否则无法获取初始密码)"></el-checkbox>
             </el-form-item>
             <div class="inline-form-item-2" v-if="form.cloudreve_config.reset_admin_password">
               <el-form-item class="form-item" label="初始管理员账号">
-                <el-input v-model="response.cloudreve_admin" readonly placeholder="将在部署成功后回显"></el-input>
+                <el-input v-model="response.email" readonly placeholder="将在部署成功后回显"></el-input>
               </el-form-item>
               <el-form-item class="form-item" label="初始管理员密码">
-                <el-input v-model="response.cloudreve_password" readonly placeholder="将在部署成功后回显"></el-input>
+                <el-input v-model="response.password" readonly placeholder="将在部署成功后回显"></el-input>
               </el-form-item>
             </div>
           </template>
         </template>
       </template>
+      <template v-if="deploying">
+        <el-steps :active="deployStage" simple :process-status="deployState" finish-status="success"
+                  class="margin-bottom">
+          <el-step title="环境预配置"></el-step>
+          <el-step title="申请HTTPS证书"></el-step>
+          <el-step title="部署V2ray服务"></el-step>
+          <el-step title="部署站点伪装"></el-step>
+          <el-step title="部署Caddy服务"></el-step>
+          <el-step title="生成客户端配置"></el-step>
+        </el-steps>
+      </template>
       <el-form-item class="content-center" label-width="0">
-        <el-button type="danger" @click="close" :disabled="deploing">关闭</el-button>
-        <el-button :loading="deploing" type="primary" @click="save">开始部署</el-button>
+        <el-button type="danger" @click="close" :disabled="requesting">关闭</el-button>
+        <el-button :loading="requesting" type="primary" @click="save">开始部署</el-button>
       </el-form-item>
     </el-form>
   </el-dialog>
@@ -266,15 +270,14 @@
 
 <script lang="ts">
 import {defineComponent} from "vue"
-import {
-  API_V2RAY_SERVER_DEPLOY,
-  Client,
-  V2rayServerDeployData,
-  V2rayServerDeployForm,
-  V2rayServerDeployResponse
-} from "@/api/v2ray_server_develop"
+import {API_V2RAY_SERVER_DEPLOY, Client, V2rayServerDeployForm} from "@/api/v2ray_server_deploy"
 import axios, {AxiosResponse} from "axios"
-import {Header} from "@/api/base"
+import {BaseResponse, Header} from "@/api/base"
+import {
+  API_V2RAY_SERVER_DEPLOY_STAGE,
+  CloudreveInfo,
+  V2rayServerDeployStageResponse
+} from "@/api/v2ray_server_deploy_stage"
 
 export default defineComponent({
   name: "DeployV2rayServer",
@@ -338,13 +341,17 @@ export default defineComponent({
 
   data() {
     return {
-      deploing: false,
+      requesting: false,
+      deploying: false,
+      id: null,
       form: new V2rayServerDeployForm(),
       rules: {
         tls_host: [{validator: this.validateTlsHost, trigger: 'blur'}],
       },
       headers: [],
-      response: new V2rayServerDeployData()
+      response: new CloudreveInfo(),
+      deployStage: 0,
+      deployState: "process"
     }
   },
 
@@ -380,17 +387,18 @@ export default defineComponent({
           this.form.v2ray_config.clients[i].alter_id = parseInt(this.form.v2ray_config.clients[i].alter_id.toString())
         }
 
-        this.deploing = true
-        axios.post(API_V2RAY_SERVER_DEPLOY, this.form).then((response: AxiosResponse<V2rayServerDeployResponse>) => {
-          this.deploing = false
+        this.requesting = true
+        axios.post(API_V2RAY_SERVER_DEPLOY, this.form).then((response: AxiosResponse<BaseResponse>) => {
+          this.requesting = false
           if (0 != response.data.code) {
             this.$message.error(response.data.message)
 
             return
           }
 
-          this.response = response.data.data
-          this.$message.success("部署成功，已自动生成配置文件")
+          this.deploying = true
+          setTimeout(this.requestStageInfo, 1000)
+          this.$message.success("正在部署中，请不要关闭此弹窗")
           this.success()
         })
       })
@@ -420,6 +428,39 @@ export default defineComponent({
       }
 
       c()
+    },
+
+    requestStageInfo() {
+      axios.get(API_V2RAY_SERVER_DEPLOY_STAGE).then((response: AxiosResponse<V2rayServerDeployStageResponse>) => {
+        if (0 != response.data.code) {
+          this.$message.error(response.data.message)
+
+          return
+        }
+
+        if (0 < response.data.data.stages.length) {
+          let lastStage = response.data.data.stages[response.data.data.stages.length - 1]
+          this.deployStage = lastStage.stage
+          this.deployState = ["process", "success", "error"][lastStage.state]
+
+          if (5 == lastStage.stage && 2 == lastStage.state) {
+            this.deploying = false
+            this.response = response.data.data.cloudreve
+            this.$message.success('部署成功')
+
+            return
+          }
+
+          if (3 == lastStage.state) {
+            this.deploying = false
+            this.$message.error('部署失败，详细请查看日志')
+
+            return
+          }
+        }
+
+        setTimeout(this.requestStageInfo, 1000)
+      })
     },
   },
 })

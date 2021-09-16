@@ -70,7 +70,7 @@ func InitHttpsConfig() error {
 		return errors.New(fmt.Sprintf("无法写入文件: %v", err))
 	}
 
-	return nil
+	return configurator.Init(GetRootPath())
 }
 
 // Migrate 数据库迁移

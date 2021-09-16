@@ -1,20 +1,8 @@
-import {BaseResponse, Header} from "@/api/base"
+import {Header} from "@/api/base"
 
 export const API_V2RAY_SERVER_DEPLOY = "/api/v2ray-server-deploy"
 
 export class V2rayServerDeployForm {
-
-  // 服务器信息
-
-  public server_type = 1 // 1本地服务器；2远程服务器
-
-  public server_ip = ""
-
-  public server_port = 22
-
-  public server_user = ""
-
-  public server_password = ""
 
   public install_type = 1 // 1默认安装；2强制安装；3升级安装；4重新配置
 
@@ -111,18 +99,6 @@ export class V2rayServerDeployForm {
       public path = "/"
     }
   }
-}
-
-export class V2rayServerDeployResponse extends BaseResponse {
-
-  public data = new V2rayServerDeployData()
-}
-
-export class V2rayServerDeployData {
-
-  public cloudreve_admin = ""
-
-  public cloudreve_password = ""
 }
 
 export class Client {
