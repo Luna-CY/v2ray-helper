@@ -1,11 +1,23 @@
 package configurator
 
 import (
+	"fmt"
 	"github.com/sirupsen/logrus"
-	"strings"
 )
 
-const DefaultMainConfigContent = `listen: 0.0.0.0:8888
+const DefaultMainConfigContent = `address: 0.0.0.0
+service-listen: 8888
+https-listen: 8888
+gin-release-mode: true
+key: '-'
+remove-key: '-'
+email: myself@v2ray-helper.net
+allow-v2ray-deploy: true
+log-level: error`
+
+const DefaultMainConfigWithHttpsContent = `address: 127.0.0.1
+service-listen: 9999
+https-listen: 8888
 gin-release-mode: true
 key: '-'
 remove-key: '-'
@@ -14,7 +26,9 @@ allow-v2ray-deploy: true
 log-level: error`
 
 type mainConfig struct {
-	Listen           string `yaml:"listen"`
+	Address          string `yaml:"address"`
+	ServiceListen    int    `yaml:"service-listen"`
+	HttpsListen      int    `yaml:"https-listen"`
 	GinReleaseMode   bool   `yaml:"gin-release-mode"`
 	AllowV2rayDeploy bool   `yaml:"allow-v2ray-deploy"`
 	Email            string `yaml:"email"`
@@ -23,12 +37,8 @@ type mainConfig struct {
 	LogLevel         string `yaml:"log-level"`
 }
 
-func (m *mainConfig) GetListen() string {
-	if !strings.Contains(m.Listen, ":") {
-		return "0.0.0.0:8888"
-	}
-
-	return strings.TrimSpace(m.Listen)
+func (m *mainConfig) GetListenAddress() string {
+	return fmt.Sprintf("%v:%v", m.Address, m.ServiceListen)
 }
 
 func (m *mainConfig) GetLogLevel() logrus.Level {

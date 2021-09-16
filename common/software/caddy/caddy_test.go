@@ -2,6 +2,7 @@ package caddy
 
 import (
 	"errors"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -20,6 +21,22 @@ func TestInstallCaddy(t *testing.T) {
 
 	if err := checkFileIsExists(filepath.Join(td, "etc", "caddy", "Caddyfile")); nil != err {
 		t.Fatal(err)
+	}
+
+	file, err := os.Open(filepath.Join(td, "etc", "caddy", "Caddyfile"))
+	if nil != err {
+		t.Fatal(err)
+	}
+	defer file.Close()
+
+	result, err := ioutil.ReadAll(file)
+	if nil != err {
+		t.Fatal(err)
+	}
+
+	config := "import sites-enabled/*"
+	if config != string(result) {
+		t.Fatal(string(result))
 	}
 
 	if err := checkFileIsExists(filepath.Join(td, "etc", "systemd", "system", "caddy.service")); nil != err {

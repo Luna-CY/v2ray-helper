@@ -21,7 +21,9 @@ const (
 func Init(rootPath string) error {
 
 	mc = &mainConfig{
-		Listen:           "0.0.0.0:8888",
+		Address:          "0.0.0.0",
+		ServiceListen:    8888,
+		HttpsListen:      8888,
 		GinReleaseMode:   true,
 		Email:            "myself@v2ray-helper.net",
 		AllowV2rayDeploy: true,

@@ -1,7 +1,7 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "7bde1fef60826f54ee0b",
-    "url": "/css/app.957f1e0b.css"
+    "revision": "2660ec556114499300b3",
+    "url": "/css/app.e65871f6.css"
   },
   {
     "revision": "cf36c651bf849dd0fc87",
@@ -88,12 +88,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/img/help/v2ray-x/v2ray-x-path-5.png"
   },
   {
-    "revision": "841affd112ff4083dd956eea75d1c2f4",
+    "revision": "5337841abf2771a971574787409a78d3",
     "url": "/index.html"
   },
   {
-    "revision": "7bde1fef60826f54ee0b",
-    "url": "/js/app.0f23f660.js"
+    "revision": "2660ec556114499300b3",
+    "url": "/js/app.e6556289.js"
   },
   {
     "revision": "cf36c651bf849dd0fc87",

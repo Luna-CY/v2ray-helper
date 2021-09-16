@@ -285,7 +285,11 @@ func (m *Manager) CheckExists(host string) bool {
 	m.RLock()
 	defer m.RUnlock()
 
-	if _, ok := m.certs[host]; ok {
+	if cert, ok := m.certs[host]; ok {
+		if time.Now().Unix() >= cert.GetExpireTime() {
+			return false
+		}
+
 		return true
 	}
 
@@ -315,6 +319,10 @@ func (m *Manager) GetMustCertificate(host string) *Certificate {
 // IssueNew 申请新的证书
 // 申请证书需要监听80与443端口，申请证书前需要关闭所有web服务，以免续期失败
 func (m *Manager) IssueNew(host, email string) (*Certificate, error) {
+	if m.CheckExists(host) {
+		return m.GetMustCertificate(host), nil
+	}
+
 	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("无法生成私钥: %v", err))
@@ -359,20 +367,25 @@ func (m *Manager) IssueNew(host, email string) (*Certificate, error) {
 		return nil, err
 	}
 
+	m.Lock()
+	defer m.Unlock()
+
+	m.certs[host] = entry
+
 	return entry, nil
 }
 
 // Renew 续期证书
 // 续期证书需要监听80与443端口，续期前需要关闭所有web服务器，以免续期失败
 func (m *Manager) Renew(host, email string) error {
-	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	if err != nil {
-		return errors.New(fmt.Sprintf("无法生成私钥: %v", err))
-	}
-
 	lc, err := m.GetCertificate(host)
 	if nil != err {
 		return err
+	}
+
+	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		return errors.New(fmt.Sprintf("无法生成私钥: %v", err))
 	}
 
 	userEntry := &user{Email: email, key: privateKey}

@@ -112,30 +112,22 @@ func Install(goos, goArch, version, installTo, configPath, systemdPath string) e
 		return errors.New(fmt.Sprintf("安装Caddy失败: %v", err))
 	}
 
-	// 如果配置文件不存在就创建一个新的配置文件
-	stat, err := os.Stat(configPath)
+	if err := os.MkdirAll(filepath.Join(filepath.Dir(configPath), "sites-enabled"), 0755); nil != err {
+		return errors.New(fmt.Sprintf("安装Caddy失败: %v", err))
+	}
+
+	if err := os.RemoveAll(configPath); nil != err {
+		return errors.New(fmt.Sprintf("安装Caddy失败: %v", err))
+	}
+
+	configFile, err := os.OpenFile(configPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if nil != err {
-		if !os.IsNotExist(err) {
-			return errors.New(fmt.Sprintf("安装Caddy失败: %v", err))
-		}
+		return errors.New(fmt.Sprintf("安装Caddy失败: %v", err))
+	}
+	defer configFile.Close()
 
-		configFile, err := os.OpenFile(configPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
-		if nil != err {
-			return errors.New(fmt.Sprintf("安装Caddy失败: %v", err))
-		}
-		defer configFile.Close()
-	} else {
-		if stat.IsDir() {
-			if err := os.RemoveAll(configPath); nil != err {
-				return errors.New(fmt.Sprintf("安装Caddy失败: %v", err))
-			}
-		}
-
-		configFile, err := os.OpenFile(configPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
-		if nil != err {
-			return errors.New(fmt.Sprintf("安装Caddy失败: %v", err))
-		}
-		defer configFile.Close()
+	if _, err := configFile.WriteString("import sites-enabled/*"); nil != err {
+		return errors.New(fmt.Sprintf("安装Caddy失败: %v", err))
 	}
 
 	return nil

@@ -203,12 +203,23 @@ func V2rayServerDeploy(c *gin.Context) {
 	// 仅在默认安装与重新安装时配置Caddy
 	if v2ray.TransportTypeWebSocket == body.V2rayConfig.TransportType || v2ray.TransportTypeHttp2 == body.V2rayConfig.TransportType {
 		if InstallTypeDefault == body.InstallType || InstallTypeForce == body.InstallType {
-			if err := caddy.InstallLastRelease(); nil != err {
+			caddyIsInstalled, err := caddy.IsInstalled()
+			if nil != err {
 				logger.GetLogger().Errorln(err)
 
 				response.Response(c, code.ServerError, "安装Caddy失败，详细请查看日志", nil)
 
 				return
+			}
+
+			if !caddyIsInstalled {
+				if err := caddy.InstallLastRelease(); nil != err {
+					logger.GetLogger().Errorln(err)
+
+					response.Response(c, code.ServerError, "安装Caddy失败，详细请查看日志", nil)
+
+					return
+				}
 			}
 
 			port := caddy.PortHttp
@@ -226,7 +237,7 @@ func V2rayServerDeploy(c *gin.Context) {
 				enableHttp2 = true
 			}
 
-			if err := caddy.SetConfigToSystem(body.TlsHost, port, body.V2rayConfig.V2rayPort, body.V2rayConfig.WebSocket.Path, enableCloudreve, enableHttp2); nil != err {
+			if err := caddy.SetConfigToSystem(body.TlsHost, port, body.V2rayConfig.V2rayPort, body.V2rayConfig.WebSocket.Path, body.UseTls, enableCloudreve, enableHttp2); nil != err {
 				logger.GetLogger().Errorln(err)
 
 				response.Response(c, code.ServerError, "安装Caddy失败，详细请查看日志", nil)
@@ -235,13 +246,33 @@ func V2rayServerDeploy(c *gin.Context) {
 			}
 		}
 
-		// 启动Caddy服务
-		if err := caddy.Start(); nil != err {
+		caddyIsRunning, err := caddy.IsRunning()
+		if nil != err {
 			logger.GetLogger().Errorln(err)
 
 			response.Response(c, code.ServerError, "启动Caddy服务失败，详细请查看日志。请使用重新安装的方式重试", nil)
 
 			return
+		}
+
+		if caddyIsRunning {
+			// 重新加载Caddy配置
+			if err := caddy.Reload(); nil != err {
+				logger.GetLogger().Errorln(err)
+
+				response.Response(c, code.ServerError, "启动Caddy服务失败，详细请查看日志。请使用重新安装的方式重试", nil)
+
+				return
+			}
+		} else {
+			// 启动Caddy服务
+			if err := caddy.Start(); nil != err {
+				logger.GetLogger().Errorln(err)
+
+				response.Response(c, code.ServerError, "启动Caddy服务失败，详细请查看日志。请使用重新安装的方式重试", nil)
+
+				return
+			}
 		}
 
 		if err := caddy.Enable(); nil != err {
@@ -528,22 +559,6 @@ func stopAllService() error {
 	}
 
 	if err := nginx.Disable(); nil != err {
-		return err
-	}
-
-	caddyIsRunning, err := caddy.IsRunning()
-	if nil != err {
-		return err
-	}
-
-	// 如果Caddy已启动需要停止服务，否则无法重新安装
-	if caddyIsRunning {
-		if err := caddy.Stop(); nil != err {
-			return err
-		}
-	}
-
-	if err := caddy.Disable(); nil != err {
 		return err
 	}
 

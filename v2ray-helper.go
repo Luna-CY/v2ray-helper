@@ -9,6 +9,9 @@ import (
 	"github.com/Luna-CY/v2ray-helper/common/database"
 	"github.com/Luna-CY/v2ray-helper/common/logger"
 	"github.com/Luna-CY/v2ray-helper/common/runtime"
+	"github.com/Luna-CY/v2ray-helper/common/software/caddy"
+	"github.com/Luna-CY/v2ray-helper/common/software/nginx"
+	"github.com/Luna-CY/v2ray-helper/common/software/vhelper"
 	"github.com/Luna-CY/v2ray-helper/middleware"
 	"github.com/Luna-CY/v2ray-helper/router"
 	"github.com/Luna-CY/v2ray-helper/staticfile/webstatic"
@@ -25,14 +28,16 @@ import (
 func main() {
 	homeDir := ""
 	install := false
-	installAndEnable := false
+	installWithHttps := false
+	host := ""
 
 	flag.StringVar(&homeDir, "home-dir", "", "主目录，数据库及配置文件将放在此目录下，未指定时为当前目录")
 	flag.BoolVar(&install, "install", false, "安装为系统服务并退出")
-	flag.BoolVar(&installAndEnable, "install-and-enable", false, "安装为系统服务并且开机启动")
+	flag.BoolVar(&installWithHttps, "install-with-https", false, "安装为系统服务并开启HTTPS")
+	flag.StringVar(&host, "https-host", "", "申请证书的HTTPS域名，开启HTTPS时必须提供")
 	flag.Parse()
 
-	homeDir = strings.TrimSpace(homeDir)
+	homeDir = filepath.Clean(strings.TrimSpace(homeDir))
 	rootAbsPath := runtime.AbsRootPath(homeDir)
 
 	if err := runtime.InitRuntime(rootAbsPath); nil != err {
@@ -62,8 +67,8 @@ func main() {
 	}
 
 	// 安装为系统服务并退出
-	if install || installAndEnable {
-		installAsService(installAndEnable)
+	if install || installWithHttps {
+		installAsService(installWithHttps, strings.TrimSpace(host))
 
 		os.Exit(0)
 	}
@@ -108,7 +113,7 @@ func main() {
 		c.Writer.Flush()
 	})
 
-	if err := engine.Run(configurator.GetMainConfig().GetListen()); nil != err {
+	if err := engine.Run(configurator.GetMainConfig().GetListenAddress()); nil != err {
 		log.Fatalf("启动服务器失败: %v\n", err)
 	}
 }
@@ -128,7 +133,11 @@ RestartPreventExitStatus=23
 WantedBy=multi-user.target`
 
 // installAsService 安装为系统服务
-func installAsService(enable bool) {
+func installAsService(https bool, host string) {
+	if https && "" == host {
+		log.Fatalln("开启HTTPS时必须提供HTTPS域名")
+	}
+
 	configFile, err := os.OpenFile("/etc/systemd/system/v2ray-helper.service", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if nil != err {
 		log.Fatalf("安装为系统服务失败: %v\n", err)
@@ -139,14 +148,80 @@ func installAsService(enable bool) {
 		log.Fatalf("安装为系统服务失败: %v\n", err)
 	}
 
-	log.Println("安装成功")
+	if _, err := exec.Command("sh", "-c", "ln -sf /etc/systemd/system/v2ray-helper.service /etc/systemd/system/multi-user.target.wants/v2ray-helper.service").Output(); nil != err {
+		log.Fatalf("设为开机自启失败: %v\n", err)
+	}
 
-	if enable {
-		_, err := exec.Command("sh", "-c", "ln -sf /etc/systemd/system/v2ray-helper.service /etc/systemd/system/multi-user.target.wants/v2ray-helper.service").Output()
+	if https {
+		if err := runtime.InitHttpsConfig(); nil != err {
+			log.Fatalln(err)
+		}
+
+		// 如果有Nginx服务器并且已启动，那么停止Nginx，否则Caddy无法启动
+		nginxIsRunning, err := nginx.IsRunning()
 		if nil != err {
-			log.Fatalf("设为开机自启失败: %v\n", err)
+			log.Fatalln(err)
+		}
+
+		if nginxIsRunning {
+			if err := nginx.Stop(); nil != err {
+				log.Fatalln(err)
+			}
+		}
+
+		if err := nginx.Disable(); nil != err {
+			log.Fatalln(err)
+		}
+
+		vHelperIsRunning, err := vhelper.IsRunning()
+		if nil != err {
+			log.Fatalln(err)
+		}
+
+		if vHelperIsRunning {
+			if err := vhelper.Stop(); nil != err {
+				log.Fatalln(err)
+			}
+		}
+
+		caddyIsInstalled, err := caddy.IsInstalled()
+		if nil != err {
+			log.Fatalln(err)
+		}
+
+		if !caddyIsInstalled {
+			if err := caddy.InstallLastRelease(); nil != err {
+				log.Fatalln(err)
+			}
+		}
+
+		if _, err := certificate.GetManager().IssueNew(host, configurator.GetMainConfig().Email); nil != err {
+			log.Fatalln(err)
+		}
+
+		if err := caddy.SetConfigToSystem(host, configurator.GetMainConfig().HttpsListen, configurator.GetMainConfig().ServiceListen, "", true, false, false); nil != err {
+			log.Fatalln(err)
+		}
+
+		if err := vhelper.Start(); nil != err {
+			log.Fatalln(err)
+		}
+
+		caddyIsRunning, err := caddy.IsRunning()
+		if nil != err {
+			log.Fatalln(err)
+		}
+
+		if caddyIsRunning {
+			if err := caddy.Reload(); nil != err {
+				log.Fatalln(err)
+			}
+		} else {
+			if err := caddy.Start(); nil != err {
+				log.Fatalln(err)
+			}
 		}
 	}
 
-	log.Println("设为开机自启成功")
+	log.Println("安装成功")
 }

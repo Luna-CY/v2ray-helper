@@ -57,6 +57,22 @@ func InitRuntime(path string) error {
 	return nil
 }
 
+// InitHttpsConfig 初始化HTTPS环境配置
+func InitHttpsConfig() error {
+	mainConfigPath := filepath.Join(GetRootPath(), "config", "main.prod.config.yaml")
+	mainConfigFile, err := os.OpenFile(mainConfigPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+	if nil != err {
+		return errors.New(fmt.Sprintf("无法打开文件: %v", err))
+	}
+	defer mainConfigFile.Close()
+
+	if _, err := mainConfigFile.WriteString(configurator.DefaultMainConfigWithHttpsContent); nil != err {
+		return errors.New(fmt.Sprintf("无法写入文件: %v", err))
+	}
+
+	return nil
+}
+
 // Migrate 数据库迁移
 func Migrate(db, version string) error {
 	td, err := ioutil.TempDir("", "")

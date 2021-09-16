@@ -1,19 +1,24 @@
 <template>
   <div class="content-center el-container">
     <div class="el-main el-main-md-and-up hidden-sm-and-down">
-      <div class="el-row margin-bottom-2x"
-           v-if="$store.getters.local.is_default_key || $store.getters.local.is_default_key">
-        <div class="el-col-24">
-          <el-alert type="error" effect="dark" :closable="false">
-            <template #title>
-              <div class="endpoint-alter-box">
+      <div class="margin-bottom-2x">
+        <div class="home-header">
+          <div class="left-notice">
+            <el-alert type="error" effect="dark" :closable="false"
+                      v-if="$store.getters.local.is_default_key || $store.getters.local.is_default_key">
+              <template #title>
                 <span v-if="$store.getters.local.is_default_key">当前应用使用的口令为默认口令，请及时修改以免造成损失</span>
                 <span v-if="$store.getters.local.is_default_key && $store.getters.local.is_default_remove_key">; </span>
                 <span v-if="$store.getters.local.is_default_remove_key">当前应用使用的配置删除口令为默认口令，请及时修改以免造成损失</span>
-              </div>
-            </template>
-          </el-alert>
+              </template>
+            </el-alert>
+          </div>
+          <div class="right-buttons margin-left">
+            <i class="el-icon-bell" @click="$message.info('暂未实现此功能')"></i>
+            <i class="el-icon-setting margin-left" @click="$message.info('暂未实现此功能')"></i>
+          </div>
         </div>
+        <el-divider></el-divider>
       </div>
       <template v-for="item in data" v-bind:key="item.id">
         <div class="endpoint-box el-row margin-bottom-2x" v-on:mouseout="item.show_delete_button = false"
@@ -250,7 +255,19 @@ body {
   }
 }
 
-.endpoint-alter-box {
-  padding: 10px;
+.home-header {
+  color: #FFFFFF;
+  font-size: 120%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .left-notice {
+    flex-grow: 1;
+  }
+
+  i {
+    cursor: pointer;
+  }
 }
 </style>

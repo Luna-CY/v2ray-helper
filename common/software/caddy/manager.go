@@ -3,9 +3,29 @@ package caddy
 import (
 	"errors"
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 )
+
+// IsInstalled 检测是否已安装
+func IsInstalled() (bool, error) {
+	stat, err := os.Stat(filepath.Join(InstallTo, "caddy"))
+	if nil != err {
+		if os.IsNotExist(err) {
+			return false, nil
+		}
+
+		return false, errors.New(fmt.Sprintf("无法检查Caddy是否安装: %v", err))
+	}
+
+	if stat.IsDir() {
+		return false, nil
+	}
+
+	return true, nil
+}
 
 // IsRunning 检查Caddy是否在运行状态
 func IsRunning() (bool, error) {
@@ -37,21 +57,20 @@ func Enable() error {
 	return nil
 }
 
-// Stop 停止Caddy服务
-func Stop() error {
-	_, err := exec.Command("service", "caddy", "stop").Output()
+func Reload() error {
+	_, err := exec.Command("sh", "-c", fmt.Sprintf("caddy reload -config %v", ConfigPath)).Output()
 	if nil != err {
-		return errors.New(fmt.Sprintf("停止Caddy服务失败: %v", err))
+		return errors.New(fmt.Sprintf("启动Caddy服务失败: %v", err))
 	}
 
 	return nil
 }
 
-// Disable 取消开机自启
-func Disable() error {
-	_, err := exec.Command("sh", "-c", "rm -rf /etc/systemd/system/multi-user.target.wants/caddy.service").Output()
+// Stop 停止Caddy服务
+func Stop() error {
+	_, err := exec.Command("service", "caddy", "stop").Output()
 	if nil != err {
-		return errors.New(fmt.Sprintf("Caddy服务取消开机启动失败: %v", err))
+		return errors.New(fmt.Sprintf("停止Caddy服务失败: %v", err))
 	}
 
 	return nil

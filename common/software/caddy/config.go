@@ -15,11 +15,11 @@ const (
 )
 
 // SetConfig 添加Caddy的配置
-func SetConfig(configPath, host string, port, v2rayPort int, path string, cloudreve, http2 bool) error {
+func SetConfig(configPath, host string, listenPort, targetPort int, path string, https, cloudreve, http2 bool) error {
 	builder := bytes.Buffer{}
-	builder.WriteString(fmt.Sprintf("%v:%v {\n", host, port))
+	builder.WriteString(fmt.Sprintf("%v:%v {\n", host, listenPort))
 
-	if PortHttps == port {
+	if PortHttps == listenPort || https || http2 {
 		certFilePath := filepath.Join(runtime.GetCertificatePath(), host, "cert.pem")
 		keyFilePath := filepath.Join(runtime.GetCertificatePath(), host, "private.key")
 
@@ -27,13 +27,13 @@ func SetConfig(configPath, host string, port, v2rayPort int, path string, cloudr
 	}
 
 	if http2 {
-		builder.WriteString(fmt.Sprintf("    reverse_proxy %v 127.0.0.1:%v {\n", path, v2rayPort))
+		builder.WriteString(fmt.Sprintf("    reverse_proxy %v 127.0.0.1:%v {\n", path, targetPort))
 		builder.WriteString("        transport http {\n")
 		builder.WriteString("            versions h2c\n")
 		builder.WriteString("        }\n")
 		builder.WriteString("    }\n")
 	} else {
-		builder.WriteString(fmt.Sprintf("    reverse_proxy %v 127.0.0.1:%v\n", path, v2rayPort))
+		builder.WriteString(fmt.Sprintf("    reverse_proxy %v 127.0.0.1:%v\n", path, targetPort))
 	}
 
 	if cloudreve {
@@ -42,6 +42,9 @@ func SetConfig(configPath, host string, port, v2rayPort int, path string, cloudr
 	builder.WriteString("}")
 
 	if err := os.MkdirAll(filepath.Dir(configPath), 0755); nil != err {
+		return errors.New(fmt.Sprintf("配置Caddy失败: %v", err))
+	}
+	if err := os.RemoveAll(configPath); nil != err {
 		return errors.New(fmt.Sprintf("配置Caddy失败: %v", err))
 	}
 
@@ -59,6 +62,8 @@ func SetConfig(configPath, host string, port, v2rayPort int, path string, cloudr
 }
 
 // SetConfigToSystem 设置Caddy
-func SetConfigToSystem(host string, port, v2rayPort int, path string, cloudreve, http2 bool) error {
-	return SetConfig(ConfigPath, host, port, v2rayPort, path, cloudreve, http2)
+func SetConfigToSystem(host string, listenPort, targetPort int, path string, https, cloudreve, http2 bool) error {
+	configPath := filepath.Join(filepath.Dir(ConfigPath), "sites-enabled", fmt.Sprintf("%v.%v", host, listenPort))
+
+	return SetConfig(configPath, host, listenPort, targetPort, path, https, cloudreve, http2)
 }
