@@ -113,8 +113,19 @@ func main() {
 		c.Writer.Flush()
 	})
 
-	if err := engine.Run(configurator.GetMainConfig().GetListenAddress()); nil != err {
-		log.Fatalf("启动服务器失败: %v\n", err)
+	if configurator.GetMainConfig().EnableHttps {
+		https, err := certificate.GetManager().GetCertificate(configurator.GetMainConfig().HttpsHost)
+		if nil != err {
+			log.Fatalln("无法获取HTTPS证书")
+		}
+
+		if err := engine.RunTLS(configurator.GetMainConfig().GetListenAddress(), https.GetCertificateFilePath(), https.GetPrivateKeyFilePath()); nil != err {
+			log.Fatalf("启动服务器失败: %v\n", err)
+		}
+	} else {
+		if err := engine.Run(configurator.GetMainConfig().GetListenAddress()); nil != err {
+			log.Fatalf("启动服务器失败: %v\n", err)
+		}
 	}
 }
 
@@ -153,7 +164,10 @@ func installAsService(https bool, host string) {
 	}
 
 	if https {
-		if err := runtime.InitHttpsConfig(); nil != err {
+		configurator.GetMainConfig().EnableHttps = true
+		configurator.GetMainConfig().HttpsHost = host
+
+		if err := configurator.GetMainConfig().Save(filepath.Join(runtime.GetRootPath(), "config", configurator.GetMainConfig().GetFileName())); nil != err {
 			log.Fatalln(err)
 		}
 
@@ -173,6 +187,17 @@ func installAsService(https bool, host string) {
 			log.Fatalln(err)
 		}
 
+		caddyIsRunning, err := caddy.IsRunning()
+		if nil != err {
+			log.Fatalln(err)
+		}
+
+		if caddyIsRunning {
+			if err := caddy.Stop(); nil != err {
+				log.Fatalln(err)
+			}
+		}
+
 		vHelperIsRunning, err := vhelper.IsRunning()
 		if nil != err {
 			log.Fatalln(err)
@@ -184,44 +209,14 @@ func installAsService(https bool, host string) {
 			}
 		}
 
-		caddyIsInstalled, err := caddy.IsInstalled()
-		if nil != err {
-			log.Fatalln(err)
-		}
-
-		if !caddyIsInstalled {
-			if err := caddy.InstallLastRelease(); nil != err {
-				log.Fatalln(err)
-			}
-		}
-
 		if _, err := certificate.GetManager().IssueNew(host, configurator.GetMainConfig().Email); nil != err {
 			log.Fatalln(err)
 		}
-
-		if err := caddy.SetConfigToSystem(host, configurator.GetMainConfig().HttpsListen, configurator.GetMainConfig().ServiceListen, "", true, false, false); nil != err {
-			log.Fatalln(err)
-		}
-
-		if err := vhelper.Start(); nil != err {
-			log.Fatalln(err)
-		}
-
-		caddyIsRunning, err := caddy.IsRunning()
-		if nil != err {
-			log.Fatalln(err)
-		}
-
-		if caddyIsRunning {
-			if err := caddy.Reload(); nil != err {
-				log.Fatalln(err)
-			}
-		} else {
-			if err := caddy.Start(); nil != err {
-				log.Fatalln(err)
-			}
-		}
 	}
 
-	log.Println("安装成功")
+	if err := vhelper.Start(); nil != err {
+		log.Fatalln(err)
+	}
+
+	log.Println("安装成功，服务已启动")
 }

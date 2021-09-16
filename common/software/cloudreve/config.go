@@ -9,7 +9,6 @@ import (
 	"time"
 )
 
-const Aria2TempPath = "/var/run/cloudreve-temp"
 const DefaultDbPath = "/usr/local/cloudreve/cloudreve.db"
 
 // SetAria2 配置Aria2

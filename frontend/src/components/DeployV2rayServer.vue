@@ -257,8 +257,8 @@
         </template>
       </template>
       <el-form-item class="content-center" label-width="0">
-        <el-button type="danger" @click="close" :disabled="deploing">关闭</el-button>
-        <el-button :loading="deploing" type="primary" @click="save">开始部署</el-button>
+        <el-button type="danger" @click="close" :disabled="deploying">关闭</el-button>
+        <el-button :loading="deploying" type="primary" @click="save">开始部署</el-button>
       </el-form-item>
     </el-form>
   </el-dialog>
@@ -338,7 +338,7 @@ export default defineComponent({
 
   data() {
     return {
-      deploing: false,
+      deploying: false,
       form: new V2rayServerDeployForm(),
       rules: {
         tls_host: [{validator: this.validateTlsHost, trigger: 'blur'}],
@@ -380,9 +380,9 @@ export default defineComponent({
           this.form.v2ray_config.clients[i].alter_id = parseInt(this.form.v2ray_config.clients[i].alter_id.toString())
         }
 
-        this.deploing = true
+        this.deploying = true
         axios.post(API_V2RAY_SERVER_DEPLOY, this.form).then((response: AxiosResponse<V2rayServerDeployResponse>) => {
-          this.deploing = false
+          this.deploying = false
           if (0 != response.data.code) {
             this.$message.error(response.data.message)
 

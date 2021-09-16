@@ -10,6 +10,7 @@ import (
 	"github.com/Luna-CY/v2ray-helper/common/http/code"
 	"github.com/Luna-CY/v2ray-helper/common/http/response"
 	"github.com/Luna-CY/v2ray-helper/common/logger"
+	vhr "github.com/Luna-CY/v2ray-helper/common/runtime"
 	"github.com/Luna-CY/v2ray-helper/common/software/aria2"
 	"github.com/Luna-CY/v2ray-helper/common/software/caddy"
 	"github.com/Luna-CY/v2ray-helper/common/software/cloudreve"
@@ -20,6 +21,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"time"
@@ -336,7 +338,16 @@ func V2rayServerDeploy(c *gin.Context) {
 					return
 				}
 
-				if err := cloudreve.SetAria2(cloudreve.DefaultDbPath, "http://127.0.0.1:6800", aria2.DefaultToken, cloudreve.Aria2TempPath); nil != err {
+				cloudreveAria2RuntimePath := filepath.Join(vhr.GetRootPath(), "temp", "cloudreve-aria2")
+				if err := os.MkdirAll(cloudreveAria2RuntimePath, 0755); nil != err {
+					logger.GetLogger().Errorln(err)
+
+					response.Response(c, code.ServerError, "配置Cloudreve的Aria2模块失败，详细请查看日志。请使用重新安装的方式重试", nil)
+
+					return
+				}
+
+				if err := cloudreve.SetAria2(cloudreve.DefaultDbPath, "http://127.0.0.1:6800", aria2.DefaultToken, cloudreveAria2RuntimePath); nil != err {
 					logger.GetLogger().Errorln(err)
 
 					response.Response(c, code.ServerError, "配置Cloudreve的Aria2模块失败，详细请查看日志。请使用重新安装的方式重试", nil)

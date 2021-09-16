@@ -3,6 +3,7 @@ package aria2
 import (
 	"errors"
 	"fmt"
+	"github.com/Luna-CY/v2ray-helper/common/runtime"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -10,7 +11,6 @@ import (
 )
 
 const SystemdPath = "/etc/systemd/system/aria2.service"
-const RuntimePath = "/var/run/aria2"
 const DefaultToken = "ARIARPCACCESSTOKEN"
 
 const systemdConfig = `[Unit]
@@ -20,7 +20,7 @@ After=network.target nss-lookup.target
 
 [Service]
 Type=simple
-WorkingDirectory=/var/run/aria2
+WorkingDirectory=/usr/local/v2ray-helper/temp/aria2
 ExecStart=/usr/bin/aria2c --enable-rpc --rpc-secret=ARIARPCACCESSTOKEN
 Restart=on-failure
 RestartPreventExitStatus=23
@@ -48,7 +48,7 @@ func Install(systemdPath, runtimePath string) error {
 	}
 
 	// 安装到系统服务
-	if err := os.MkdirAll(filepath.Dir(runtimePath), 0755); nil != err {
+	if err := os.MkdirAll(runtimePath, 0755); nil != err {
 		return errors.New(fmt.Sprintf("安装Aria2失败: %v", err))
 	}
 
@@ -71,5 +71,5 @@ func Install(systemdPath, runtimePath string) error {
 
 // InstallToSystem 安装到系统
 func InstallToSystem() error {
-	return Install(SystemdPath, RuntimePath)
+	return Install(SystemdPath, filepath.Join(runtime.GetRootPath(), "temp", "aria2"))
 }
