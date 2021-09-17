@@ -137,8 +137,8 @@ export default defineComponent({
       state.is_default_key = response.data.data.is_default_key
       state.is_default_remove_key = response.data.data.is_default_remove_key
       state.listen = response.data.data.listen
-      state.enableHttps = response.data.data.enable_https
-      state.httpsHost = response.data.data.https_host
+      state.enable_https = response.data.data.enable_https
+      state.https_host = response.data.data.https_host
       state.email = response.data.data.email
       state.notice_list = response.data.data.notice_list.reverse()
 

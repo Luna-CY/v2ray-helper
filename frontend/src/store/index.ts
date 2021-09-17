@@ -17,9 +17,9 @@ export class StoryStateLocal {
 
   public listen = 8888
 
-  public enableHttps = false
+  public enable_https = false
 
-  public httpsHost = ""
+  public https_host = ""
 
   public email = ""
 

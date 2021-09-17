@@ -9,13 +9,13 @@
       </el-form-item>
       <div class="inline-form-item-2">
         <el-form-item class="form-item-0" label="HTTPS">
-          <el-switch v-model="enableHttps"></el-switch>
+          <el-switch v-model="enable_https"></el-switch>
         </el-form-item>
         <el-form-item class="form-item-1" label="域名" label-width="60px">
           <div class="inline-button">
-            <el-input v-model="httpsHost" :disabled="!enableHttps"
+            <el-input v-model="https_host" :disabled="!enable_https"
                       placeholder="HTTPS域名，将使用该域名申请证书，确保该域名已解析到当前服务器"></el-input>
-            <el-button type="primary" class="margin-left" @click="save('https-host', httpsHost)">保存</el-button>
+            <el-button type="primary" class="margin-left" @click="save('https-host', https_host)">保存</el-button>
           </div>
         </el-form-item>
       </div>
@@ -50,14 +50,14 @@ export default defineComponent({
   watch: {
     show() {
       this.listen = this.$store.getters.local.listen
-      this.enableHttps = this.$store.getters.local.enableHttps
-      this.httpsHost = this.$store.getters.local.httpsHost
+      this.enable_https = this.$store.getters.local.enable_https
+      this.https_host = this.$store.getters.local.https_host
       this.email = this.$store.getters.local.email
     },
 
-    enableHttps() {
-      if (!this.enableHttps) {
-        this.httpsHost = ""
+    enable_https() {
+      if (!this.enable_https) {
+        this.https_host = ""
       }
     }
   },
@@ -65,8 +65,8 @@ export default defineComponent({
   data() {
     return {
       listen: 8888,
-      enableHttps: false,
-      httpsHost: "",
+      enable_https: false,
+      https_host: "",
       email: "",
     }
   },
@@ -89,7 +89,7 @@ export default defineComponent({
           break
         case 'https-host':
           value = value.trim()
-          if (this.enableHttps && "" == value.trim()) {
+          if (this.enable_https && "" == value.trim()) {
             this.$message.error('启用HTTPS时必须填写域名')
           }
 
@@ -113,9 +113,16 @@ export default defineComponent({
           return
         }
 
+        let story = this.$store.getters.local
+        story.listen = parseInt(this.listen.toString())
+        story.enable_https = this.enable_https
+        story.https_host = this.https_host
+        story.email = this.email
+
+        this.$store.commit('local', story)
+
         this.$message.success('保存成功，重启服务后生效')
       })
-      console.log(key, value)
     }
   },
 })
