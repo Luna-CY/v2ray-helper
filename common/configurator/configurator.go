@@ -1,6 +1,8 @@
 package configurator
 
 import (
+	"fmt"
+	"github.com/Luna-CY/v2ray-helper/common/util"
 	"path/filepath"
 )
 
@@ -31,7 +33,7 @@ func GetDefaultMailConfig() *mainConfig {
 		Listen:           8888,
 		EnableHttps:      false,
 		GinReleaseMode:   true,
-		Email:            "myself@v2ray-helper.net",
+		Email:            fmt.Sprintf("%v@v2ray-helper.net", util.GenerateRandomString(16)),
 		AllowV2rayDeploy: true,
 		Key:              DefaultKey,
 		RemoveKey:        DefaultRemoveKey,

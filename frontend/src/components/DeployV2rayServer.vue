@@ -2,12 +2,6 @@
   <el-dialog :close-on-click-modal="false" :close-on-press-escape="false" :model-value="show" destroy-on-close
              width="80%" @close="close" :fullscreen="true">
     <el-form ref="V2rayServerDeploy" :model="form" :rules="rules" label-width="120px">
-      <el-form-item label="选择服务器">
-        <el-radio-group v-model="form.server_type">
-          <el-radio :label="1">当前服务器</el-radio>
-          <el-radio :label="2" disabled>远程服务器(暂未支持)</el-radio>
-        </el-radio-group>
-      </el-form-item>
       <el-form-item label="安装方式">
         <el-radio-group v-model="form.install_type">
           <el-radio :label="1">默认安装</el-radio>
@@ -207,7 +201,7 @@
         </template>
         <template v-if="4 !== parseInt(form.install_type.toString())">
           <el-divider content-position="left">HTTPS配置
-            <el-tooltip content="WebSocket模式通过Caddy自动申请及续期证书；TCP模式可以自动申请证书或手动上传证书" placement="right"><i
+            <el-tooltip content="除了KCP模式都支持HTTPS协议，V2rayHelper可以进行自动证书申请及续期" placement="right"><i
                 class="el-icon-info"></i></el-tooltip>
           </el-divider>
           <el-form-item label="使用HTTPS">
@@ -216,12 +210,6 @@
           </el-form-item>
           <el-form-item v-if="form.use_tls" label="HTTPS域名" prop="tls_host">
             <el-input v-model="form.tls_host" placeholder="HTTPS域名，该域名必须已被解析到目标服务器的IP地址"></el-input>
-          </el-form-item>
-          <el-form-item v-if="form.use_tls" label="HTTPS证书">
-            <el-radio-group v-model="form.cert_type">
-              <el-radio :label="1">自动申请证书</el-radio>
-              <el-radio :label="2" disabled>上传证书(暂未支持)</el-radio>
-            </el-radio-group>
           </el-form-item>
           <el-divider content-position="left">站点伪装配置
             <el-tooltip content="可以在部署V2ray的同时部署一个站点，可以增强伪装效果。TCP模式与KCP模式不支持站点伪装" placement="right">
@@ -243,7 +231,8 @@
             <el-divider content-position="left">Cloudreve配置信息</el-divider>
             <el-form-item label="Cloudreve配置">
               <el-checkbox v-model="form.cloudreve_config.enable_aria2" label="启用Aria2离线下载支持(不懂不要选)"></el-checkbox>
-              <el-checkbox v-model="form.cloudreve_config.reset_admin_password" label="重置管理员密码(首次部署请选中，否则无法获取初始密码)"></el-checkbox>
+              <el-checkbox v-model="form.cloudreve_config.reset_admin_password"
+                           label="重置管理员密码(首次部署请选中，否则无法获取初始密码)"></el-checkbox>
             </el-form-item>
             <div class="inline-form-item-2" v-if="form.cloudreve_config.reset_admin_password">
               <el-form-item class="form-item" label="初始管理员账号">

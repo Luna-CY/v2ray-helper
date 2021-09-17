@@ -12,6 +12,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 // Init 初始化证书管理器
@@ -84,8 +85,8 @@ func (c *Certificate) GetIssueCertificateFilePath() string {
 	return filepath.Join(runtime.GetCertificatePath(), c.host, "cert.issue")
 }
 
-func (c *Certificate) GetExpireTime() int64 {
-	return c.certificate.NotAfter.Unix()
+func (c *Certificate) GetExpireTime() time.Time {
+	return c.certificate.NotAfter
 }
 
 // newCertificate 新建一个证书结构并解析证书

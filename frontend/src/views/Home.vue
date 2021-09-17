@@ -14,8 +14,10 @@
             </el-alert>
           </div>
           <div class="right-buttons margin-left">
-            <i class="el-icon-bell" @click="$message.info('暂未实现此功能')"></i>
-            <i class="el-icon-setting margin-left" @click="$message.info('暂未实现此功能')"></i>
+            <el-badge is-dot :hidden="0 === $store.getters.local.notice_list.length">
+              <i class="el-icon-bell" @click="showNoticeModal = true"></i>
+            </el-badge>
+            <i class="el-icon-setting margin-left" @click="showSettingModal = true"></i>
           </div>
         </div>
         <el-divider></el-divider>
@@ -65,6 +67,8 @@
   <QRCode v-model:show="showQRCodeModal" v-bind:content="v2rayNgVMessString"></QRCode>
   <DeployV2rayServer v-model:show="showDevelopV2rayModal" v-on:success="load"></DeployV2rayServer>
   <EndpointDetail v-model:show="showDetailModal" v-bind:data="endpointDetail"></EndpointDetail>
+  <Setting v-model:show="showSettingModal"></Setting>
+  <Notice v-model:show="showNoticeModal"></Notice>
 </template>
 
 <script lang="ts">
@@ -89,16 +93,18 @@ import {
   V2rayEndpointDetailParams,
   V2rayEndpointDetailResponse
 } from "@/api/v2ray_endpoint_detail"
-import EndpointDetail from "@/components/EndpointDetail.vue";
-import {API_META_INFO, MetaInfoResponse} from "@/api/meta_info";
-import {StoryStateLocal} from "@/store";
+import EndpointDetail from "@/components/EndpointDetail.vue"
+import {API_META_INFO, MetaInfoResponse} from "@/api/meta_info"
+import {StoryStateLocal} from "@/store"
+import Setting from "@/components/Setting.vue"
+import Notice from "@/components/Notice.vue"
 
 const md5 = require('md5')
 
 export default defineComponent({
   name: 'Home',
 
-  components: {EndpointDetail, DeployV2rayServer, QRCode, Download, NewV2rayEndpoint, Remove},
+  components: {Notice, Setting, EndpointDetail, DeployV2rayServer, QRCode, Download, NewV2rayEndpoint, Remove},
 
   data() {
     return {
@@ -114,6 +120,8 @@ export default defineComponent({
       v2rayNgVMessString: "",
       endpointDetail: new V2rayEndpointDetailData(),
       showDetailModal: false,
+      showSettingModal: false,
+      showNoticeModal: false,
     }
   },
 
@@ -128,6 +136,11 @@ export default defineComponent({
       let state = new StoryStateLocal()
       state.is_default_key = response.data.data.is_default_key
       state.is_default_remove_key = response.data.data.is_default_remove_key
+      state.listen = response.data.data.listen
+      state.enableHttps = response.data.data.enable_https
+      state.httpsHost = response.data.data.https_host
+      state.email = response.data.data.email
+      state.notice_list = response.data.data.notice_list.reverse()
 
       this.$store.commit('local', state)
     })

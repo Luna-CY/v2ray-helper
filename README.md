@@ -31,11 +31,11 @@ V2ray一键部署服务，支持对V2ray常用代理协议(TCP/KCP/WebSocket/HTT
 - `/usr/local/v2ray-helper/v2ray-helper` 直接运行
 - `/usr/local/v2ray-helper/v2ray-helper -home-dir /usr/local/v2ray-helper/v2ray-helper` 直接运行并设置`-home-dir`
 
-支持通过参数`-install`或`-install-and-enable`参数安装为系统服务
+支持通过参数`-install`或`-install-with-https`参数安装为系统服务
 
 - `/usr/local/v2ray-helper/v2ray-helper -install` 安装为系统服务
 - `/usr/local/v2ray-helper/v2ray-helper -install -home-dir /usr/local/v2ray-helper/v2ray-helper` 安装为系统服务并设置`-home-dir`
-- `/usr/local/v2ray-helper/v2ray-helper -install-and-enable` 安装为系统服务并且开机启动
+- `/usr/local/v2ray-helper/v2ray-helper -install-with-https -https-host your.host` 安装为系统服务且启用TLS，此方式安装时必须提供域名
 
 安装为服务后可通过`systemd`进行管理
 

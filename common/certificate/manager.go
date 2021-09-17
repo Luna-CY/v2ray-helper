@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/Luna-CY/v2ray-helper/common/configurator"
 	"github.com/Luna-CY/v2ray-helper/common/logger"
+	"github.com/Luna-CY/v2ray-helper/common/notice"
 	"github.com/Luna-CY/v2ray-helper/common/runtime"
 	"github.com/Luna-CY/v2ray-helper/common/software/caddy"
 	"github.com/Luna-CY/v2ray-helper/common/software/v2ray"
@@ -174,12 +175,13 @@ func (m *Manager) RenewLoop() {
 
 			m.RLock()
 			for host, cert := range m.certs {
-				if cert.GetExpireTime()-time.Now().Unix() > 10*24*3600 {
+				if cert.GetExpireTime().Unix()-time.Now().Unix() > 10*24*3600 {
 					continue
 				}
 
 				// 10天以内续期
 				if err := m.renew(host); nil != err {
+					notice.GetManager().Push(notice.MessageTypeError, "证书续期失败", fmt.Sprintf("续期证书(%v)失败，详细请查看日志。证书有效期至: %v", host, cert.GetExpireTime().Format("2006-01-02 15:04:05")))
 					logger.GetLogger().Errorln(err)
 				}
 			}
@@ -286,7 +288,7 @@ func (m *Manager) CheckExists(host string) bool {
 	defer m.RUnlock()
 
 	if cert, ok := m.certs[host]; ok {
-		if time.Now().Unix() >= cert.GetExpireTime() {
+		if time.Now().Unix() >= cert.GetExpireTime().Unix() {
 			return false
 		}
 

@@ -1,5 +1,6 @@
 import {ActionContext, createStore} from 'vuex'
 import {USER_TOKEN_KEY} from "@/constant"
+import {NoticeListItem} from "@/api/meta_info"
 
 export class StoryStateToken {
 
@@ -13,6 +14,16 @@ export class StoryStateLocal {
   public is_default_key = false
 
   public is_default_remove_key = false
+
+  public listen = 8888
+
+  public enableHttps = false
+
+  public httpsHost = ""
+
+  public email = ""
+
+  public notice_list = new Array<NoticeListItem>()
 }
 
 class StoryState {
