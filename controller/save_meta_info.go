@@ -7,12 +7,14 @@ import (
 	"github.com/Luna-CY/v2ray-helper/common/http/response"
 	"github.com/Luna-CY/v2ray-helper/common/logger"
 	"github.com/Luna-CY/v2ray-helper/common/runtime"
+	"github.com/Luna-CY/v2ray-helper/common/software/vhelper"
 	"github.com/Luna-CY/v2ray-helper/common/util"
 	"github.com/gin-gonic/gin"
 	"net/mail"
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -37,6 +39,8 @@ func SaveMetaInfo(c *gin.Context) {
 	body.Key = strings.TrimSpace(body.Key)
 	body.Value = strings.TrimSpace(body.Value)
 
+	restart := false
+
 	switch body.Key {
 	case keyListen:
 		port, err := strconv.Atoi(body.Value)
@@ -51,6 +55,8 @@ func SaveMetaInfo(c *gin.Context) {
 
 			return
 		}
+
+		restart = true
 
 		configurator.GetMainConfig().Listen = port
 	case keyHttpsHost:
@@ -85,6 +91,8 @@ func SaveMetaInfo(c *gin.Context) {
 			configurator.GetMainConfig().EnableHttps = false
 			configurator.GetMainConfig().HttpsHost = ""
 		}
+
+		restart = true
 	case keyEmail:
 		_, err := mail.ParseAddress(body.Value)
 		if nil != err {
@@ -108,6 +116,14 @@ func SaveMetaInfo(c *gin.Context) {
 	}
 
 	response.Success(c, code.OK, nil)
+
+	if restart && configurator.GetMainConfig().GinReleaseMode {
+		go func() {
+			time.Sleep(3 * time.Second)
+
+			_ = vhelper.ReStart()
+		}()
+	}
 
 	return
 }

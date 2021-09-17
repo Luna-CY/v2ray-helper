@@ -25,6 +25,15 @@ func Start() error {
 	return nil
 }
 
+func ReStart() error {
+	_, err := exec.Command("service", "v2ray-helper", "restart").Output()
+	if nil != err {
+		return errors.New(fmt.Sprintf("启动V2rayHelper服务失败: %v", err))
+	}
+
+	return nil
+}
+
 func Stop() error {
 	_, err := exec.Command("service", "v2ray-helper", "stop").Output()
 	if nil != err {

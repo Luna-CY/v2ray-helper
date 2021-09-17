@@ -113,6 +113,12 @@ export default defineComponent({
           return
         }
 
+        if (parseInt(this.listen.toString()) != this.$store.getters.local.listen || this.enable_https != this.$store.getters.local.enable_https) {
+          this.$message.success('设置成功，变更了端口或HTTPS设置，服务将在3秒后重启并生效')
+        } else {
+          this.$message.success('设置成功')
+        }
+
         let story = this.$store.getters.local
         story.listen = parseInt(this.listen.toString())
         story.enable_https = this.enable_https
@@ -120,8 +126,6 @@ export default defineComponent({
         story.email = this.email
 
         this.$store.commit('local', story)
-
-        this.$message.success('保存成功，重启服务后生效')
       })
     }
   },
