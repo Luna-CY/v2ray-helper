@@ -28,7 +28,7 @@ func Start() error {
 func ReStart() error {
 	_, err := exec.Command("service", "v2ray-helper", "restart").Output()
 	if nil != err {
-		return errors.New(fmt.Sprintf("启动V2rayHelper服务失败: %v", err))
+		return errors.New(fmt.Sprintf("重启V2rayHelper服务失败: %v", err))
 	}
 
 	return nil
