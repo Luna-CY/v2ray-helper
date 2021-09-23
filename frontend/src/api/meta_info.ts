@@ -6,9 +6,9 @@ export class MetaInfoResponse extends BaseResponse {
 
   public data = new class {
 
-    public is_default_key = false
+    public is_default_access_key = false
 
-    public is_default_remove_key = false
+    public is_default_management_key = false
 
     public listen = 8888
 

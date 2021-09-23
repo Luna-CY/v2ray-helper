@@ -9,24 +9,24 @@ import (
 )
 
 func MetaInfo(c *gin.Context) {
-	isDefaultKey := false
+	isDefaultAccessKey := false
 	if configurator.DefaultAccessKey == configurator.GetMainConfig().AccessKey {
-		isDefaultKey = true
+		isDefaultAccessKey = true
 	}
 
-	isDefaultRemoveKey := false
+	isDefaultManagementKey := false
 	if configurator.DefaultManagementKey == configurator.GetMainConfig().ManagementKey {
-		isDefaultRemoveKey = true
+		isDefaultManagementKey = true
 	}
 
 	data := &gin.H{
-		"is_default_key":        isDefaultKey,
-		"is_default_remove_key": isDefaultRemoveKey,
-		"listen":                configurator.GetMainConfig().Listen,
-		"enable_https":          configurator.GetMainConfig().EnableHttps,
-		"https_host":            configurator.GetMainConfig().HttpsHost,
-		"email":                 configurator.GetMainConfig().Email,
-		"notice_list":           notice.GetManager().GetAll(),
+		"is_default_access_key":     isDefaultAccessKey,
+		"is_default_management_key": isDefaultManagementKey,
+		"listen":                    configurator.GetMainConfig().Listen,
+		"enable_https":              configurator.GetMainConfig().EnableHttps,
+		"https_host":                configurator.GetMainConfig().HttpsHost,
+		"email":                     configurator.GetMainConfig().Email,
+		"notice_list":               notice.GetManager().GetAll(),
 	}
 	response.Success(c, code.OK, data)
 }

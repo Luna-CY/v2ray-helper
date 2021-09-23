@@ -5,11 +5,12 @@
         <div class="home-header">
           <div class="left-notice">
             <el-alert type="error" effect="dark" :closable="false"
-                      v-if="$store.getters.local.is_default_key || $store.getters.local.is_default_key">
+                      v-if="$store.getters.local.is_default_access_key || $store.getters.local.is_default_access_key">
               <template #title>
-                <span v-if="$store.getters.local.is_default_key">当前应用使用的口令为默认口令，请及时修改以免造成损失</span>
-                <span v-if="$store.getters.local.is_default_key && $store.getters.local.is_default_remove_key">; </span>
-                <span v-if="$store.getters.local.is_default_remove_key">当前应用使用的配置删除口令为默认口令，请及时修改以免造成损失</span>
+                <span v-if="$store.getters.local.is_default_access_key">当前应用使用的访问口令为默认口令，请及时修改以免造成损失</span>
+                <span
+                    v-if="$store.getters.local.is_default_access_key && $store.getters.local.is_default_management_key">; </span>
+                <span v-if="$store.getters.local.is_default_management_key">当前应用使用的管理口令为默认口令，请及时修改以免造成损失</span>
               </template>
             </el-alert>
           </div>
@@ -132,8 +133,8 @@ export default defineComponent({
       }
 
       let state = new StoryStateLocal()
-      state.is_default_key = response.data.data.is_default_key
-      state.is_default_remove_key = response.data.data.is_default_remove_key
+      state.is_default_access_key = response.data.data.is_default_access_key
+      state.is_default_management_key = response.data.data.is_default_management_key
       state.listen = response.data.data.listen
       state.enable_https = response.data.data.enable_https
       state.https_host = response.data.data.https_host

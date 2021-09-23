@@ -11,9 +11,9 @@ export class StoryStateToken {
 
 export class StoryStateLocal {
 
-  public is_default_key = false
+  public is_default_access_key = false
 
-  public is_default_remove_key = false
+  public is_default_management_key = false
 
   public listen = 8888
 
