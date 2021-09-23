@@ -1,6 +1,6 @@
 <template>
   <el-dialog :close-on-click-modal="false" :close-on-press-escape="false" :model-value="show" destroy-on-close
-             width="80%" @close="close" :fullscreen="true">
+             width="80%" @close="close">
     <el-form ref="NewV2rayEndpointForm" :model="form" :rules="rules" label-width="120px">
       <el-form-item label="备注信息">
         <el-input v-model="form.remark" placeholder="备注信息"></el-input>

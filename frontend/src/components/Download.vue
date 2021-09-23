@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :model-value="show" destroy-on-close width="80%" @close="close" :fullscreen="true">
+  <el-dialog :model-value="show" destroy-on-close width="80%" @close="close">
     <el-table :data="data" border style="width: 100%">
       <el-table-column label="系统类型" prop="os"></el-table-column>
       <el-table-column label="客户端" prop="client"></el-table-column>

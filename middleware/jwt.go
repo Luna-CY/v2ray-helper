@@ -44,7 +44,7 @@ func GetJWT() (*jwt.GinJWTMiddleware, error) {
 				return nil, errors.New("无效的数据请求")
 			}
 
-			if util.Md5(configurator.GetMainConfig().Key) != strings.TrimSpace(body.Key) {
+			if util.Md5(configurator.GetMainConfig().AccessKey) != strings.TrimSpace(body.Key) {
 				return nil, errors.New("无效口令")
 			}
 

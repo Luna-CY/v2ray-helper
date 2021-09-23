@@ -8,7 +8,6 @@ import (
 	"github.com/Luna-CY/v2ray-helper/common/logger"
 	"github.com/Luna-CY/v2ray-helper/common/runtime"
 	"github.com/Luna-CY/v2ray-helper/common/software/vhelper"
-	"github.com/Luna-CY/v2ray-helper/common/util"
 	"github.com/gin-gonic/gin"
 	"net/mail"
 	"path/filepath"
@@ -61,20 +60,6 @@ func SaveMetaInfo(c *gin.Context) {
 		configurator.GetMainConfig().Listen = port
 	case keyHttpsHost:
 		if "" != body.Value {
-			hostIsAllow, err := util.CheckHostIsAllow(body.Value)
-			if nil != err {
-				logger.GetLogger().Errorln(err)
-				response.Response(c, code.ServerError, "解析该域名DNS信息失败，请检查域名格式或稍后重试。详细错误请查看日志", nil)
-
-				return
-			}
-
-			if !hostIsAllow {
-				response.Response(c, code.BadRequest, "检测到该域名没有解析到当前服务器的IP，请检查域名解析后重试或稍等一会儿再试试", nil)
-
-				return
-			}
-
 			if !certificate.GetManager().CheckExists(body.Value) {
 				_, err := certificate.GetManager().IssueNew(body.Value, configurator.GetMainConfig().Email)
 				if nil != err {

@@ -1,6 +1,5 @@
 <template>
-  <el-dialog :close-on-click-modal="false" :close-on-press-escape="false" :model-value="show" destroy-on-close
-             width="80%" @close="close">
+  <div class="deploy-box">
     <el-form ref="V2rayServerDeploy" :model="form" :rules="rules" label-width="120px">
       <el-form-item label="安装方式">
         <el-radio-group v-model="form.install_type">
@@ -10,8 +9,11 @@
           <el-radio :label="4">仅配置V2ray</el-radio>
         </el-radio-group>
       </el-form-item>
+      <el-form-item label="管理员口令" prop="management_key">
+        <el-input v-model="form.management_key" placeholder="管理员口令"></el-input>
+      </el-form-item>
       <template v-if="3 !== parseInt(form.install_type.toString())">
-        <el-divider content-position="left">V2ray配置选择</el-divider>
+        <el-divider content-position="left" class="margin-top-2x">V2ray配置选择</el-divider>
         <el-form-item label="选择配置">
           <el-radio-group v-model="form.config_type">
             <el-radio :label="1">预设配置(WebSocket)</el-radio>
@@ -47,7 +49,7 @@
           <el-button type="primary" @click="addClient">添加一个用户</el-button>
         </el-form-item>
         <template v-if="1 === parseInt(form.v2ray_config.transport_type.toString())">
-          <el-divider content-position="left">TCP传输配置</el-divider>
+          <el-divider class="margin-top-2x" content-position="left">TCP传输配置</el-divider>
           <el-form-item label="伪装类型">
             <el-select v-model="form.v2ray_config.tcp.type">
               <el-option label="NONE" value="none"></el-option>
@@ -114,7 +116,7 @@
           </template>
         </template>
         <template v-if="2 === parseInt(form.v2ray_config.transport_type.toString())">
-          <el-divider content-position="left">WebSocket传输配置</el-divider>
+          <el-divider class="margin-top-2x" content-position="left">WebSocket传输配置</el-divider>
           <el-form-item label="路径">
             <el-input v-model="form.v2ray_config.web_socket.path" placeholder="URI路径"></el-input>
           </el-form-item>
@@ -133,7 +135,7 @@
           </el-form-item>
         </template>
         <template v-if="3 === parseInt(form.v2ray_config.transport_type.toString())">
-          <el-divider content-position="left">KCP传输配置</el-divider>
+          <el-divider class="margin-top-2x" content-position="left">KCP传输配置</el-divider>
           <div class="inline-form-item-2">
             <el-form-item class="form-item" label="伪装类型">
               <el-select v-model="form.v2ray_config.kcp.type" class="w-100">
@@ -190,7 +192,7 @@
           </div>
         </template>
         <template v-if="4 === parseInt(form.v2ray_config.transport_type.toString())">
-          <el-divider content-position="left">HTTP2传输配置</el-divider>
+          <el-divider class="margin-top-2x" content-position="left">HTTP2传输配置</el-divider>
           <el-form-item label="域名">
             <el-input v-model="form.v2ray_config.http2.host"
                       placeholder="HTTP2的域名列表，多个使用英文,分隔。列表内会自动添加HTTPS的域名，请不要重复添加"></el-input>
@@ -200,7 +202,7 @@
           </el-form-item>
         </template>
         <template v-if="4 !== parseInt(form.install_type.toString())">
-          <el-divider content-position="left">HTTPS配置
+          <el-divider class="margin-top-2x" content-position="left">HTTPS配置
             <el-tooltip content="除了KCP模式都支持HTTPS协议，V2rayHelper可以进行自动证书申请及续期" placement="right"><i
                 class="el-icon-info"></i></el-tooltip>
           </el-divider>
@@ -211,7 +213,7 @@
           <el-form-item v-if="form.use_tls" label="HTTPS域名" prop="tls_host">
             <el-input v-model="form.tls_host" placeholder="HTTPS域名，该域名必须已被解析到目标服务器的IP地址"></el-input>
           </el-form-item>
-          <el-divider content-position="left">站点伪装配置
+          <el-divider class="margin-top-2x" content-position="left">站点伪装配置
             <el-tooltip content="可以在部署V2ray的同时部署一个站点，可以增强伪装效果。TCP模式与KCP模式不支持站点伪装" placement="right">
               <i class="el-icon-info"></i>
             </el-tooltip>
@@ -228,7 +230,7 @@
             </el-form-item>
           </div>
           <template v-if="form.enable_web_service && 'cloudreve' === form.web_service_type">
-            <el-divider content-position="left">Cloudreve配置信息</el-divider>
+            <el-divider class="margin-top-2x" content-position="left">Cloudreve配置信息</el-divider>
             <el-form-item label="Cloudreve配置">
               <el-checkbox v-model="form.cloudreve_config.enable_aria2" label="启用Aria2离线下载支持(不懂不要选)"></el-checkbox>
               <el-checkbox v-model="form.cloudreve_config.reset_admin_password"
@@ -246,11 +248,11 @@
         </template>
       </template>
       <el-form-item class="content-center" label-width="0">
-        <el-button type="danger" @click="close" :disabled="deploying">关闭</el-button>
+        <el-button type="success" @click="$router.back()" :disabled="deploying">返回列表</el-button>
         <el-button :loading="deploying" type="primary" @click="save">开始部署</el-button>
       </el-form-item>
     </el-form>
-  </el-dialog>
+  </div>
 </template>
 
 <script lang="ts">
@@ -265,27 +267,23 @@ import {
 import axios, {AxiosResponse} from "axios"
 import {Header} from "@/api/base"
 
-export default defineComponent({
-  name: "DeployV2rayServer",
+const md5 = require('md5')
 
-  props: {
-    show: Boolean,
+export default defineComponent({
+  name: "Deploy",
+
+  mounted() {
+    this.form.v2ray_config.v2ray_port = 3000
+    this.form.v2ray_config.transport_type = 2
+    this.form.v2ray_config.web_socket.path = "/v2ray-ws-path"
+    this.form.use_tls = true
+    this.form.enable_web_service = true
+
+    this.form.v2ray_config.clients = new Array<Client>()
+    this.addClient()
   },
 
-  emits: ['update:show', 'success'],
-
   watch: {
-    show: function () {
-      this.form.v2ray_config.v2ray_port = 3000
-      this.form.v2ray_config.transport_type = 2
-      this.form.v2ray_config.web_socket.path = "/v2ray-ws-path"
-      this.form.use_tls = true
-      this.form.enable_web_service = true
-
-      this.form.v2ray_config.clients = new Array<Client>()
-      this.addClient()
-    },
-
     'form.config_type': function () {
       if (1 == this.form.config_type) {
         this.form.v2ray_config.v2ray_port = 3000
@@ -330,6 +328,7 @@ export default defineComponent({
       deploying: false,
       form: new V2rayServerDeployForm(),
       rules: {
+        management_key: [{required: true, message: '必须提供管理员口令', trigger: 'blur'}],
         tls_host: [{validator: this.validateTlsHost, trigger: 'blur'}],
       },
       headers: [],
@@ -338,16 +337,6 @@ export default defineComponent({
   },
 
   methods: {
-    close() {
-      this.form = new V2rayServerDeployForm()
-
-      this.$emit('update:show', false)
-    },
-
-    success() {
-      this.$emit('success')
-    },
-
     save() {
       let form = this.$refs.V2rayServerDeploy as any
 
@@ -369,8 +358,12 @@ export default defineComponent({
           this.form.v2ray_config.clients[i].alter_id = parseInt(this.form.v2ray_config.clients[i].alter_id.toString())
         }
 
+        let body = new V2rayServerDeployForm()
+        Object.assign(body, this.form)
+        body.management_key = md5(body.management_key)
+
         this.deploying = true
-        axios.post(API_V2RAY_SERVER_DEPLOY, this.form).then((response: AxiosResponse<V2rayServerDeployResponse>) => {
+        axios.post(API_V2RAY_SERVER_DEPLOY, body).then((response: AxiosResponse<V2rayServerDeployResponse>) => {
           this.deploying = false
           if (0 != response.data.code) {
             this.$message.error(response.data.message)
@@ -380,7 +373,6 @@ export default defineComponent({
 
           this.response = response.data.data
           this.$message.success("部署成功，已自动生成配置文件")
-          this.success()
         })
       })
     },
@@ -414,7 +406,13 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss" scoped>
+<style scoped lang="scss">
+.deploy-box {
+  background-color: #FFFFFF;
+  margin: 30px;
+  padding: 30px;
+}
+
 .inline-form-item-2 {
   display: flex;
 

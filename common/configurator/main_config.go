@@ -9,16 +9,6 @@ import (
 	"os"
 )
 
-const DefaultMainConfigContent = `address: 0.0.0.0
-listen: 8888
-enable-https: false
-gin-release-mode: true
-key: '-'
-remove-key: '-'
-email: myself@v2ray-helper.net
-allow-v2ray-deploy: true
-log-level: error`
-
 type mainConfig struct {
 	Address          string `yaml:"address"`
 	Listen           int    `yaml:"listen"`
@@ -27,8 +17,8 @@ type mainConfig struct {
 	GinReleaseMode   bool   `yaml:"gin-release-mode"`
 	AllowV2rayDeploy bool   `yaml:"allow-v2ray-deploy"`
 	Email            string `yaml:"email"`
-	Key              string `yaml:"key"`
-	RemoveKey        string `yaml:"remove-key"`
+	AccessKey        string `yaml:"access-key"`
+	ManagementKey    string `yaml:"management-key"`
 	LogLevel         string `yaml:"log-level"`
 }
 

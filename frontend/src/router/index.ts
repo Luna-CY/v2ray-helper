@@ -14,6 +14,14 @@ const routes: Array<RouteRecordRaw> = [
     }
   },
   {
+    path: '/deploy',
+    name: 'Deploy',
+    component: () => import('@/views/deploy/Deploy.vue'),
+    meta: {
+      title: "部署服务器"
+    }
+  },
+  {
     path: '/helper/v2ray-x',
     name: 'HelperV2rayX',
     component: () => import('@/views/help/V2rayX.vue'),

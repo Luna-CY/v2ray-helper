@@ -11,8 +11,8 @@ var (
 )
 
 const (
-	DefaultKey       = "-"
-	DefaultRemoveKey = "-"
+	DefaultAccessKey     = "-"
+	DefaultManagementKey = "-"
 )
 
 func Init(rootPath string) error {
@@ -35,8 +35,8 @@ func GetDefaultMailConfig() *mainConfig {
 		GinReleaseMode:   true,
 		Email:            fmt.Sprintf("%v@v2ray-helper.net", util.GenerateRandomString(16)),
 		AllowV2rayDeploy: true,
-		Key:              DefaultKey,
-		RemoveKey:        DefaultRemoveKey,
+		AccessKey:        DefaultAccessKey,
+		ManagementKey:    DefaultManagementKey,
 		LogLevel:         "error",
 	}
 }

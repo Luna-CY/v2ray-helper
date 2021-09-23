@@ -28,8 +28,8 @@ import (
 )
 
 type V2rayServerDeployForm struct {
-	ServerType  int `json:"server_type"`
-	InstallType int `json:"install_type"`
+	InstallType   int    `json:"install_type"`
+	ManagementKey string `json:"management_key"`
 
 	UseTls  bool   `json:"use_tls"`
 	TlsHost string `json:"tls_host"`
@@ -44,11 +44,6 @@ type V2rayServerDeployForm struct {
 
 	V2rayConfig v2ray.Config `json:"v2ray_config"`
 }
-
-const (
-	ServerTypeLocalServer = iota + 1
-	ServerTypeRemoteServer
-)
 
 const (
 	InstallTypeDefault = iota + 1
@@ -66,14 +61,14 @@ func V2rayServerDeploy(c *gin.Context) {
 		return
 	}
 
-	if !configurator.GetMainConfig().AllowV2rayDeploy {
-		response.Response(c, code.BadRequest, "当前服务器已禁止部署V2ray", nil)
+	if util.Md5(configurator.GetMainConfig().ManagementKey) != body.ManagementKey {
+		response.Response(c, code.BadRequest, "口令错误", nil)
 
 		return
 	}
 
-	if ServerTypeRemoteServer == body.ServerType {
-		response.Response(c, code.BadRequest, "暂未支持远程服务器安装", nil)
+	if !configurator.GetMainConfig().AllowV2rayDeploy {
+		response.Response(c, code.BadRequest, "当前服务器已禁止部署V2ray", nil)
 
 		return
 	}

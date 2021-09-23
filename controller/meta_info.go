@@ -10,12 +10,12 @@ import (
 
 func MetaInfo(c *gin.Context) {
 	isDefaultKey := false
-	if configurator.DefaultKey == configurator.GetMainConfig().Key {
+	if configurator.DefaultAccessKey == configurator.GetMainConfig().AccessKey {
 		isDefaultKey = true
 	}
 
 	isDefaultRemoveKey := false
-	if configurator.DefaultRemoveKey == configurator.GetMainConfig().RemoveKey {
+	if configurator.DefaultManagementKey == configurator.GetMainConfig().ManagementKey {
 		isDefaultRemoveKey = true
 	}
 

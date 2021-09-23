@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :model-value="show" destroy-on-close width="80%" @close="close" :fullscreen="true">
+  <el-dialog :model-value="show" destroy-on-close width="80%" @close="close">
     <el-form :model="form" label-width="120px">
       <div class="inline-form-item-2">
         <el-form-item class="form-item" label="域名/IP" prop="host">

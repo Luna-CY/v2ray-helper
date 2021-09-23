@@ -4,19 +4,9 @@ export const API_V2RAY_SERVER_DEPLOY = "/api/v2ray-server-deploy"
 
 export class V2rayServerDeployForm {
 
-  // 服务器信息
-
-  public server_type = 1 // 1本地服务器；2远程服务器
-
-  public server_ip = ""
-
-  public server_port = 22
-
-  public server_user = ""
-
-  public server_password = ""
-
   public install_type = 1 // 1默认安装；2强制安装；3升级安装；4重新配置
+
+  public management_key = "" // 管理员口令
 
   // HTTPS配置
 

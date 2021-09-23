@@ -48,7 +48,7 @@
       <div class="el-row">
         <div class="el-col-24">
           <el-button size="medium" type="success" @click="showNewModal = true">添加配置</el-button>
-          <el-button size="medium" type="primary" @click="showDevelopV2rayModal = true">部署服务器</el-button>
+          <el-button size="medium" type="primary" @click="$router.push({name: 'Deploy'})">部署服务器</el-button>
           <el-button size="medium" type="primary" @click="showDownloadModal = true">下载客户端</el-button>
         </div>
       </div>
@@ -65,7 +65,6 @@
   <NewV2rayEndpoint v-model:show="showNewModal" v-on:success="load"></NewV2rayEndpoint>
   <Download v-model:show="showDownloadModal"></Download>
   <QRCode v-model:show="showQRCodeModal" v-bind:content="v2rayNgVMessString"></QRCode>
-  <DeployV2rayServer v-model:show="showDevelopV2rayModal" v-on:success="load"></DeployV2rayServer>
   <EndpointDetail v-model:show="showDetailModal" v-bind:data="endpointDetail"></EndpointDetail>
   <Setting v-model:show="showSettingModal"></Setting>
   <Notice v-model:show="showNoticeModal"></Notice>
@@ -86,7 +85,6 @@ import Remove from "@/components/Remove.vue"
 import NewV2rayEndpoint from "@/components/NewV2rayEndpoint.vue"
 import Download from "@/components/Download.vue"
 import QRCode from "@/components/QRCode.vue"
-import DeployV2rayServer from "@/components/DeployV2rayServer.vue"
 import {
   API_V2RAY_ENDPOINT_DETAIL,
   V2rayEndpointDetailData,
@@ -104,7 +102,7 @@ const md5 = require('md5')
 export default defineComponent({
   name: 'Home',
 
-  components: {Notice, Setting, EndpointDetail, DeployV2rayServer, QRCode, Download, NewV2rayEndpoint, Remove},
+  components: {Notice, Setting, EndpointDetail, QRCode, Download, NewV2rayEndpoint, Remove},
 
   data() {
     return {

@@ -34,7 +34,7 @@ func V2rayEndpointRemove(c *gin.Context) {
 		return
 	}
 
-	if util2.Md5(configurator.GetMainConfig().RemoveKey) != body.Password {
+	if util2.Md5(configurator.GetMainConfig().ManagementKey) != body.Password {
 		response.Response(c, code.BadRequest, "密码错误", nil)
 
 		return

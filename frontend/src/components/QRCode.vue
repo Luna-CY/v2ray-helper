@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :model-value="show" destroy-on-close width="80%" @close="close" :fullscreen="true">
+  <el-dialog :model-value="show" destroy-on-close width="80%" @close="close">
     <div class="content-center hidden-sm-and-down">
       <div class="content-center">扫描二维码或复制下方字符串到剪贴板并通过剪贴板导入</div>
       <div class="qr-code margin-top">
