@@ -44,3 +44,8 @@ func (b *baseDataService) FindByCondition(dest interface{}, order interface{}, c
 
 	return query.Find(dest).Error
 }
+
+// DeleteByCondition 通过条件删除数据
+func (b *baseDataService) DeleteByCondition(dest interface{}, condition interface{}, params ...interface{}) error {
+	return database.GetMainDb().Model(dest).Where(condition, params...).Update("deleted", 1).Error
+}

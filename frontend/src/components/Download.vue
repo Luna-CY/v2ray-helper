@@ -5,10 +5,12 @@
       <el-table-column label="客户端" prop="client"></el-table-column>
       <el-table-column label="操作" width="200">
         <template #default="scope">
-          <el-link :href="scope.row.git" :underline="false" target="_blank" type="primary">GitHub</el-link>
-          <el-link :href="scope.row.address" :underline="false" class="margin-left" target="_blank" type="primary">下载
+          <el-link :href="scope.row.git" v-if="'#' !== scope.row.git" :underline="false" class="margin-right"
+                   target="_blank" type="primary">GitHub
           </el-link>
-          <el-link @click="$router.push({name: scope.row.helper})" :underline="false" class="margin-left"
+          <el-link :href="scope.row.address" :underline="false" class="margin-right" target="_blank" type="primary">下载
+          </el-link>
+          <el-link @click="$router.push({name: scope.row.helper})" v-if="'#' !== scope.row.helper" :underline="false"
                    type="primary">配置帮助
           </el-link>
         </template>
@@ -52,6 +54,13 @@ export default defineComponent({
           git: "https://github.com/2dust/v2rayNG/releases",
           address: "https://github.com/2dust/v2rayNG/releases/download/1.6.18/v2rayNG_1.6.18.apk",
           helper: "HelperV2rayNG",
+        },
+        {
+          os: "IOS",
+          client: "i2Ray",
+          git: "#",
+          address: 'https://apps.apple.com/us/app/i2ray/id1445270056',
+          helper: "#",
         },
       ],
     }

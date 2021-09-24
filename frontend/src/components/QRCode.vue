@@ -18,7 +18,13 @@
       <div class="qr-code margin-top">
         <qrcode-vue :size="180" :value="content" level="H"/>
       </div>
-      <div class="margin-top">{{ content }}</div>
+      <div class="margin-top">
+        <el-input v-model="content" id="vmess-content">
+          <template #append>
+            <el-button @click="copy" icon="el-icon-document-copy"></el-button>
+          </template>
+        </el-input>
+      </div>
     </div>
   </el-dialog>
 </template>

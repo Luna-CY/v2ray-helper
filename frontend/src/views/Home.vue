@@ -56,8 +56,35 @@
     </div>
 
     <div class="el-main el-main-sm-and-down hidden-md-and-up">
-      <div class="endpoint-box el-row margin-bottom">
-        <div class="el-col-24">暂未适配手机端</div>
+      <template v-for="item in data" v-bind:key="item.id">
+        <div class="endpoint-box el-row margin-bottom">
+          <div class="el-col-10 text-nowrap">{{ item.host }}</div>
+          <div class="el-col-6">{{ item.port }}</div>
+          <div class="el-col-8">
+            <el-button :loading="item.downloading" type="primary" @click="download(item)">VMess</el-button>
+          </div>
+        </div>
+      </template>
+
+      <div v-if="0 === data.length" class="endpoint-box el-row margin-bottom">
+        <div class="el-col-24">暂时没有可用的配置列表</div>
+      </div>
+
+      <div class="el-row margin-bottom">
+        <div class="el-col-24">
+          <el-button class="long-button" size="medium" type="primary"
+                     @click="openNewWindow('https://github.com/2dust/v2rayNG/releases/download/1.6.18/v2rayNG_1.6.18.apk')">
+            下载安卓客户端(APK)
+          </el-button>
+        </div>
+      </div>
+
+      <div class="el-row margin-bottom">
+        <div class="el-col-24">
+          <el-button class="long-button" size="medium" type="primary"
+                     @click="openNewWindow('https://apps.apple.com/us/app/i2ray/id1445270056')">下载IOS客户端(iTunes)
+          </el-button>
+        </div>
       </div>
     </div>
   </div>
@@ -228,6 +255,9 @@ export default defineComponent({
         this.showDetailModal = true
       })
     },
+    openNewWindow(url: string) {
+      window.open(url, 'blank')
+    }
   },
 });
 </script>
@@ -264,6 +294,16 @@ body {
   .endpoint-box {
     background-color: #fff;
     padding: 15px;
+  }
+
+  .text-nowrap {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .long-button {
+    width: 100%;
   }
 }
 

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -173,6 +174,26 @@ type vConfigInboundStreamHttp struct {
 type vConfigOutbound struct {
 	Protocol string   `json:"protocol"`
 	Settings struct{} `json:"settings"`
+}
+
+// GetConfig 读取配置文件
+func GetConfig(configPath string) (*vConfig, error) {
+	file, err := os.Open(configPath)
+	if nil != err {
+		return nil, errors.New(fmt.Sprintf("无法打开文件: %v", err))
+	}
+
+	content, err := ioutil.ReadAll(file)
+	if nil != err {
+		return nil, errors.New(fmt.Sprintf("无法读取配置文件: %v", err))
+	}
+
+	var vc vConfig
+	if err := json.Unmarshal(content, &vc); nil != err {
+		return nil, errors.New(fmt.Sprintf("无法解析配置文件: %v", err))
+	}
+
+	return &vc, nil
 }
 
 // SetConfig 设置V2ray配置

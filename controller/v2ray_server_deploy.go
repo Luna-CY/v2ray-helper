@@ -170,6 +170,21 @@ func V2rayServerDeploy(c *gin.Context) {
 
 	// 仅在默认安装、重新安装与仅配置V2ray时配置V2ray
 	if InstallTypeDefault == body.InstallType || InstallTypeForce == body.InstallType || InstallTypeReConfig == body.InstallType {
+		// 重新安装扫描配置文件清理失效配置
+		if InstallTypeForce == body.InstallType {
+			if vc, err := v2ray.GetConfig(v2ray.ConfigPath); nil == err {
+				ve := new(model.V2rayEndpoint)
+
+				for _, inbound := range vc.Inbounds {
+					for _, client := range inbound.Settings.Clients {
+						if err := dataservice.GetBaseService().DeleteByCondition(ve, "user_id = ?", client.Id); nil != err {
+							logger.GetLogger().Errorf("删除配置失败: %v\n", err)
+						}
+					}
+				}
+			}
+		}
+
 		if err := v2ray.SetConfig(v2ray.ConfigPath, &body.V2rayConfig); nil != err {
 			logger.GetLogger().Errorln(err)
 
