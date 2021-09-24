@@ -1,19 +1,19 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "b7fe86bdaebc88c2749c",
+    "revision": "843164e4a17a5d1e5705",
     "url": "/css/app.3c790632.css"
   },
   {
-    "revision": "f1e148c2b339e161c9e7",
-    "url": "/css/chunk-116475dd.fc15e394.css"
+    "revision": "caa6f6a3642587855cc6",
+    "url": "/css/chunk-0b04e944.deb84eee.css"
+  },
+  {
+    "revision": "a0eb897ad34ce2f39c30",
+    "url": "/css/chunk-17564eed.f394ed41.css"
   },
   {
     "revision": "cf36c651bf849dd0fc87",
     "url": "/css/chunk-1b975c17.c84cf7a9.css"
-  },
-  {
-    "revision": "4d529b5d765fc22595a0",
-    "url": "/css/chunk-34ac5094.b7891542.css"
   },
   {
     "revision": "af92e8fb2dd3662fdc35",
@@ -92,24 +92,24 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/img/help/v2ray-x/v2ray-x-path-5.png"
   },
   {
-    "revision": "b1c12e3e565a591422e51d390ad2b335",
+    "revision": "85b71045680c458fcc5ec4c869cda3c7",
     "url": "/index.html"
   },
   {
-    "revision": "b7fe86bdaebc88c2749c",
-    "url": "/js/app.aebbf7eb.js"
+    "revision": "843164e4a17a5d1e5705",
+    "url": "/js/app.7f56da2b.js"
   },
   {
-    "revision": "f1e148c2b339e161c9e7",
-    "url": "/js/chunk-116475dd.07efc9c3.js"
+    "revision": "caa6f6a3642587855cc6",
+    "url": "/js/chunk-0b04e944.2d7c732f.js"
+  },
+  {
+    "revision": "a0eb897ad34ce2f39c30",
+    "url": "/js/chunk-17564eed.03efaf61.js"
   },
   {
     "revision": "cf36c651bf849dd0fc87",
     "url": "/js/chunk-1b975c17.cdc96f7a.js"
-  },
-  {
-    "revision": "4d529b5d765fc22595a0",
-    "url": "/js/chunk-34ac5094.b3c91399.js"
   },
   {
     "revision": "af92e8fb2dd3662fdc35",

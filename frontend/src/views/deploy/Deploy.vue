@@ -230,7 +230,7 @@
             </el-form-item>
           </div>
           <template v-if="form.enable_web_service && 'cloudreve' === form.web_service_type">
-            <el-divider class="margin-top-4x margin-bottom">Cloudreve配置信息</el-divider>
+            <el-divider class="margin-top margin-bottom">Cloudreve配置信息</el-divider>
             <el-form-item label="Cloudreve配置">
               <el-checkbox v-model="form.cloudreve_config.enable_aria2" label="启用Aria2离线下载支持(不懂不要选)"></el-checkbox>
               <el-checkbox v-model="form.cloudreve_config.reset_admin_password"

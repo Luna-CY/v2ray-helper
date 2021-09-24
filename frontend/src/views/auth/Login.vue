@@ -3,7 +3,7 @@
     <div class="login-form">
       <el-form ref="LoginForm" :model="form" :rules="rules" label-width="0" onsubmit="return false" v-on:submit="login">
         <el-form-item prop="key">
-          <el-input v-model="form.key" autocomplete="off" placeholder="口令" prefix-icon="el-icon-key"
+          <el-input v-model="form.key" autocomplete="off" placeholder="口令" autofocus prefix-icon="el-icon-key"
                     size="medium">
             <template #append>
               <el-button :loading="logging" icon="el-icon-check" type="primary" @click="login"></el-button>
