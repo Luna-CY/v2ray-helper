@@ -6,6 +6,7 @@ import (
 	"github.com/Luna-CY/v2ray-helper/common/configurator"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"io"
 	"os"
 	"path/filepath"
@@ -40,9 +41,18 @@ func Init(rootPath string) error {
 	logger.SetOutput(dest)
 
 	//设置日志级别
-	logger.SetLevel(configurator.GetMainConfig().GetLogLevel())
+	logger.SetLevel(getLogLevel())
 
 	return nil
+}
+
+func getLogLevel() logrus.Level {
+	maps := map[string]logrus.Level{"debug": logrus.DebugLevel, "info": logrus.InfoLevel, "warn": logrus.WarnLevel, "error": logrus.ErrorLevel}
+	if level, ok := maps[viper.GetString(configurator.KeyLogLevel)]; ok {
+		return level
+	}
+
+	return logrus.ErrorLevel
 }
 
 func GetLogger() *logrus.Logger {

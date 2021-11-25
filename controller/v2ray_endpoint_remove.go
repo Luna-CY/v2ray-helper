@@ -9,6 +9,7 @@ import (
 	util2 "github.com/Luna-CY/v2ray-helper/common/util"
 	"github.com/Luna-CY/v2ray-helper/dataservice"
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 	"gorm.io/gorm"
 	"strings"
 )
@@ -34,7 +35,7 @@ func V2rayEndpointRemove(c *gin.Context) {
 		return
 	}
 
-	if util2.Md5(configurator.GetMainConfig().ManagementKey) != body.Password {
+	if util2.Md5(viper.GetString(configurator.KeyAuthManagementKey)) != body.Password {
 		response.Response(c, code.BadRequest, "密码错误", nil)
 
 		return

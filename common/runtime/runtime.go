@@ -4,11 +4,11 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/Luna-CY/v2ray-helper/common/configurator"
 	"github.com/Luna-CY/v2ray-helper/staticfile/migrationstatic"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/sqlite3"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/spf13/viper"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -18,18 +18,8 @@ var rootPath = ""
 
 // InitRuntime 初始化运行环境
 func InitRuntime(path string) error {
-	if err := os.MkdirAll(filepath.Join(path, "config"), 0755); nil != err {
-		return errors.New(fmt.Sprintf("初始化运行环境失败: %v", err))
-	}
-
-	mainConfigPath := filepath.Join(path, "config", "main.config.yaml")
-	mainConfigExists, err := fileExists(mainConfigPath)
-	if nil != err {
-		return err
-	}
-
-	if !mainConfigExists {
-		if err := configurator.GetDefaultMailConfig().Save(mainConfigPath); nil != err {
+	if err := viper.SafeWriteConfig(); nil != err {
+		if _, ok := err.(viper.ConfigFileAlreadyExistsError); !ok {
 			return err
 		}
 	}
@@ -101,6 +91,7 @@ func Migrate(db, version string) error {
 			return errors.New(fmt.Sprintf("执行数据库迁移失败: %v\n", err))
 		}
 	}
+
 	return nil
 }
 

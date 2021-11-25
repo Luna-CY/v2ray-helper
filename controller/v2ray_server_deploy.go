@@ -20,6 +20,7 @@ import (
 	"github.com/Luna-CY/v2ray-helper/dataservice"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -61,13 +62,13 @@ func V2rayServerDeploy(c *gin.Context) {
 		return
 	}
 
-	if util.Md5(configurator.GetMainConfig().ManagementKey) != body.ManagementKey {
+	if util.Md5(viper.GetString(configurator.KeyAuthManagementKey)) != body.ManagementKey {
 		response.Response(c, code.BadRequest, "口令错误", nil)
 
 		return
 	}
 
-	if !configurator.GetMainConfig().AllowV2rayDeploy {
+	if !viper.GetBool(configurator.KeyServerAllowDeploy) {
 		response.Response(c, code.BadRequest, "当前服务器已禁止部署V2ray", nil)
 
 		return
@@ -140,7 +141,7 @@ func V2rayServerDeploy(c *gin.Context) {
 	if body.UseTls {
 		// 如果证书不存在先申请证书
 		if !certificate.GetManager().CheckExists(body.TlsHost) {
-			cert, err := certificate.GetManager().IssueNew(body.TlsHost, configurator.GetMainConfig().Email)
+			cert, err := certificate.GetManager().IssueNew(body.TlsHost, viper.GetString(configurator.KeyHttpsIssueEmail))
 			if nil != err {
 				logger.GetLogger().Errorln(err)
 

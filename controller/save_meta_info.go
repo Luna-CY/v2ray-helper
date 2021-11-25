@@ -6,11 +6,10 @@ import (
 	"github.com/Luna-CY/v2ray-helper/common/http/code"
 	"github.com/Luna-CY/v2ray-helper/common/http/response"
 	"github.com/Luna-CY/v2ray-helper/common/logger"
-	"github.com/Luna-CY/v2ray-helper/common/runtime"
 	"github.com/Luna-CY/v2ray-helper/common/software/vhelper"
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 	"net/mail"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -57,11 +56,11 @@ func SaveMetaInfo(c *gin.Context) {
 
 		restart = true
 
-		configurator.GetMainConfig().Listen = port
+		viper.Set(configurator.KeyServerPort, port)
 	case keyHttpsHost:
 		if "" != body.Value {
 			if !certificate.GetManager().CheckExists(body.Value) {
-				_, err := certificate.GetManager().IssueNew(body.Value, configurator.GetMainConfig().Email)
+				_, err := certificate.GetManager().IssueNew(body.Value, viper.GetString(configurator.KeyHttpsIssueEmail))
 				if nil != err {
 					logger.GetLogger().Errorln(err)
 					response.Response(c, code.ServerError, "申请HTTPS证书失败，请稍后重试或联系管理员。详细错误请查看日志", nil)
@@ -70,11 +69,11 @@ func SaveMetaInfo(c *gin.Context) {
 				}
 			}
 
-			configurator.GetMainConfig().EnableHttps = true
-			configurator.GetMainConfig().HttpsHost = body.Value
+			viper.Set(configurator.KeyServerHttpsEnable, true)
+			viper.Set(configurator.KeyServerHttpsHost, body.Value)
 		} else {
-			configurator.GetMainConfig().EnableHttps = false
-			configurator.GetMainConfig().HttpsHost = ""
+			viper.Set(configurator.KeyServerHttpsEnable, false)
+			viper.Set(configurator.KeyServerHttpsHost, "")
 		}
 
 		restart = true
@@ -86,23 +85,23 @@ func SaveMetaInfo(c *gin.Context) {
 			return
 		}
 
-		configurator.GetMainConfig().Email = body.Value
+		viper.Set(configurator.KeyHttpsIssueEmail, body.Value)
 	default:
 		response.Response(c, code.BadRequest, "无效的数据请求", nil)
 
 		return
 	}
 
-	if err := configurator.GetMainConfig().Save(filepath.Join(runtime.GetRootPath(), "config", configurator.GetMainConfig().GetFileName())); nil != err {
+	if err := viper.WriteConfig(); nil != err {
 		logger.GetLogger().Errorln(err)
-		response.Response(c, code.ServerError, "保存端口失败，请稍后重试或联系管理员。详细错误请查看日志", nil)
+		response.Response(c, code.ServerError, "保存配置失败，请稍后重试或联系管理员。详细错误请查看日志", nil)
 
 		return
 	}
 
 	response.Success(c, code.OK, nil)
 
-	if restart && configurator.GetMainConfig().GinReleaseMode {
+	if restart && viper.GetBool(configurator.KeyServerRelease) {
 		go func() {
 			time.Sleep(3 * time.Second)
 

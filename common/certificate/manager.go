@@ -20,6 +20,7 @@ import (
 	"github.com/go-acme/lego/v4/challenge/tlsalpn01"
 	"github.com/go-acme/lego/v4/lego"
 	"github.com/go-acme/lego/v4/registration"
+	"github.com/spf13/viper"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -244,7 +245,7 @@ func (m *Manager) renew(host string) error {
 		return errors.New("续期证书失败，443端口被占用")
 	}
 
-	if err := m.Renew(host, configurator.GetMainConfig().Email); nil != err {
+	if err := m.Renew(host, viper.GetString(configurator.KeyHttpsIssueEmail)); nil != err {
 		logger.GetLogger().Errorln(err)
 	}
 
