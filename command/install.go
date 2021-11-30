@@ -42,7 +42,7 @@ After=network.target nss-lookup.target
 
 [Service]
 Type=simple
-ExecStart=%v/v2ray-helper --home %v
+ExecStart=%v/v2ray-helper run --home %v
 Restart=on-failure
 RestartPreventExitStatus=23
 
