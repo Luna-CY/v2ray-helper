@@ -26,13 +26,14 @@ func init() {
 	}
 
 	cmd.Flags().StringVar(&home, "home", "", "运行主目录，默认为服务命令所在目录")
-	cmd.Flags().BoolVar(&enableHttps, "https", false, "启用HTTPS协议，启用HTTPS需要申请HTTPS证书，指定此参数时必须提供 host 参数")
+	cmd.Flags().BoolVar(&https, "https", false, "启用HTTPS协议，启用HTTPS需要申请HTTPS证书，指定此参数时必须提供 host 参数")
 	cmd.Flags().StringVar(&host, "host", "", "用于申请HTTPS证书的域名，设置 https 参数必须提供")
+	cmd.Flags().BoolVar(&enable, "enable", false, "设置为开机自启动")
 
 	command.AddCommand(cmd)
 }
 
-var enableHttps bool
+var https, enable bool
 var host string
 
 const systemdConfigTemplate = `[Unit]
@@ -53,7 +54,7 @@ func install(*cobra.Command, []string) {
 	homeDir := filepath.Clean(strings.TrimSpace(home))
 	rootAbsPath := runtime.AbsRootPath(homeDir)
 
-	if enableHttps && "" == host {
+	if https && "" == host {
 		log.Fatalln("启用HTTPS时必须提供用于申请证书的域名")
 	}
 
@@ -67,11 +68,13 @@ func install(*cobra.Command, []string) {
 		log.Fatalf("安装为系统服务失败: %v\n", err)
 	}
 
-	if _, err := exec.Command("sh", "-c", "ln -sf /etc/systemd/system/v2ray-helper.service /etc/systemd/system/multi-user.target.wants/v2ray-helper.service").Output(); nil != err {
-		log.Fatalf("设为开机自启失败: %v\n", err)
+	if enable {
+		if _, err := exec.Command("sh", "-c", "ln -sf /etc/systemd/system/v2ray-helper.service /etc/systemd/system/multi-user.target.wants/v2ray-helper.service").Output(); nil != err {
+			log.Fatalf("设为开机自启失败: %v\n", err)
+		}
 	}
 
-	if enableHttps {
+	if https {
 		viper.Set(configurator.KeyServerHttpsEnable, true)
 		viper.Set(configurator.KeyServerHttpsHost, host)
 
