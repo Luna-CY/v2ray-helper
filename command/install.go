@@ -13,6 +13,8 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"strings"
 )
 
 func init() {
@@ -23,6 +25,7 @@ func init() {
 		Run:   install,
 	}
 
+	cmd.Flags().StringVar(&home, "home", "", "运行主目录，默认为服务命令所在目录")
 	cmd.Flags().BoolVar(&enableHttps, "https", false, "启用HTTPS协议，启用HTTPS需要申请HTTPS证书，指定此参数时必须提供 host 参数")
 	cmd.Flags().StringVar(&host, "host", "", "用于申请HTTPS证书的域名，设置 https 参数必须提供")
 
@@ -39,7 +42,7 @@ After=network.target nss-lookup.target
 
 [Service]
 Type=simple
-ExecStart=%v/v2ray-helper -home-dir %v
+ExecStart=%v/v2ray-helper --home %v
 Restart=on-failure
 RestartPreventExitStatus=23
 
@@ -47,6 +50,9 @@ RestartPreventExitStatus=23
 WantedBy=multi-user.target`
 
 func install(*cobra.Command, []string) {
+	homeDir := filepath.Clean(strings.TrimSpace(home))
+	rootAbsPath := runtime.AbsRootPath(homeDir)
+
 	if enableHttps && "" == host {
 		log.Fatalln("启用HTTPS时必须提供用于申请证书的域名")
 	}
@@ -57,7 +63,7 @@ func install(*cobra.Command, []string) {
 	}
 	defer configFile.Close()
 
-	if _, err := configFile.WriteString(fmt.Sprintf(systemdConfigTemplate, runtime.GetRootPath(), runtime.GetRootPath())); nil != err {
+	if _, err := configFile.WriteString(fmt.Sprintf(systemdConfigTemplate, rootAbsPath, rootAbsPath)); nil != err {
 		log.Fatalf("安装为系统服务失败: %v\n", err)
 	}
 
