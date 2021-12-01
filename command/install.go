@@ -43,7 +43,7 @@ After=network.target nss-lookup.target
 
 [Service]
 Type=simple
-ExecStart=%v/v2ray-helper run --home %v
+ExecStart=%v run --home %v
 Restart=on-failure
 RestartPreventExitStatus=23
 
@@ -64,7 +64,7 @@ func install(*cobra.Command, []string) {
 	}
 	defer configFile.Close()
 
-	if _, err := configFile.WriteString(fmt.Sprintf(systemdConfigTemplate, rootAbsPath, rootAbsPath)); nil != err {
+	if _, err := configFile.WriteString(fmt.Sprintf(systemdConfigTemplate, filepath.Join(rootAbsPath, "v2ray-helper"), rootAbsPath)); nil != err {
 		log.Fatalf("安装为系统服务失败: %v\n", err)
 	}
 
