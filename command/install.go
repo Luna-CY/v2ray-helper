@@ -1,9 +1,11 @@
 package command
 
 import (
+	"context"
 	"fmt"
 	"github.com/Luna-CY/v2ray-helper/common/certificate"
 	"github.com/Luna-CY/v2ray-helper/common/configurator"
+	"github.com/Luna-CY/v2ray-helper/common/logger"
 	"github.com/Luna-CY/v2ray-helper/common/runtime"
 	"github.com/Luna-CY/v2ray-helper/common/software/caddy"
 	"github.com/Luna-CY/v2ray-helper/common/software/nginx"
@@ -53,6 +55,19 @@ WantedBy=multi-user.target`
 func install(*cobra.Command, []string) {
 	homeDir := filepath.Clean(strings.TrimSpace(home))
 	rootAbsPath := runtime.AbsRootPath(homeDir)
+
+	if err := configurator.Init(rootAbsPath); nil != err {
+		log.Fatalf("无法初始化配置参数: %v\n", err)
+	}
+
+	// logger组件需要在其他组件之前初始化
+	if err := logger.Init(rootAbsPath); nil != err {
+		log.Fatalf("初始化日志失败: %v\n", err)
+	}
+
+	if err := certificate.Init(context.Background()); nil != err {
+		log.Fatalf("初始化证书管理器失败: %v\n", err)
+	}
 
 	if https && "" == host {
 		log.Fatalln("启用HTTPS时必须提供用于申请证书的域名")

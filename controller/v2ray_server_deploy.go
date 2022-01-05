@@ -10,7 +10,6 @@ import (
 	"github.com/Luna-CY/v2ray-helper/common/http/code"
 	"github.com/Luna-CY/v2ray-helper/common/http/response"
 	"github.com/Luna-CY/v2ray-helper/common/logger"
-	vhr "github.com/Luna-CY/v2ray-helper/common/runtime"
 	"github.com/Luna-CY/v2ray-helper/common/software/aria2"
 	"github.com/Luna-CY/v2ray-helper/common/software/caddy"
 	"github.com/Luna-CY/v2ray-helper/common/software/cloudreve"
@@ -349,7 +348,7 @@ func V2rayServerDeploy(c *gin.Context) {
 					return
 				}
 
-				cloudreveAria2RuntimePath := filepath.Join(vhr.GetRootPath(), "temp", "cloudreve-aria2")
+				cloudreveAria2RuntimePath := filepath.Join(viper.GetString(configurator.KeyRootPath), "temp", "cloudreve-aria2")
 				if err := os.MkdirAll(cloudreveAria2RuntimePath, 0755); nil != err {
 					logger.GetLogger().Errorln(err)
 

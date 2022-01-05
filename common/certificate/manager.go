@@ -2,9 +2,6 @@ package certificate
 
 import (
 	"context"
-	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/rand"
 	"errors"
 	"fmt"
 	"github.com/Luna-CY/v2ray-helper/common/configurator"
@@ -326,12 +323,11 @@ func (m *Manager) IssueNew(host, email string) (*Certificate, error) {
 		return m.GetMustCertificate(host), nil
 	}
 
-	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	if err != nil {
-		return nil, errors.New(fmt.Sprintf("无法生成私钥: %v", err))
+	userEntry, err := newUser(email)
+	if nil != err {
+		return nil, err
 	}
 
-	userEntry := &user{Email: email, key: privateKey}
 	config := lego.NewConfig(userEntry)
 	config.Certificate.KeyType = certcrypto.RSA2048
 
@@ -386,12 +382,11 @@ func (m *Manager) Renew(host, email string) error {
 		return err
 	}
 
-	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	if err != nil {
-		return errors.New(fmt.Sprintf("无法生成私钥: %v", err))
+	userEntry, err := newUser(email)
+	if nil != err {
+		return err
 	}
 
-	userEntry := &user{Email: email, key: privateKey}
 	config := lego.NewConfig(userEntry)
 	config.Certificate.KeyType = certcrypto.RSA2048
 

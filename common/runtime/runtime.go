@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/Luna-CY/v2ray-helper/common/configurator"
 	"github.com/Luna-CY/v2ray-helper/staticfile/migrationstatic"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/sqlite3"
@@ -14,17 +15,15 @@ import (
 	"path/filepath"
 )
 
-var rootPath = ""
-
 // InitRuntime 初始化运行环境
-func InitRuntime(path string) error {
+func InitRuntime() error {
 	if err := viper.SafeWriteConfig(); nil != err {
 		if _, ok := err.(viper.ConfigFileAlreadyExistsError); !ok {
 			return err
 		}
 	}
 
-	dbPath := filepath.Join(path, "main.db")
+	dbPath := filepath.Join(viper.GetString(configurator.KeyRootPath), "main.db")
 	dbExists, err := fileExists(dbPath)
 	if nil != err {
 		return err
@@ -35,8 +34,6 @@ func InitRuntime(path string) error {
 			return err
 		}
 	}
-
-	rootPath = path
 
 	return nil
 }
@@ -119,16 +116,11 @@ func AbsRootPath(homeDir string) string {
 	return filepath.Dir(executable)
 }
 
-// GetRootPath 获取根目录
-func GetRootPath() string {
-	return rootPath
-}
-
 const CertDirName = "certs"
 
 // GetCertificatePath 获取证书目录的路径
 func GetCertificatePath() string {
-	return filepath.Join(rootPath, CertDirName)
+	return filepath.Join(viper.GetString(configurator.KeyRootPath), CertDirName)
 }
 
 func fileExists(path string) (bool, error) {

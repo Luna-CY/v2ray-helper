@@ -3,7 +3,8 @@ package aria2
 import (
 	"errors"
 	"fmt"
-	"github.com/Luna-CY/v2ray-helper/common/runtime"
+	"github.com/Luna-CY/v2ray-helper/common/configurator"
+	"github.com/spf13/viper"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -71,5 +72,5 @@ func Install(systemdPath, runtimePath string) error {
 
 // InstallToSystem 安装到系统
 func InstallToSystem() error {
-	return Install(SystemdPath, filepath.Join(runtime.GetRootPath(), "temp", "aria2"))
+	return Install(SystemdPath, filepath.Join(viper.GetString(configurator.KeyRootPath), "temp", "aria2"))
 }

@@ -13,15 +13,9 @@
           <el-input v-model="form.port" max="65535" min="1" placeholder="端口" type="number"></el-input>
         </el-form-item>
       </div>
-      <div class="inline-form-item-2">
-        <el-form-item class="form-item" label="用户ID" prop="user_id">
-          <el-input v-model="form.user_id" placeholder="用户身份ID"></el-input>
-        </el-form-item>
-        <el-form-item class="form-item" label="额外ID" label-width="60px" prop="alter_id">
-          <el-input v-model="form.alter_id" max="65535" min="0" placeholder="额外ID的数量，需要与服务器配置一致"
-                    type="number"></el-input>
-        </el-form-item>
-      </div>
+      <el-form-item label="用户ID" prop="user_id">
+        <el-input v-model="form.user_id" placeholder="用户身份ID"></el-input>
+      </el-form-item>
       <div class="inline-form-item-2">
         <el-form-item class="form-item-0" label="使用TLS">
           <el-switch v-model="form.use_tls" :disabled="3 === parseInt(form.transport_type.toString())"></el-switch>

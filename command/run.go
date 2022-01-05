@@ -44,7 +44,7 @@ func run(*cobra.Command, []string) {
 		log.Fatalln(fmt.Sprintf("初始化配置器失败: %v", err))
 	}
 
-	if err := runtime.InitRuntime(rootAbsPath); nil != err {
+	if err := runtime.InitRuntime(); nil != err {
 		log.Fatalln(fmt.Sprintf("初始化运行环境失败: %v", err))
 	}
 

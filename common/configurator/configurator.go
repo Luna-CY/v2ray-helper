@@ -14,6 +14,7 @@ const (
 )
 
 const (
+	KeyRootPath          = "root-path"
 	KeyServerAddress     = "server.address"
 	KeyServerPort        = "server.port"
 	KeyServerHttpsEnable = "server.https.enable"
@@ -43,6 +44,7 @@ func Init(path string) error {
 		log.Println("使用默认配置启动")
 	}
 
+	viper.SetDefault(KeyRootPath, path)
 	viper.SetDefault(KeyServerAddress, "0.0.0.0")
 	viper.SetDefault(KeyServerPort, 8888)
 	viper.SetDefault(KeyServerHttpsEnable, false)

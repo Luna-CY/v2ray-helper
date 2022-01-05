@@ -3,12 +3,18 @@ package certificate
 import (
 	"context"
 	"crypto"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"github.com/Luna-CY/v2ray-helper/common/configurator"
 	"github.com/Luna-CY/v2ray-helper/common/runtime"
 	"github.com/go-acme/lego/v4/registration"
+	"github.com/spf13/viper"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -22,6 +28,61 @@ func Init(ctx context.Context) error {
 	}
 
 	return initManager(ctx)
+}
+
+func newUser(email string) (*user, error) {
+	u := &user{Email: email}
+
+	privateKeyPath := filepath.Join(viper.GetString(configurator.KeyRootPath), fmt.Sprintf("%v.key", email))
+	k, err := os.Open(privateKeyPath)
+	if nil != err {
+		if !os.IsNotExist(err) {
+			return nil, errors.New(fmt.Sprintf("无法打开用户的私钥文件: %v", err))
+		}
+	}
+
+	if nil != k {
+		defer k.Close()
+
+		content, err := io.ReadAll(k)
+		if nil != err {
+			return nil, errors.New(fmt.Sprintf("无法读取用户的私钥文件: %v", err))
+		}
+
+		pp, _ := pem.Decode(content)
+		pk, err := x509.ParseECPrivateKey(pp.Bytes)
+		if nil != err {
+			return nil, errors.New(fmt.Sprintf("无法解析用户的私钥内容: %v", err))
+		}
+
+		u.key = pk
+	}
+
+	if nil == u.key {
+		pk, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+		if err != nil {
+			return nil, errors.New(fmt.Sprintf("无法生成私钥: %v", err))
+		}
+
+		f, err := os.Create(privateKeyPath)
+		if nil != err {
+			return nil, errors.New(fmt.Sprintf("无法创建用户的私钥文件: %v", err))
+		}
+		defer f.Close()
+
+		pp, err := x509.MarshalECPrivateKey(pk)
+		if nil != err {
+			return nil, errors.New(fmt.Sprintf("序列化用户私钥失败: %v", err))
+		}
+
+		if err := pem.Encode(f, &pem.Block{Type: "PRIVATE KEY", Bytes: pp}); nil != err {
+			return nil, errors.New(fmt.Sprintf("编码用户私钥内容失败: %v", err))
+		}
+
+		u.key = pk
+	}
+
+	return u, nil
 }
 
 type user struct {

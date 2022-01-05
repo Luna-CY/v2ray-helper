@@ -22,7 +22,7 @@ export class V2rayEndpointListItem {
 
   public user_id = ""
 
-  public alter_id = 4
+  public alter_id = 0
 
   public transport_type = 0
 

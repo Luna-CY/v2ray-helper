@@ -28,8 +28,7 @@
              v-on:mouseover="item.show_delete_button = true">
           <div class="el-col-4">{{ item.host }}</div>
           <div class="el-col-2">{{ item.port }}</div>
-          <div class="el-col-4">{{ item.user_id }}</div>
-          <div class="el-col-2">{{ item.alter_id }}</div>
+          <div class="el-col-6">{{ item.user_id }}</div>
           <div class="el-col-2">{{ getTransportType(item.transport_type) }}</div>
           <div class="el-col-xl-6 el-col-lg-4 el-col-md-4">{{ item.remark ? item.remark : '-' }}</div>
           <div class="el-col-xl-4 el-col-lg-6 el-col-md-6">

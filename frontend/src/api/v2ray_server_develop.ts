@@ -119,5 +119,5 @@ export class Client {
 
   public user_id = ""
 
-  public alter_id = 4
+  public alter_id = 0
 }

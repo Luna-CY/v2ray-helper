@@ -35,15 +35,9 @@
             <el-input v-model="form.v2ray_config.v2ray_port" placeholder="V2ray监听的端口号"></el-input>
           </el-form-item>
           <template v-for="client in form.v2ray_config.clients" v-bind:key="client">
-            <div class="inline-form-item-client">
-              <el-form-item class="form-item-user-id" label="用户ID">
-                <el-input v-model="client.user_id" placeholder="用户ID，请勿使用过短的用户ID，若不填写将会自动生成"></el-input>
-              </el-form-item>
-              <el-form-item class="form-item-alter-id" label="额外ID" label-width="60px">
-                <el-input v-model="client.alter_id" max="65535" min="0" placeholder="额外ID的数量，推荐值4，可选值0-65535"
-                          type="number"></el-input>
-              </el-form-item>
-            </div>
+            <el-form-item label="用户ID">
+              <el-input v-model="client.user_id" placeholder="用户ID，请勿使用过短的用户ID，若不填写将会自动生成"></el-input>
+            </el-form-item>
           </template>
           <template v-if="1 === parseInt(form.v2ray_config.transport_type.toString())">
             <el-form-item label="伪装类型">
