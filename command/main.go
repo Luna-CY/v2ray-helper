@@ -10,6 +10,11 @@ var command = cobra.Command{
 	Short: "V2ray配置服务，提供对V2ray的可视化配置操作",
 }
 
+var (
+	home string
+	host string
+)
+
 func Exec() {
 	if err := command.Execute(); nil != err {
 		os.Exit(1)

@@ -34,8 +34,6 @@ func init() {
 	command.AddCommand(cmd)
 }
 
-var home string
-
 func run(*cobra.Command, []string) {
 	homeDir := filepath.Clean(strings.TrimSpace(home))
 	rootAbsPath := runtime.AbsRootPath(homeDir)

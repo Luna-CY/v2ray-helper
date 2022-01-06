@@ -14,17 +14,24 @@ const (
 )
 
 const (
-	KeyRootPath          = "root-path"
-	KeyServerAddress     = "server.address"
-	KeyServerPort        = "server.port"
-	KeyServerHttpsEnable = "server.https.enable"
-	KeyServerHttpsHost   = "server.https.host"
-	KeyServerRelease     = "server.release"
-	KeyServerAllowDeploy = "server.allow-deploy"
-	KeyHttpsIssueEmail   = "https.issue-email"
-	KeyAuthAccessKey     = "auth.access-key"
-	KeyAuthManagementKey = "auth.management-key"
-	KeyLogLevel          = "log.level"
+	KeyRootPath              = "root-path"
+	KeyServerAddress         = "server.address"
+	KeyServerPort            = "server.port"
+	KeyServerHttpsEnable     = "server.https.enable"
+	KeyServerHttpsHost       = "server.https.host"
+	KeyServerRelease         = "server.release"
+	KeyServerAllowDeploy     = "server.allow-deploy"
+	KeyHttpsIssueEmail       = "https.issue-email"
+	KeyAuthAccessKey         = "auth.access-key"
+	KeyAuthManagementKey     = "auth.management-key"
+	KeyLogLevel              = "log.level"
+	KeyMailSMTPServerAddress = "mail.smtp.address"
+	KeyMailSMTPServerPort    = "mail.smtp.port"
+	KeyMailSMTPUser          = "mail.smtp.user"
+	KeyMailSMTPPassword      = "mail.smtp.password"
+	KeyMailSMTPSecret        = "mail.smtp.secret"
+	KeyMailNoticeEnable      = "mail.notice.enable"
+	KeyMailNoticeTo          = "mail.notice.to"
 )
 
 func Init(path string) error {
@@ -55,6 +62,13 @@ func Init(path string) error {
 	viper.SetDefault(KeyAuthManagementKey, DefaultManagementKey)
 	viper.SetDefault(KeyHttpsIssueEmail, fmt.Sprintf("%v@v2ray-helper.net", util.GenerateRandomString(16)))
 	viper.SetDefault(KeyLogLevel, "error")
+	viper.SetDefault(KeyMailSMTPServerAddress, "")
+	viper.SetDefault(KeyMailSMTPServerPort, 587)
+	viper.SetDefault(KeyMailSMTPUser, "")
+	viper.SetDefault(KeyMailSMTPPassword, "")
+	viper.SetDefault(KeyMailSMTPSecret, "")
+	viper.SetDefault(KeyMailNoticeEnable, false)
+	viper.SetDefault(KeyMailNoticeTo, "")
 
 	return nil
 }

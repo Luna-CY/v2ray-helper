@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/Luna-CY/v2ray-helper/common/configurator"
 	"github.com/Luna-CY/v2ray-helper/common/logger"
+	"github.com/Luna-CY/v2ray-helper/common/mail"
 	"github.com/Luna-CY/v2ray-helper/common/notice"
 	"github.com/Luna-CY/v2ray-helper/common/runtime"
 	"github.com/Luna-CY/v2ray-helper/common/software/caddy"
@@ -21,6 +22,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 )
@@ -181,6 +183,15 @@ func (m *Manager) RenewLoop() {
 				if err := m.renew(host); nil != err {
 					notice.GetManager().Push(notice.MessageTypeError, "证书续期失败", fmt.Sprintf("续期证书(%v)失败，详细请查看日志。证书有效期至: %v", host, cert.GetExpireTime().Format("2006-01-02 15:04:05")))
 					logger.GetLogger().Errorln(err)
+
+					if viper.GetBool(configurator.KeyMailNoticeEnable) {
+						to := strings.TrimSpace(viper.GetString(configurator.KeyMailNoticeTo))
+						if "" != to {
+							if err := mail.SendCertRenewFailEmail(to, host); nil != err {
+								logger.GetLogger().Errorf("发送证书续期通知邮件失败: %v\n", err)
+							}
+						}
+					}
 				}
 			}
 			m.RUnlock()

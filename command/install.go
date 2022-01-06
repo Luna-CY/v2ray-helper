@@ -36,7 +36,6 @@ func init() {
 }
 
 var https, enable bool
-var host string
 
 const systemdConfigTemplate = `[Unit]
 Description=V2ray Helper Service
