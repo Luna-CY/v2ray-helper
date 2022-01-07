@@ -162,6 +162,7 @@ type Manager struct {
 // 该方法在凌晨4-6点进行证书检查，并续期所有有效期在10天以内的证书
 func (m *Manager) RenewLoop() {
 	ticker := time.NewTicker(1 * time.Hour)
+	defer ticker.Stop()
 
 	for {
 		select {
