@@ -1,13 +1,9 @@
 package command
 
 import (
-	"context"
 	"fmt"
 	"github.com/Luna-CY/v2ray-helper/common/certificate"
 	"github.com/Luna-CY/v2ray-helper/common/configurator"
-	"github.com/Luna-CY/v2ray-helper/common/database"
-	"github.com/Luna-CY/v2ray-helper/common/logger"
-	"github.com/Luna-CY/v2ray-helper/common/runtime"
 	"github.com/Luna-CY/v2ray-helper/middleware"
 	"github.com/Luna-CY/v2ray-helper/router"
 	"github.com/Luna-CY/v2ray-helper/staticfile/webstatic"
@@ -17,8 +13,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"log"
-	"path/filepath"
-	"strings"
 )
 
 func init() {
@@ -29,41 +23,10 @@ func init() {
 		Run:   run,
 	}
 
-	cmd.Flags().StringVar(&home, "home", "", "运行主目录，默认为服务命令所在目录")
-
 	command.AddCommand(cmd)
 }
 
 func run(*cobra.Command, []string) {
-	homeDir := filepath.Clean(strings.TrimSpace(home))
-	rootAbsPath := runtime.AbsRootPath(homeDir)
-
-	if err := configurator.Init(rootAbsPath); nil != err {
-		log.Fatalln(fmt.Sprintf("初始化配置器失败: %v", err))
-	}
-
-	if err := runtime.InitRuntime(); nil != err {
-		log.Fatalln(fmt.Sprintf("初始化运行环境失败: %v", err))
-	}
-
-	// 设置GIN模式需要在其他组件初始化之前
-	if viper.GetBool(configurator.KeyServerRelease) {
-		gin.SetMode(gin.ReleaseMode)
-	}
-
-	// logger组件需要在其他组件之前初始化
-	if err := logger.Init(rootAbsPath); nil != err {
-		log.Fatalln(fmt.Sprintf("初始化日志失败: %v", err))
-	}
-
-	if err := certificate.Init(context.Background()); nil != err {
-		log.Fatalln(fmt.Sprintf("初始化证书管理器失败: %v", err))
-	}
-
-	if err := database.Init(filepath.Join(rootAbsPath, "main.db"), 10); nil != err {
-		log.Fatalln(fmt.Sprintf("初始化数据库失败: %v", err))
-	}
-
 	// 自动续期证书
 	go certificate.GetManager().RenewLoop()
 

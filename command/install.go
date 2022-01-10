@@ -1,12 +1,9 @@
 package command
 
 import (
-	"context"
 	"fmt"
 	"github.com/Luna-CY/v2ray-helper/common/certificate"
 	"github.com/Luna-CY/v2ray-helper/common/configurator"
-	"github.com/Luna-CY/v2ray-helper/common/logger"
-	"github.com/Luna-CY/v2ray-helper/common/runtime"
 	"github.com/Luna-CY/v2ray-helper/common/software/caddy"
 	"github.com/Luna-CY/v2ray-helper/common/software/nginx"
 	"github.com/Luna-CY/v2ray-helper/common/software/vhelper"
@@ -16,7 +13,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 )
 
 func init() {
@@ -27,7 +23,6 @@ func init() {
 		Run:   install,
 	}
 
-	cmd.Flags().StringVar(&home, "home", "", "运行主目录，默认为服务命令所在目录")
 	cmd.Flags().BoolVar(&https, "https", false, "启用HTTPS协议，启用HTTPS需要申请HTTPS证书，指定此参数时必须提供 host 参数")
 	cmd.Flags().StringVar(&host, "host", "", "用于申请HTTPS证书的域名，设置 https 参数必须提供")
 	cmd.Flags().BoolVar(&enable, "enable", false, "设置为开机自启动")
@@ -52,22 +47,6 @@ RestartPreventExitStatus=23
 WantedBy=multi-user.target`
 
 func install(*cobra.Command, []string) {
-	homeDir := filepath.Clean(strings.TrimSpace(home))
-	rootAbsPath := runtime.AbsRootPath(homeDir)
-
-	if err := configurator.Init(rootAbsPath); nil != err {
-		log.Fatalf("无法初始化配置参数: %v\n", err)
-	}
-
-	// logger组件需要在其他组件之前初始化
-	if err := logger.Init(rootAbsPath); nil != err {
-		log.Fatalf("初始化日志失败: %v\n", err)
-	}
-
-	if err := certificate.Init(context.Background()); nil != err {
-		log.Fatalf("初始化证书管理器失败: %v\n", err)
-	}
-
 	if https && "" == host {
 		log.Fatalln("启用HTTPS时必须提供用于申请证书的域名")
 	}
@@ -78,7 +57,8 @@ func install(*cobra.Command, []string) {
 	}
 	defer configFile.Close()
 
-	if _, err := configFile.WriteString(fmt.Sprintf(systemdConfigTemplate, filepath.Join(rootAbsPath, "v2ray-helper"), rootAbsPath)); nil != err {
+	rootPath := viper.GetString(configurator.KeyRootPath)
+	if _, err := configFile.WriteString(fmt.Sprintf(systemdConfigTemplate, filepath.Join(rootPath, "v2ray-helper"), rootPath)); nil != err {
 		log.Fatalf("安装为系统服务失败: %v\n", err)
 	}
 

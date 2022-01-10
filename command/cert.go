@@ -1,15 +1,11 @@
 package command
 
 import (
-	"context"
 	"github.com/Luna-CY/v2ray-helper/common/certificate"
 	"github.com/Luna-CY/v2ray-helper/common/configurator"
-	"github.com/Luna-CY/v2ray-helper/common/logger"
-	"github.com/Luna-CY/v2ray-helper/common/runtime"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"log"
-	"path/filepath"
 	"strings"
 )
 
@@ -28,7 +24,6 @@ func init() {
 		Run:   issue,
 	}
 
-	issueCmd.Flags().StringVar(&home, "home", "", "运行主目录，默认为服务命令所在目录")
 	issueCmd.Flags().StringVar(&host, "host", "", "需要申请证书的域名")
 
 	renewCmd := &cobra.Command{
@@ -39,7 +34,6 @@ func init() {
 		Run:   renew,
 	}
 
-	renewCmd.Flags().StringVar(&home, "home", "", "运行主目录，默认为服务命令所在目录")
 	renewCmd.Flags().StringVar(&host, "host", "", "需要续期的域名")
 
 	cmd.AddCommand(issueCmd)
@@ -49,25 +43,10 @@ func init() {
 }
 
 func issue(*cobra.Command, []string) {
-	home = filepath.Clean(strings.TrimSpace(home))
 	host = strings.TrimSpace(host)
-	rootAbsPath := runtime.AbsRootPath(home)
 
 	if "" == host {
 		log.Fatalln("域名不能为空")
-	}
-
-	if err := configurator.Init(rootAbsPath); nil != err {
-		log.Fatalf("无法初始化配置参数: %v\n", err)
-	}
-
-	// logger组件需要在其他组件之前初始化
-	if err := logger.Init(rootAbsPath); nil != err {
-		log.Fatalf("初始化日志失败: %v\n", err)
-	}
-
-	if err := certificate.Init(context.Background()); nil != err {
-		log.Fatalf("初始化证书管理器失败: %v\n", err)
 	}
 
 	if certificate.GetManager().CheckExists(host) {
@@ -85,25 +64,10 @@ func issue(*cobra.Command, []string) {
 }
 
 func renew(*cobra.Command, []string) {
-	home = filepath.Clean(strings.TrimSpace(home))
 	host = strings.TrimSpace(host)
-	rootAbsPath := runtime.AbsRootPath(home)
 
 	if "" == host {
 		log.Fatalln("域名不能为空")
-	}
-
-	if err := configurator.Init(rootAbsPath); nil != err {
-		log.Fatalf("无法初始化配置参数: %v\n", err)
-	}
-
-	// logger组件需要在其他组件之前初始化
-	if err := logger.Init(rootAbsPath); nil != err {
-		log.Fatalf("初始化日志失败: %v\n", err)
-	}
-
-	if err := certificate.Init(context.Background()); nil != err {
-		log.Fatalf("初始化证书管理器失败: %v\n", err)
 	}
 
 	if !certificate.GetManager().CheckExists(host) {

@@ -10,6 +10,42 @@ import (
 	"strings"
 )
 
+// SendTestEmail 发送通知测试邮件
+func SendTestEmail(to string) error {
+	if "" == to {
+		return errors.New("接收地址不能为空")
+	}
+
+	address := strings.TrimSpace(viper.GetString(configurator.KeyMailSMTPServerAddress))
+	port := viper.GetInt(configurator.KeyMailSMTPServerPort)
+	user := strings.TrimSpace(viper.GetString(configurator.KeyMailSMTPUser))
+	password := strings.TrimSpace(viper.GetString(configurator.KeyMailSMTPPassword))
+	secret := strings.TrimSpace(viper.GetString(configurator.KeyMailSMTPSecret))
+
+	if "" == address {
+		return errors.New("邮件SMTP服务器配置错误，服务器地址不能为空")
+	}
+
+	mail := email.NewEmail()
+	mail.From = user
+	mail.To = []string{to}
+	mail.Subject = "通知测试邮件"
+	mail.HTML = []byte("<p>该邮件为通知测试邮件，恭喜您邮件配置正确</p>")
+
+	var auth smtp.Auth
+	if "" != secret {
+		auth = smtp.CRAMMD5Auth(user, secret)
+	} else {
+		auth = smtp.PlainAuth("", user, password, address)
+	}
+
+	if err := mail.Send(fmt.Sprintf("%v:%v", address, port), auth); nil != err {
+		return err
+	}
+
+	return nil
+}
+
 // SendCertRenewFailEmail 发送证书续期失败的通知邮件
 func SendCertRenewFailEmail(to, host string) error {
 	if "" == to {
