@@ -15,19 +15,17 @@ import (
 	"path/filepath"
 )
 
+var installCommand = &cobra.Command{
+	Use:   "install",
+	Short: "将服务安装到系统",
+	Args:  cobra.NoArgs,
+	Run:   install,
+}
+
 func init() {
-	cmd := &cobra.Command{
-		Use:   "install",
-		Short: "将服务安装到系统",
-		Args:  cobra.NoArgs,
-		Run:   install,
-	}
-
-	cmd.Flags().BoolVar(&https, "https", false, "启用HTTPS协议，启用HTTPS需要申请HTTPS证书，指定此参数时必须提供 host 参数")
-	cmd.Flags().StringVar(&host, "host", "", "用于申请HTTPS证书的域名，设置 https 参数必须提供")
-	cmd.Flags().BoolVar(&enable, "enable", false, "设置为开机自启动")
-
-	command.AddCommand(cmd)
+	installCommand.Flags().BoolVar(&https, "https", false, "启用HTTPS协议，启用HTTPS需要申请HTTPS证书，指定此参数时必须提供 host 参数")
+	installCommand.Flags().StringVar(&host, "host", "", "用于申请HTTPS证书的域名，设置 https 参数必须提供")
+	installCommand.Flags().BoolVar(&enable, "enable", false, "设置为开机自启动")
 }
 
 var https, enable bool

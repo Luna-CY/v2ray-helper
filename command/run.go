@@ -15,15 +15,11 @@ import (
 	"log"
 )
 
-func init() {
-	cmd := &cobra.Command{
-		Use:   "run",
-		Short: "启动服务",
-		Args:  cobra.NoArgs,
-		Run:   run,
-	}
-
-	command.AddCommand(cmd)
+var runCommand = &cobra.Command{
+	Use:   "run",
+	Short: "启动服务",
+	Args:  cobra.NoArgs,
+	Run:   run,
 }
 
 func run(*cobra.Command, []string) {

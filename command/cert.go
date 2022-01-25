@@ -9,13 +9,13 @@ import (
 	"strings"
 )
 
-func init() {
-	cmd := &cobra.Command{
-		Use:   "cert",
-		Short: "证书管理工具",
-		Args:  cobra.NoArgs,
-	}
+var certCommand = &cobra.Command{
+	Use:   "cert",
+	Short: "证书管理工具",
+	Args:  cobra.NoArgs,
+}
 
+func init() {
 	issueCmd := &cobra.Command{
 		Use:   "issue",
 		Short: "申请新的证书",
@@ -36,10 +36,8 @@ func init() {
 
 	renewCmd.Flags().StringVar(&host, "host", "", "需要续期的域名")
 
-	cmd.AddCommand(issueCmd)
-	cmd.AddCommand(renewCmd)
-
-	command.AddCommand(cmd)
+	certCommand.AddCommand(issueCmd)
+	certCommand.AddCommand(renewCmd)
 }
 
 func issue(*cobra.Command, []string) {

@@ -8,13 +8,13 @@ import (
 	"log"
 )
 
-func init() {
-	cmd := &cobra.Command{
-		Use:   "tool",
-		Short: "工具集合",
-		Args:  cobra.NoArgs,
-	}
+var testCommand = &cobra.Command{
+	Use:   "test",
+	Short: "测试工具集合",
+	Args:  cobra.NoArgs,
+}
 
+func init() {
 	ste := &cobra.Command{
 		Use:   "send-test-email",
 		Short: "发送测试邮件，测试邮件配置",
@@ -22,8 +22,7 @@ func init() {
 		Run:   sendTestEmail,
 	}
 
-	cmd.AddCommand(ste)
-	command.AddCommand(cmd)
+	testCommand.AddCommand(ste)
 }
 
 func sendTestEmail(*cobra.Command, []string) {

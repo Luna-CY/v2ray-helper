@@ -31,6 +31,11 @@ func init() {
 	}
 
 	command.PersistentFlags().StringVar(&home, "home", "", "运行主目录，默认为服务命令所在目录")
+
+	command.AddCommand(runCommand)
+	command.AddCommand(certCommand)
+	command.AddCommand(testCommand)
+	command.AddCommand(installCommand)
 }
 
 func Exec() {
