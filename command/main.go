@@ -15,6 +15,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 var (
@@ -48,6 +49,7 @@ func Exec() {
 // 使用此方法的命令必须添加 home 变量的参数解析
 // 此方法提供对配置、日志、证书管理器的初始化
 func initSystem(*cobra.Command, []string) {
+	time.Local = time.FixedZone("CST", 8*3600)
 	home = filepath.Clean(strings.TrimSpace(home))
 	rootAbsPath := runtime.AbsRootPath(home)
 

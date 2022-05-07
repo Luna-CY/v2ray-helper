@@ -159,7 +159,7 @@ type Manager struct {
 
 // RenewLoop 证书续期循环
 // 该方法必须放在goroutine中运行
-// 该方法在凌晨4-6点进行证书检查，并续期所有有效期在10天以内的证书
+// 该方法在凌晨4点进行证书检查，并续期所有有效期在10天以内的证书
 func (m *Manager) RenewLoop() {
 	ticker := time.NewTicker(1 * time.Hour)
 	defer ticker.Stop()
@@ -169,8 +169,7 @@ func (m *Manager) RenewLoop() {
 		case <-m.ctx.Done():
 			return
 		case <-ticker.C:
-			hour := time.Now().Hour()
-			if 4 > hour || 6 < hour {
+			if 4 != time.Now().Hour() {
 				continue
 			}
 
@@ -222,6 +221,11 @@ func (m *Manager) renew(host string) error {
 		if err := caddy.Stop(); nil != err {
 			return errors.New(fmt.Sprintf("停止Caddy服务失败: %v", err))
 		}
+
+		caddyIsRunning, err = caddy.IsRunning()
+		if nil != err || caddyIsRunning {
+			return errors.New(fmt.Sprintf("停止Caddy服务失败: %v", err))
+		}
 	}
 
 	// 检查V2ray
@@ -232,6 +236,11 @@ func (m *Manager) renew(host string) error {
 
 	if v2rayIsRunning {
 		if err := v2ray.Stop(); nil != err {
+			return errors.New(fmt.Sprintf("停止V2ray服务失败: %v", err))
+		}
+
+		v2rayIsRunning, err = v2ray.IsRunning()
+		if nil != err || v2rayIsRunning {
 			return errors.New(fmt.Sprintf("停止V2ray服务失败: %v", err))
 		}
 	}
