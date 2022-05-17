@@ -38,11 +38,11 @@ const routes: Array<RouteRecordRaw> = [
     }
   },
   {
-    path: '/helper/v2ray-ng',
-    name: 'HelperV2rayNG',
-    component: () => import('@/views/help/V2rayNG.vue'),
+    path: '/helper/sager-net',
+    name: 'HelperSagerNet',
+    component: () => import('@/views/help/SagerNet.vue'),
     meta: {
-      title: "V2rayNG配置帮助"
+      title: "SagerNet配置帮助"
     }
   },
   {

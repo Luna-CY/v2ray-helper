@@ -12,6 +12,10 @@
           <div class="margin-bottom">第三步：扫描生成的配置二维码后，列表将会出现可用配置项，点击右下角的圆形按钮启动应用，如下图</div>
           <div class="margin-bottom"><img alt="" class="md-and-up-img" src="https://github.com/Luna-CY/v2ray-helper/raw/master/web/img/help/v2ray-ng/v2ray-ng-path-3.png">
           </div>
+          <div class="margin-bottom">第四步：点击左上角的"更多"图标，在弹出的菜单中选择设置</div>
+          <div class="margin-bottom">第五步：滑动屏幕，找到路由设置下的分应用代理，点击进入</div>
+          <div class="margin-bottom">第六步：将上方的状态切换为代理模式，并在下方应用列表中选择需要代理的应用，将其右侧开关打开</div>
+          <div class="margin-bottom">第七步：无需保存，退出页面即可</div>
         </div>
       </div>
     </div>
@@ -27,6 +31,10 @@
           <div class="margin-bottom">第三步：扫描生成的配置二维码后，列表将会出现可用配置项，点击右下角的圆形按钮启动应用，如下图</div>
           <div class="margin-bottom"><img alt="" class="sm-and-down-img" src="https://github.com/Luna-CY/v2ray-helper/raw/master/web/img/help/v2ray-ng/v2ray-ng-path-3.png">
           </div>
+          <div class="margin-bottom">第四步：点击左上角的"更多"图标，在弹出的菜单中选择设置</div>
+          <div class="margin-bottom">第五步：滑动屏幕，找到路由设置下的分应用代理，点击进入</div>
+          <div class="margin-bottom">第六步：将上方的状态切换为代理模式，并在下方应用列表中选择需要代理的应用，将其右侧开关打开</div>
+          <div class="margin-bottom">第七步：无需保存，退出页面即可</div>
         </div>
       </div>
     </div>

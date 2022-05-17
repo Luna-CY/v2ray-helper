@@ -38,7 +38,7 @@ export default defineComponent({
           os: "Windows",
           client: "V2rayN",
           git: "https://github.com/2dust/v2rayN/releases",
-          address: "https://github.com/2dust/v2rayN/releases/download/4.20/v2rayN-Core.zip",
+          address: "https://github.com/2dust/v2rayN/releases/download/5.23/v2rayN-Core.zip",
           helper: "HelperV2rayN",
         },
         {
@@ -50,10 +50,10 @@ export default defineComponent({
         },
         {
           os: "Android",
-          client: "V2rayNG",
-          git: "https://github.com/2dust/v2rayNG/releases",
-          address: "https://github.com/2dust/v2rayNG/releases/download/1.6.18/v2rayNG_1.6.18.apk",
-          helper: "HelperV2rayNG",
+          client: "SagerNet",
+          git: "https://github.com/SagerNet/SagerNet/releases",
+          address: "https://github.com/SagerNet/SagerNet/releases/download/0.8-beta06/SN-0.8-beta06-arm64-v8a.apk",
+          helper: "HelperSagerNet",
         },
         {
           os: "IOS",
