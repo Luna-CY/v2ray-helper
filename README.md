@@ -22,6 +22,18 @@ V2ray一键部署服务，支持对V2ray常用代理协议(TCP/KCP/WebSocket/HTT
 
 ## 手动构建
 
+### 安装依赖工具
+
+安装`go-bindata`
+- `go get github.com/go-bindata/go-bindata/...`
+- `go install github.com/go-bindata/go-bindata/...`
+
+安装`go-bindata-assetfs`
+- `go get github.com/elazarl/go-bindata-assetfs/...`
+- `go install github.com/elazarl/go-bindata-assetfs/...`
+
+### 打包
+
 克隆项目到本地，执行./pack.sh进行打包，将打包后的`v2ray-helper-x.x.x.tgz`上传到服务器
 
 ## 使用说明
