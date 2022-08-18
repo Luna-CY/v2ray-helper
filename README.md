@@ -22,6 +22,15 @@ V2ray一键部署服务，支持对V2ray常用代理协议(TCP/KCP/WebSocket/HTT
 
 ## 手动构建
 
+### 交叉编译
+项目对sqlite有依赖，sqllite依赖CGO，所以在交叉编译时必须指定使用CC编译器
+
+`CGO_ENABLED=1 GOOS=linux GOARCH=amd64 CC=x86_64-linux-musl-gcc CGO_LDFLAGS="-static" go build ./v2ray-helper.go`
+
+#### MacOS安装交叉编译工具链
+
+`brew install FiloSottile/musl-cross/musl-cross`
+
 ### 安装依赖工具
 
 安装`go-bindata`
