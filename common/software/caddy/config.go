@@ -20,8 +20,8 @@ func SetConfig(configPath, host string, listenPort, targetPort int, path string,
 	builder.WriteString(fmt.Sprintf("%v:%v {\n", host, listenPort))
 
 	if PortHttps == listenPort || https || http2 {
-		certFilePath := filepath.Join(runtime.GetCertificatePath(), host, "cert.pem")
-		keyFilePath := filepath.Join(runtime.GetCertificatePath(), host, "private.key")
+		certFilePath := filepath.Join(runtime.GetAcmeCertificatePath(), host, "cert.pem")
+		keyFilePath := filepath.Join(runtime.GetAcmeCertificatePath(), host, "private.key")
 
 		builder.WriteString(fmt.Sprintf("    tls %v %v\n", certFilePath, keyFilePath))
 	}

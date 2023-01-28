@@ -11,7 +11,6 @@ import (
 	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"log"
 )
 
@@ -63,19 +62,8 @@ func run(*cobra.Command, []string) {
 		c.Writer.Flush()
 	})
 
-	address := fmt.Sprintf("%v:%v", viper.GetString(configurator.KeyServerAddress), viper.GetInt(configurator.KeyServerPort))
-	if viper.GetBool(configurator.KeyServerHttpsEnable) {
-		https, err := certificate.GetManager().GetCertificate(viper.GetString(configurator.KeyServerHttpsHost))
-		if nil != err {
-			log.Fatalln("无法获取HTTPS证书")
-		}
-
-		if err := engine.RunTLS(address, https.GetCertificateFilePath(), https.GetPrivateKeyFilePath()); nil != err {
-			log.Fatalf("启动服务器失败: %v\n", err)
-		}
-	} else {
-		if err := engine.Run(address); nil != err {
-			log.Fatalf("启动服务器失败: %v\n", err)
-		}
+	address := fmt.Sprintf("%v:%v", configurator.Configure.Server.Address, configurator.Configure.Server.Port)
+	if err := engine.Run(address); nil != err {
+		log.Fatalf("启动服务器失败: %v\n", err)
 	}
 }

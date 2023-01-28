@@ -9,7 +9,6 @@ import (
 	"github.com/Luna-CY/v2ray-helper/common/util"
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 	"strings"
 	"time"
 )
@@ -45,7 +44,7 @@ func GetJWT() (*jwt.GinJWTMiddleware, error) {
 				return nil, errors.New("无效的数据请求")
 			}
 
-			if util.Md5(viper.GetString(configurator.KeyAuthAccessKey)) != strings.TrimSpace(body.Key) {
+			if util.Md5(configurator.Configure.Auth.Access) != strings.TrimSpace(body.Key) {
 				return nil, errors.New("无效口令")
 			}
 

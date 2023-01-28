@@ -5,6 +5,8 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/Luna-CY/v2ray-helper/common/configurator"
+	runtime2 "github.com/Luna-CY/v2ray-helper/common/runtime"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -134,5 +136,5 @@ func InstallLastRelease() error {
 		return err
 	}
 
-	return Install(runtime.GOOS, runtime.GOARCH, version, InstallTo, SharePath, SystemdPath, ConfigPath)
+	return Install(runtime.GOOS, runtime.GOARCH, version, InstallTo, SharePath, SystemdPath, filepath.Join(configurator.Configure.Home, runtime2.V2rayConfig))
 }

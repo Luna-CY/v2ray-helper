@@ -4,7 +4,6 @@ import (
 	"github.com/Luna-CY/v2ray-helper/common/configurator"
 	"github.com/Luna-CY/v2ray-helper/common/mail"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"log"
 )
 
@@ -26,7 +25,7 @@ func init() {
 }
 
 func sendTestEmail(*cobra.Command, []string) {
-	if err := mail.SendTestEmail(viper.GetString(configurator.KeyMailNoticeTo)); nil != err {
+	if err := mail.SendTestEmail(configurator.Configure.Mail.Notice.To); nil != err {
 		log.Fatalf("发送测试邮件失败: %v\n", err)
 	}
 

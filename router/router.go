@@ -17,18 +17,30 @@ func RegisterApiRouter(engine *gin.RouterGroup) error {
 	engine.Use(jwt.MiddlewareFunc())
 	engine.POST("/auth/logout", jwt.LogoutHandler)
 
-	engine.GET("/meta-info", controller.MetaInfo)
-	engine.POST("/save-meta-info", controller.SaveMetaInfo)
+	engine.GET("/v2ray/get-config", controller.CleanNotice)
+	engine.POST("/v2ray/add-client", controller.CleanNotice)
+	engine.POST("/v2ray/remove-client", controller.CleanNotice)
+	engine.POST("/v2ray/add-inbound", controller.CleanNotice)
+	engine.POST("/v2ray/remove-inbound", controller.CleanNotice)
+	engine.POST("/v2ray/add-outbound", controller.CleanNotice)
+	engine.POST("/v2ray/remove-outbound", controller.CleanNotice)
+	engine.POST("/v2ray/upgrade", controller.CleanNotice)
 
-	engine.POST("/clean-notice", controller.CleanNotice)
+	engine.GET("/cert/list", controller.CleanNotice)
+	engine.POST("/cert/upload", controller.CleanNotice)
+	engine.POST("/cert/issue", controller.CleanNotice)
+	engine.POST("/cert/renew", controller.CleanNotice)
+	engine.POST("/cert/remove", controller.CleanNotice)
 
-	engine.GET("/v2ray-endpoint", controller.V2rayEndpointList)
-	engine.GET("/v2ray-endpoint/detail", controller.V2rayEndpointDetail)
-	engine.POST("/v2ray-endpoint/new", controller.V2rayEndpointNew)
-	engine.POST("/v2ray-endpoint/remove", controller.V2rayEndpointRemove)
-	engine.POST("/v2ray-endpoint/download", controller.V2rayEndpointDownload)
+	engine.GET("/host/list", controller.CleanNotice)
+	engine.POST("/host/add", controller.CleanNotice)
+	engine.POST("/host/update", controller.CleanNotice)
+	engine.POST("/host/remove", controller.CleanNotice)
 
-	engine.POST("/v2ray-server-deploy", controller.V2rayServerDeploy)
+	engine.GET("/app/list", controller.CleanNotice)
+	engine.POST("/app/install", controller.CleanNotice)
+	engine.POST("/app/upgrade", controller.CleanNotice)
+	engine.POST("/app/remove", controller.CleanNotice)
 
 	return nil
 }

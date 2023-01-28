@@ -2,9 +2,7 @@ package command
 
 import (
 	"github.com/Luna-CY/v2ray-helper/common/certificate"
-	"github.com/Luna-CY/v2ray-helper/common/configurator"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"log"
 	"strings"
 )
@@ -51,7 +49,7 @@ func issue(*cobra.Command, []string) {
 		log.Fatalln("该域名证书已存在，如域名过期请使用 renew 命令")
 	}
 
-	cert, err := certificate.GetManager().IssueNew(host, viper.GetString(configurator.KeyHttpsIssueEmail))
+	cert, err := certificate.GetManager().IssueNew(host)
 	if nil != err {
 		log.Fatalf("申请域名证书失败: %v\n", err)
 	}
@@ -72,7 +70,7 @@ func renew(*cobra.Command, []string) {
 		log.Fatalln("该域名证书不存在，如需申请证书请使用 issue 命令")
 	}
 
-	if err := certificate.GetManager().Renew(host, viper.GetString(configurator.KeyHttpsIssueEmail)); nil != err {
+	if err := certificate.GetManager().Renew(host); nil != err {
 		log.Fatalf("域名续期失败: %v\n", err)
 	}
 

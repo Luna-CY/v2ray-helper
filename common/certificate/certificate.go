@@ -13,7 +13,6 @@ import (
 	"github.com/Luna-CY/v2ray-helper/common/configurator"
 	"github.com/Luna-CY/v2ray-helper/common/runtime"
 	"github.com/go-acme/lego/v4/registration"
-	"github.com/spf13/viper"
 	"io"
 	"io/ioutil"
 	"os"
@@ -23,7 +22,7 @@ import (
 
 // Init 初始化证书管理器
 func Init(ctx context.Context) error {
-	if err := os.MkdirAll(runtime.GetCertificatePath(), 0755); nil != err {
+	if err := os.MkdirAll(runtime.GetAcmeCertificatePath(), 0755); nil != err {
 		return errors.New(fmt.Sprintf("初始化证书环境失败: %v", err))
 	}
 
@@ -33,7 +32,7 @@ func Init(ctx context.Context) error {
 func newUser(email string) (*user, error) {
 	u := &user{Email: email}
 
-	privateKeyPath := filepath.Join(viper.GetString(configurator.KeyRootPath), fmt.Sprintf("%v.key", email))
+	privateKeyPath := filepath.Join(configurator.Configure.Home, fmt.Sprintf("%v.key", email))
 	k, err := os.Open(privateKeyPath)
 	if nil != err {
 		if !os.IsNotExist(err) {
@@ -119,7 +118,7 @@ func (c *Certificate) GetPrivateKeyContent() []byte {
 }
 
 func (c *Certificate) GetPrivateKeyFilePath() string {
-	return filepath.Join(runtime.GetCertificatePath(), c.host, "private.key")
+	return filepath.Join(runtime.GetAcmeCertificatePath(), c.host, "private.key")
 }
 
 func (c *Certificate) GetCertificateContent() []byte {
@@ -127,7 +126,7 @@ func (c *Certificate) GetCertificateContent() []byte {
 }
 
 func (c *Certificate) GetCertificateFilePath() string {
-	return filepath.Join(runtime.GetCertificatePath(), c.host, "cert.pem")
+	return filepath.Join(runtime.GetAcmeCertificatePath(), c.host, "cert.pem")
 }
 
 func (c *Certificate) GetCsrContent() []byte {
@@ -135,7 +134,7 @@ func (c *Certificate) GetCsrContent() []byte {
 }
 
 func (c *Certificate) GetCsrFilePath() string {
-	return filepath.Join(runtime.GetCertificatePath(), c.host, "cert.csr")
+	return filepath.Join(runtime.GetAcmeCertificatePath(), c.host, "cert.csr")
 }
 
 func (c *Certificate) GetIssueCertificate() []byte {
@@ -143,7 +142,7 @@ func (c *Certificate) GetIssueCertificate() []byte {
 }
 
 func (c *Certificate) GetIssueCertificateFilePath() string {
-	return filepath.Join(runtime.GetCertificatePath(), c.host, "cert.issue")
+	return filepath.Join(runtime.GetAcmeCertificatePath(), c.host, "cert.issue")
 }
 
 func (c *Certificate) GetExpireTime() time.Time {
@@ -152,7 +151,7 @@ func (c *Certificate) GetExpireTime() time.Time {
 
 // newCertificate 新建一个证书结构并解析证书
 func newCertificate(host string) (*Certificate, error) {
-	path := filepath.Join(runtime.GetCertificatePath())
+	path := filepath.Join(runtime.GetAcmeCertificatePath())
 
 	privateKeyFile, err := os.Open(filepath.Join(path, host, "private.key"))
 	if nil != err {

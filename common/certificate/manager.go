@@ -7,7 +7,6 @@ import (
 	"github.com/Luna-CY/v2ray-helper/common/configurator"
 	"github.com/Luna-CY/v2ray-helper/common/logger"
 	"github.com/Luna-CY/v2ray-helper/common/mail"
-	"github.com/Luna-CY/v2ray-helper/common/notice"
 	"github.com/Luna-CY/v2ray-helper/common/runtime"
 	"github.com/Luna-CY/v2ray-helper/common/software/caddy"
 	"github.com/Luna-CY/v2ray-helper/common/software/v2ray"
@@ -18,8 +17,6 @@ import (
 	"github.com/go-acme/lego/v4/challenge/tlsalpn01"
 	"github.com/go-acme/lego/v4/lego"
 	"github.com/go-acme/lego/v4/registration"
-	"github.com/spf13/viper"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -35,7 +32,7 @@ func initManager(ctx context.Context) error {
 	cm.ctx = ctx
 	cm.certs = map[string]*Certificate{}
 
-	path := runtime.GetCertificatePath()
+	path := runtime.GetAcmeCertificatePath()
 	stat, err := os.Stat(path)
 	if nil != err {
 		if os.IsNotExist(err) {
@@ -49,7 +46,7 @@ func initManager(ctx context.Context) error {
 		return errors.New(fmt.Sprintf("初始化证书管理器失败: 证书路径不是一个目录: %v", path))
 	}
 
-	hostList, err := ioutil.ReadDir(path)
+	hostList, err := os.ReadDir(path)
 	if nil != err {
 		return errors.New(fmt.Sprintf("初始化证书管理器失败: %v", err))
 	}
@@ -77,7 +74,7 @@ func initManager(ctx context.Context) error {
 
 // loadCertificate 加载证书
 func loadCertificate(host string) (*Certificate, error) {
-	path := runtime.GetCertificatePath()
+	path := runtime.GetAcmeCertificatePath()
 
 	keyStat, err := os.Stat(filepath.Join(path, host, "private.key"))
 	if nil != err {
@@ -181,11 +178,10 @@ func (m *Manager) RenewLoop() {
 
 				// 10天以内续期
 				if err := m.renew(host); nil != err {
-					notice.GetManager().Push(notice.MessageTypeError, "证书续期失败", fmt.Sprintf("续期证书(%v)失败，详细请查看日志。证书有效期至: %v", host, cert.GetExpireTime().Format("2006-01-02 15:04:05")))
 					logger.GetLogger().Errorln(err)
 
-					if viper.GetBool(configurator.KeyMailNoticeEnable) {
-						to := strings.TrimSpace(viper.GetString(configurator.KeyMailNoticeTo))
+					if configurator.Configure.Mail.Notice.Enable {
+						to := strings.TrimSpace(configurator.Configure.Mail.Notice.To)
 						if "" != to {
 							if err := mail.SendCertRenewFailEmail(to, host); nil != err {
 								logger.GetLogger().Errorf("发送证书续期通知邮件失败: %v\n", err)
@@ -263,7 +259,7 @@ func (m *Manager) renew(host string) error {
 		return errors.New("续期证书失败，443端口被占用")
 	}
 
-	if err := m.Renew(host, viper.GetString(configurator.KeyHttpsIssueEmail)); nil != err {
+	if err := m.Renew(host); nil != err {
 		logger.GetLogger().Errorln(err)
 	}
 
@@ -339,12 +335,30 @@ func (m *Manager) GetMustCertificate(host string) *Certificate {
 
 // IssueNew 申请新的证书
 // 申请证书需要监听80与443端口，申请证书前需要关闭所有web服务，以免续期失败
-func (m *Manager) IssueNew(host, email string) (*Certificate, error) {
+func (m *Manager) IssueNew(host string) (*Certificate, error) {
 	if m.CheckExists(host) {
 		return m.GetMustCertificate(host), nil
 	}
 
-	userEntry, err := newUser(email)
+	httpIsAllow, err := util.CheckLocalPortIsAllow(80)
+	if nil != err {
+		return nil, errors.New(fmt.Sprintf("检查端口状态失败: %v", err))
+	}
+
+	if !httpIsAllow {
+		return nil, errors.New("申请证书失败，80端口被占用")
+	}
+
+	httpsIsAllow, err := util.CheckLocalPortIsAllow(443)
+	if nil != err {
+		return nil, errors.New(fmt.Sprintf("检查端口状态失败: %v", err))
+	}
+
+	if !httpsIsAllow {
+		return nil, errors.New("申请证书失败，443端口被占用")
+	}
+
+	userEntry, err := newUser(configurator.Configure.Acme.Email)
 	if nil != err {
 		return nil, err
 	}
@@ -397,13 +411,13 @@ func (m *Manager) IssueNew(host, email string) (*Certificate, error) {
 
 // Renew 续期证书
 // 续期证书需要监听80与443端口，续期前需要关闭所有web服务器，以免续期失败
-func (m *Manager) Renew(host, email string) error {
+func (m *Manager) Renew(host string) error {
 	lc, err := m.GetCertificate(host)
 	if nil != err {
 		return err
 	}
 
-	userEntry, err := newUser(email)
+	userEntry, err := newUser(configurator.Configure.Acme.Email)
 	if nil != err {
 		return err
 	}
@@ -446,7 +460,7 @@ func (m *Manager) Renew(host, email string) error {
 
 // save 保存证书
 func (m *Manager) save(host string, cert *certificate.Resource) error {
-	path := runtime.GetCertificatePath()
+	path := runtime.GetAcmeCertificatePath()
 
 	if err := os.RemoveAll(filepath.Join(path, host)); nil != err {
 		return errors.New(fmt.Sprintf("申请证书失败: %v", err))

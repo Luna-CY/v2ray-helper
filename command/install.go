@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/Luna-CY/v2ray-helper/common/certificate"
 	"github.com/Luna-CY/v2ray-helper/common/configurator"
-	"github.com/Luna-CY/v2ray-helper/common/software/caddy"
 	"github.com/Luna-CY/v2ray-helper/common/software/nginx"
 	"github.com/Luna-CY/v2ray-helper/common/software/vhelper"
 	"github.com/spf13/cobra"
@@ -23,7 +22,7 @@ var installCommand = &cobra.Command{
 }
 
 func init() {
-	installCommand.Flags().BoolVar(&https, "https", false, "启用HTTPS协议，启用HTTPS需要申请HTTPS证书，指定此参数时必须提供 host 参数")
+	installCommand.Flags().BoolVar(&https, "https", false, "启用HTTPS协议，启用HTTPS需要申请HTTPS证书，指定此参数时必须提供 --host 参数")
 	installCommand.Flags().StringVar(&host, "host", "", "用于申请HTTPS证书的域名，设置 https 参数必须提供")
 	installCommand.Flags().BoolVar(&enable, "enable", false, "设置为开机自启动")
 }
@@ -66,58 +65,30 @@ func install(*cobra.Command, []string) {
 		}
 	}
 
-	if https {
-		viper.Set(configurator.KeyServerHttpsEnable, true)
-		viper.Set(configurator.KeyServerHttpsHost, host)
+	nginxIsRunning, err := nginx.IsRunning()
+	if nil != err {
+		log.Fatalln(err)
+	}
 
-		if err := viper.WriteConfig(); nil != err {
-			log.Fatalln(err)
-		}
-
-		// 如果有Nginx服务器并且已启动，那么停止Nginx，否则Caddy无法启动
-		nginxIsRunning, err := nginx.IsRunning()
-		if nil != err {
-			log.Fatalln(err)
-		}
-
-		if nginxIsRunning {
-			if err := nginx.Stop(); nil != err {
-				log.Fatalln(err)
-			}
-		}
-
-		if err := nginx.Disable(); nil != err {
-			log.Fatalln(err)
-		}
-
-		caddyIsRunning, err := caddy.IsRunning()
-		if nil != err {
-			log.Fatalln(err)
-		}
-
-		if caddyIsRunning {
-			if err := caddy.Stop(); nil != err {
-				log.Fatalln(err)
-			}
-		}
-
-		vHelperIsRunning, err := vhelper.IsRunning()
-		if nil != err {
-			log.Fatalln(err)
-		}
-
-		if vHelperIsRunning {
-			if err := vhelper.Stop(); nil != err {
-				log.Fatalln(err)
-			}
-		}
-
-		if _, err := certificate.GetManager().IssueNew(host, viper.GetString(configurator.KeyHttpsIssueEmail)); nil != err {
+	if nginxIsRunning {
+		if err := nginx.Stop(); nil != err {
 			log.Fatalln(err)
 		}
 	}
 
+	if https {
+		if _, err := certificate.GetManager().IssueNew(host); nil != err {
+			log.Fatalln(err)
+		}
+	}
+
+	// TODO 添加nginx配置
+
 	if err := vhelper.Start(); nil != err {
+		log.Fatalln(err)
+	}
+
+	if err := nginx.Start(); nil != err {
 		log.Fatalln(err)
 	}
 

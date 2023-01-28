@@ -17,6 +17,16 @@ func IsRunning() (bool, error) {
 	return "" != strings.TrimSpace(string(res)), nil
 }
 
+// Start 启动Nginx服务
+func Start() error {
+	res, err := exec.Command("service", "nginx", "start").Output()
+	if nil != err && 0 != len(res) {
+		return errors.New(fmt.Sprintf("启动Nginx失败: %v", err))
+	}
+
+	return nil
+}
+
 // Stop 停止Nginx服务
 func Stop() error {
 	res, err := exec.Command("service", "nginx", "stop").Output()

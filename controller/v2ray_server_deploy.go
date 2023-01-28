@@ -1,22 +1,20 @@
 package controller
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/Luna-CY/v2ray-helper/common/certificate"
 	"github.com/Luna-CY/v2ray-helper/common/configurator"
-	"github.com/Luna-CY/v2ray-helper/common/database/model"
 	"github.com/Luna-CY/v2ray-helper/common/http/code"
 	"github.com/Luna-CY/v2ray-helper/common/http/response"
 	"github.com/Luna-CY/v2ray-helper/common/logger"
+	runtime2 "github.com/Luna-CY/v2ray-helper/common/runtime"
 	"github.com/Luna-CY/v2ray-helper/common/software/aria2"
 	"github.com/Luna-CY/v2ray-helper/common/software/caddy"
 	"github.com/Luna-CY/v2ray-helper/common/software/cloudreve"
 	"github.com/Luna-CY/v2ray-helper/common/software/nginx"
 	"github.com/Luna-CY/v2ray-helper/common/software/v2ray"
 	"github.com/Luna-CY/v2ray-helper/common/util"
-	"github.com/Luna-CY/v2ray-helper/dataservice"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
@@ -24,7 +22,6 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"time"
 )
 
 type V2rayServerDeployForm struct {
@@ -42,7 +39,7 @@ type V2rayServerDeployForm struct {
 		ResetAdminPassword bool `json:"reset_admin_password"`
 	} `json:"cloudreve_config"`
 
-	V2rayConfig v2ray.Config `json:"v2ray_config"`
+	V2rayConfig Config `json:"v2ray_config"`
 }
 
 const (
@@ -63,12 +60,6 @@ func V2rayServerDeploy(c *gin.Context) {
 
 	if util.Md5(viper.GetString(configurator.KeyAuthManagementKey)) != body.ManagementKey {
 		response.Response(c, code.BadRequest, "口令错误", nil)
-
-		return
-	}
-
-	if !viper.GetBool(configurator.KeyServerAllowDeploy) {
-		response.Response(c, code.BadRequest, "当前服务器已禁止部署V2ray", nil)
 
 		return
 	}
@@ -103,19 +94,19 @@ func V2rayServerDeploy(c *gin.Context) {
 		return
 	}
 
-	if body.EnableWebService && (v2ray.TransportTypeTcp == body.V2rayConfig.TransportType || v2ray.TransportTypeKcp == body.V2rayConfig.TransportType) {
+	if body.EnableWebService && (TransportTypeTcp == body.V2rayConfig.TransportType || TransportTypeKcp == body.V2rayConfig.TransportType) {
 		response.Response(c, code.BadRequest, "使用TCP或KCP模式时不能开启站点伪装", nil)
 
 		return
 	}
 
-	if body.EnableWebService && v2ray.TransportTypeHttp2 == body.V2rayConfig.TransportType && "/" == body.V2rayConfig.Http2.Path {
+	if body.EnableWebService && TransportTypeHttp2 == body.V2rayConfig.TransportType && "/" == body.V2rayConfig.Http2.Path {
 		response.Response(c, code.BadRequest, "开启站点伪装时，HTTP2的路径不能为/", nil)
 
 		return
 	}
 
-	if v2ray.TransportTypeHttp2 == body.V2rayConfig.TransportType && !body.UseTls {
+	if TransportTypeHttp2 == body.V2rayConfig.TransportType && !body.UseTls {
 		response.Response(c, code.BadRequest, "使用HTTP2模式时必须开启HTTPS选项", nil)
 
 		return
@@ -140,7 +131,7 @@ func V2rayServerDeploy(c *gin.Context) {
 	if body.UseTls {
 		// 如果证书不存在先申请证书
 		if !certificate.GetManager().CheckExists(body.TlsHost) {
-			cert, err := certificate.GetManager().IssueNew(body.TlsHost, viper.GetString(configurator.KeyHttpsIssueEmail))
+			cert, err := certificate.GetManager().IssueNew(body.TlsHost)
 			if nil != err {
 				logger.GetLogger().Errorln(err)
 
@@ -172,25 +163,14 @@ func V2rayServerDeploy(c *gin.Context) {
 	if InstallTypeDefault == body.InstallType || InstallTypeForce == body.InstallType || InstallTypeReConfig == body.InstallType {
 		// 重新安装扫描配置文件清理失效配置
 		if InstallTypeForce == body.InstallType {
-			if vc, err := v2ray.GetConfig(v2ray.ConfigPath); nil == err {
-				ve := new(model.V2rayEndpoint)
+			if vc, err := v2ray.GetConfig(runtime2.V2rayConfig); nil == err {
 
 				for _, inbound := range vc.Inbounds {
 					for _, client := range inbound.Settings.Clients {
-						if err := dataservice.GetBaseService().DeleteByCondition(ve, "user_id = ?", client.Id); nil != err {
-							logger.GetLogger().Errorf("删除配置失败: %v\n", err)
-						}
+						_ = client
 					}
 				}
 			}
-		}
-
-		if err := v2ray.SetConfig(v2ray.ConfigPath, &body.V2rayConfig); nil != err {
-			logger.GetLogger().Errorln(err)
-
-			response.Response(c, code.ServerError, "配置V2ray失败，详细请查看日志。请使用重新安装的方式重试", nil)
-
-			return
 		}
 	}
 
@@ -213,7 +193,7 @@ func V2rayServerDeploy(c *gin.Context) {
 
 	// 如果使用的传输类型是WebSocket，需要安装Caddy
 	// 仅在默认安装与重新安装时配置Caddy
-	if v2ray.TransportTypeWebSocket == body.V2rayConfig.TransportType || v2ray.TransportTypeHttp2 == body.V2rayConfig.TransportType {
+	if TransportTypeWebSocket == body.V2rayConfig.TransportType || TransportTypeHttp2 == body.V2rayConfig.TransportType {
 		if InstallTypeDefault == body.InstallType || InstallTypeForce == body.InstallType {
 			caddyIsInstalled, err := caddy.IsInstalled()
 			if nil != err {
@@ -245,7 +225,7 @@ func V2rayServerDeploy(c *gin.Context) {
 			}
 
 			enableHttp2 := false
-			if v2ray.TransportTypeHttp2 == body.V2rayConfig.TransportType {
+			if TransportTypeHttp2 == body.V2rayConfig.TransportType {
 				enableHttp2 = true
 			}
 
@@ -486,82 +466,6 @@ func v2rayServerDeployBodyFilter(body V2rayServerDeployForm) (V2rayServerDeployF
 
 // generateConfig 生成客户端配置
 func generateConfig(body V2rayServerDeployForm) error {
-	tcp, err := json.Marshal(body.V2rayConfig.Tcp)
-	if nil != err {
-		return errors.New(fmt.Sprintf("序列化数据失败: %v", err))
-	}
-
-	webSocket, err := json.Marshal(body.V2rayConfig.WebSocket)
-	if nil != err {
-		return errors.New(fmt.Sprintf("序列化数据失败: %v", err))
-	}
-
-	kcp, err := json.Marshal(body.V2rayConfig.Kcp)
-	if nil != err {
-		return errors.New(fmt.Sprintf("序列化数据失败: %v", err))
-	}
-
-	http2, err := json.Marshal(body.V2rayConfig.Http2)
-	if nil != err {
-		return errors.New(fmt.Sprintf("序列化数据失败: %v", err))
-	}
-
-	tcpString := string(tcp)
-	webSocketString := string(webSocket)
-	kcpString := string(kcp)
-	http2String := string(http2)
-
-	host := body.TlsHost
-	if !body.UseTls {
-		ip, err := util.GetPublicIpv4()
-		if nil != err {
-			return errors.New(fmt.Sprintf("获取本机IP失败: %v", err))
-		}
-
-		host = ip
-	}
-
-	port := 80
-	if body.UseTls {
-		port = 443
-	}
-
-	if v2ray.TransportTypeTcp == body.V2rayConfig.TransportType || v2ray.TransportTypeKcp == body.V2rayConfig.TransportType {
-		port = body.V2rayConfig.V2rayPort
-	}
-
-	useTls := 0
-	if body.UseTls {
-		useTls = 1
-	}
-
-	one := 1
-
-	for _, client := range body.V2rayConfig.Clients {
-		endpoint := model.V2rayEndpoint{
-			Cloud:         &one,
-			Endpoint:      &one,
-			Host:          &host,
-			Port:          &port,
-			UserId:        &client.UserId,
-			AlterId:       &client.AlterId,
-			UseTls:        &useTls,
-			TransportType: &body.V2rayConfig.TransportType,
-			Tcp:           &tcpString,
-			WebSocket:     &webSocketString,
-			Kcp:           &kcpString,
-			Http2:         &http2String,
-		}
-
-		ct := time.Now().Unix()
-		endpoint.CreateTime = &ct
-		endpoint.Deleted = util.NewFalsePtr()
-
-		if err := dataservice.GetBaseService().Create(&endpoint); nil != err {
-			return errors.New(fmt.Sprintf("保存数据失败: %v", err))
-		}
-	}
-
 	return nil
 }
 
@@ -627,3 +531,67 @@ func stopAllService() error {
 
 	return nil
 }
+
+// Config 配置结构
+type Config struct {
+	Clients []ConfigClient `json:"clients"`
+
+	V2rayPort     int `json:"v2ray_port"`
+	TransportType int `json:"transport_type"`
+
+	Tcp struct {
+		Type    string `json:"type"`
+		Request struct {
+			Version string         `json:"version"`
+			Method  string         `json:"method"`
+			Path    string         `json:"path"`
+			Headers []ConfigHeader `json:"headers"`
+		} `json:"request"`
+		Response struct {
+			Version string         `json:"version"`
+			Status  string         `json:"status"`
+			Reason  string         `json:"reason"`
+			Headers []ConfigHeader `json:"headers"`
+		} `json:"response"`
+	} `json:"tcp"`
+	WebSocket struct {
+		Path    string         `json:"path"`
+		Headers []ConfigHeader `json:"headers"`
+	} `json:"web_socket"`
+	Kcp struct {
+		Type             string `json:"type"`
+		Mtu              int    `json:"mtu"`
+		Tti              int    `json:"tti"`
+		UpLinkCapacity   int    `json:"uplink_capacity"`
+		DownLinkCapacity int    `json:"downlink_capacity"`
+		Congestion       bool   `json:"congestion"`
+		ReadBufferSize   int    `json:"read_buffer_size"`
+		WriteBufferSize  int    `json:"write_buffer_size"`
+	} `json:"kcp"`
+	Http2 struct {
+		Host string `json:"host"`
+		Path string `json:"path"`
+	} `json:"http2"`
+
+	UseTls      bool
+	TlsHost     string
+	TlsKeyFile  string
+	TlsCertFile string
+}
+
+type ConfigClient struct {
+	UserId  string `json:"user_id"`
+	AlterId int    `json:"alter_id"`
+}
+
+type ConfigHeader struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
+const (
+	TransportTypeTcp = iota + 1
+	TransportTypeWebSocket
+	TransportTypeKcp
+	TransportTypeHttp2
+)
