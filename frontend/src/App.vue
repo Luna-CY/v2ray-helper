@@ -1,18 +1,11 @@
 <template>
-  <router-view/>
+  <n-config-provider v-bind:locale="zhCN">
+    <router-view/>
+  </n-config-provider>
 </template>
 
-<script lang="ts">
-import {defineComponent} from 'vue'
+<script setup lang="ts">
+import {zhCN} from "naive-ui";</script>
 
-export default defineComponent({
-  name: 'App'
-})
-</script>
-
-<style lang="scss">
-body {
-  font-size: 14px;
-  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
-}
+<style scoped>
 </style>
